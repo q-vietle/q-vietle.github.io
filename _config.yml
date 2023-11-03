@@ -6,9 +6,16 @@ author:
 # The `>` after `description:` means to ignore line-breaks until next key.
 # If you want to omit the line-break after the end of text, use `>-` instead.
 description: >
-  Write an awesome description for your new site here. You can edit this line
-  in _config.yml. It will appear in your document head meta (for Google search
-  results) and in your feed.xml site description.
+  My name is Viet Le. I am an undergraduate student in mathematics at University of Kansas. I will graduate in May 2024 and keep
+  moving ahead to finish up next 4-5 year phD program in statistics or related field. 
+  My interest primarily revolves around two pivotal topics: statistical learning and probability&statistical theory.>-
+  1. In statistical learning, my work centers on understanding and developing ensemble learning techniques, particularly random forest and bagging. While investigating the statistics inference
+  of bagging and its effect on generalized error of random forest, I have found some interesting properties of stochastic process on this algorithm. It also intrigues me to explore
+  nonparametric Bayesian inference.>-
+  2. In probability&statistical theory, my research focuses on understanding properties of Markov Chain Monte Carlo in general state space and MCMC algorithms. Since the MCMC algorithm is
+  very important to calculate the posterior distribution in Bayesian statistics problem, I also do not exclude Bayesian statistics and its real-world applications from my study scope.>-
+  
+  
 
 # Build settings
 
