@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name - Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Viet Le's Webpage</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="cv.html">CV</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="about">
+            <h2>About Me</h2>
+            <p>This is Viet from University of Kansas</p>
+        </section>
+
+        <section id="news">
+            <h2>Latest News</h2>
+            <ul id="news-list">
+                <li>
+                    <span class="news-title">June 2023</span>
+                    - <span class="news-summary">I am happy to receive the Undergraduate Research Award for Fall 2023</span>
+                    <span class="news-more" style="display:none;">This project introduces a new approach on Random Forest, inspired from 
+                    popular ensemble methods by Leo Breiman. https://news.ku.edu/2023/10/02/math-department-announces-undergraduate-research-award-winners</span>
+                    <a href="#" onclick="toggleDetails('news1')">See More</a>
+                </li>
+                <!-- Repeat for each news item -->
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Viet Le</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
