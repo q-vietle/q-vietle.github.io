@@ -133,6 +133,9 @@ p {
     padding-bottom: 1rem;
     border-bottom: 1px dashed #ddd;
 }
+.publication p {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
 
 .publication:last-child, .education-item:last-child, .experience-item:last-child {
     border-bottom: none;
