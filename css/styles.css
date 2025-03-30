@@ -33,6 +33,18 @@ header {
     position: relative;
 }
 
+.uw-logo {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    z-index: 10;
+}
+
+.uw-logo img {
+    height: 50px;
+    width: auto;
+}
+
 .profile-container {
     display: flex;
     align-items: center;
@@ -133,9 +145,6 @@ p {
     padding-bottom: 1rem;
     border-bottom: 1px dashed #ddd;
 }
-.publication p {
-    margin-bottom: 1rem;
-    color: var(--primary-color);
 
 .publication:last-child, .education-item:last-child, .experience-item:last-child {
     border-bottom: none;
@@ -216,7 +225,10 @@ p {
     color: #f57c00;
 }
 
-/* Skills Tags Styles */
+.publication p {
+    margin-bottom: 1rem;
+    color: var(--primary-color); /* Màu đỏ UW-Madison cho text publication */
+}
 .skills {
     display: flex;
     flex-wrap: wrap;
