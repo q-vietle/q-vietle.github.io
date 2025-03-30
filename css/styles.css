@@ -143,10 +143,74 @@ p {
     color: var(--primary-color);
 }
 
+.publication-title {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.publication-title:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+.publication-info {
+    margin-bottom: 1rem;
+}
+
 .publication-date, .education-date, .experience-date {
     font-style: italic;
     color: #777;
     margin-bottom: 0.5rem;
+}
+
+.publication-authors {
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.publication-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.pub-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #555;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.pub-link:hover {
+    background-color: #f0f0f0;
+    color: var(--primary-color);
+}
+
+.pub-link.doi:hover {
+    color: #1565c0;
+}
+
+.pub-link.pdf:hover {
+    color: #e53935;
+}
+
+.pub-link.code:hover {
+    color: #2e7d32;
+}
+
+.pub-link.slides:hover {
+    color: #6a1b9a;
+}
+
+.pub-link.dataset:hover {
+    color: #f57c00;
 }
 
 /* Skills Tags Styles */
