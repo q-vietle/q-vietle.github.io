@@ -1,0 +1,17 @@
+- course_code: "STAT 701"
+  course_title: "Advanced Statistical Inference"
+  semester: "Spring 2026"
+  role: "Instructor"
+  syllabus_url: "https://example.org/syllabi/stat701.pdf"
+
+- course_code: "CS 590"
+  course_title: "Machine Learning for Scientific Data"
+  semester: "Fall 2025"
+  role: "Instructor"
+  syllabus_url: "https://example.org/syllabi/cs590.pdf"
+
+- course_code: "STAT 451"
+  course_title: "Introduction to Stochastic Processes"
+  semester: "Spring 2025"
+  role: "Teaching Assistant"
+  syllabus_url: "https://example.org/syllabi/stat451.pdf"

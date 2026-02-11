@@ -1,0 +1,100 @@
+# Site settings
+locale: en-US
+title: "<FULL_NAME>"
+title_separator: "|"
+name: "<FULL_NAME>"
+description: "Academic website of <FULL_NAME>, <TITLE> at <UNIVERSITY / DEPARTMENT>."
+url: "https://<username>.github.io"
+baseurl: ""
+repository: "<username>/<username>.github.io"
+email: "<EMAIL>"
+
+# Theme
+remote_theme: "mmistakes/minimal-mistakes@4.27.1"
+minimal_mistakes_skin: "default"
+search: true
+
+# Author profile
+author:
+  name: "<FULL_NAME>"
+  avatar: "/img/avatar-placeholder.svg"
+  bio: "<TITLE> at <UNIVERSITY / DEPARTMENT>"
+  location: "<UNIVERSITY / DEPARTMENT>"
+  email: "<EMAIL>"
+  links:
+    - label: "Google Scholar"
+      icon: "fas fa-graduation-cap"
+      url: "<URL>"
+    - label: "ORCID"
+      icon: "fab fa-orcid"
+      url: "<URL>"
+    - label: "GitHub"
+      icon: "fab fa-github"
+      url: "<URL>"
+    - label: "Email"
+      icon: "fas fa-envelope"
+      url: "mailto:<EMAIL>"
+
+footer:
+  links:
+    - label: "Email"
+      icon: "fas fa-envelope"
+      url: "mailto:<EMAIL>"
+    - label: "GitHub"
+      icon: "fab fa-github"
+      url: "<URL>"
+    - label: "ORCID"
+      icon: "fab fa-orcid"
+      url: "<URL>"
+
+# Output and URLs
+permalink: /:categories/:title/
+
+include:
+  - _pages
+
+# Markdown / Sass
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+sass:
+  style: compressed
+
+# Plugins supported by GitHub Pages and used by Minimal Mistakes
+plugins:
+  - jekyll-remote-theme
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-include-cache
+
+# SEO / social preview
+social:
+  type: Person
+  name: "<FULL_NAME>"
+  links:
+    - "<URL>"
+    - "<URL>"
+    - "<URL>"
+og_image: "/img/avatar-placeholder.svg"
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: true
+      read_time: false
+      comments: false
+      share: false
+      related: false
+      image: "/img/avatar-placeholder.svg"
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: single
+      author_profile: true
+      image: "/img/avatar-placeholder.svg"

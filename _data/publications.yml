@@ -1,0 +1,26 @@
+- title: "Sample Paper Title One"
+  authors: "<FULL_NAME>, Coauthor A., Coauthor B."
+  venue: "Journal of Placeholder Results"
+  year: 2026
+  doi: "10.1234/example.2026.001"
+  doi_url: "https://doi.org/10.1234/example.2026.001"
+  bibtex_url: "https://example.org/bibtex/paper1.bib"
+  pdf_url: "https://example.org/papers/paper1.pdf"
+
+- title: "Sample Conference Paper Two"
+  authors: "Coauthor C., <FULL_NAME>, Coauthor D."
+  venue: "Proceedings of the Example Conference"
+  year: 2025
+  doi: "10.1234/example.2025.017"
+  doi_url: "https://doi.org/10.1234/example.2025.017"
+  bibtex_url: "https://example.org/bibtex/paper2.bib"
+  pdf_url: "https://example.org/papers/paper2.pdf"
+
+- title: "Working Paper on Methodological Advances"
+  authors: "<FULL_NAME>, Coauthor E."
+  venue: "arXiv preprint"
+  year: 2024
+  doi: "10.48550/arXiv.2401.00001"
+  doi_url: "https://doi.org/10.48550/arXiv.2401.00001"
+  bibtex_url: "https://example.org/bibtex/paper3.bib"
+  pdf_url: "https://arxiv.org/pdf/2401.00001"
