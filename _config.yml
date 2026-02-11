@@ -4,10 +4,10 @@ title: "<FULL_NAME>"
 title_separator: "|"
 name: "<FULL_NAME>"
 description: "Academic website of <FULL_NAME>, <TITLE> at <UNIVERSITY / DEPARTMENT>."
-url: "https://<username>.github.io"
+url: "https://q-vietle.github.io"
 baseurl: ""
-repository: "<username>/<username>.github.io"
-email: "<EMAIL>"
+repository: "q-vietle/q-vietle.github.io"
+email: "your.email@university.edu"
 
 # Theme
 remote_theme: "mmistakes/minimal-mistakes@4.27.1"
@@ -20,32 +20,32 @@ author:
   avatar: "/img/avatar-placeholder.svg"
   bio: "<TITLE> at <UNIVERSITY / DEPARTMENT>"
   location: "<UNIVERSITY / DEPARTMENT>"
-  email: "<EMAIL>"
+  email: "your.email@university.edu"
   links:
     - label: "Google Scholar"
       icon: "fas fa-graduation-cap"
-      url: "<URL>"
+      url: "https://scholar.google.com/"
     - label: "ORCID"
       icon: "fab fa-orcid"
-      url: "<URL>"
+      url: "https://orcid.org/"
     - label: "GitHub"
       icon: "fab fa-github"
-      url: "<URL>"
+      url: "https://github.com/q-vietle"
     - label: "Email"
       icon: "fas fa-envelope"
-      url: "mailto:<EMAIL>"
+      url: "mailto:your.email@university.edu"
 
 footer:
   links:
     - label: "Email"
       icon: "fas fa-envelope"
-      url: "mailto:<EMAIL>"
+      url: "mailto:your.email@university.edu"
     - label: "GitHub"
       icon: "fab fa-github"
-      url: "<URL>"
+      url: "https://github.com/q-vietle"
     - label: "ORCID"
       icon: "fab fa-orcid"
-      url: "<URL>"
+      url: "https://orcid.org/"
 
 # Output and URLs
 permalink: /:categories/:title/
@@ -74,9 +74,9 @@ social:
   type: Person
   name: "<FULL_NAME>"
   links:
-    - "<URL>"
-    - "<URL>"
-    - "<URL>"
+    - "https://scholar.google.com/"
+    - "https://orcid.org/"
+    - "https://github.com/q-vietle"
 og_image: "/img/avatar-placeholder.svg"
 
 defaults:

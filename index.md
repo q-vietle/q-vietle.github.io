@@ -23,10 +23,10 @@ excerpt: "<TITLE> at <UNIVERSITY / DEPARTMENT>"
     </p>
     <div class="quick-links">
       <a class="btn btn--primary btn--small" href="{{ '/files/cv.pdf' | relative_url }}">CV</a>
-      <a class="btn btn--info btn--small" href="<URL>">Google Scholar</a>
-      <a class="btn btn--info btn--small" href="<URL>">ORCID</a>
-      <a class="btn btn--inverse btn--small" href="<URL>">GitHub</a>
-      <a class="btn btn--light-outline btn--small" href="mailto:<EMAIL>">Email</a>
+      <a class="btn btn--info btn--small" href="https://scholar.google.com/">Google Scholar</a>
+      <a class="btn btn--info btn--small" href="https://orcid.org/">ORCID</a>
+      <a class="btn btn--inverse btn--small" href="https://github.com/q-vietle">GitHub</a>
+      <a class="btn btn--light-outline btn--small" href="mailto:your.email@university.edu">Email</a>
     </div>
   </div>
 </div>
