@@ -5,9 +5,9 @@ permalink: /contact/
 
 ## Contact Information
 
-- **Name:** &lt;FULL_NAME&gt;
-- **Title:** &lt;TITLE&gt;
-- **Affiliation:** &lt;UNIVERSITY / DEPARTMENT&gt;
+- **Name:** &lt;QUOC VIET LE (VIET LE)&gt;
+- **Title:** &lt;PH.D. STUDENT IN STATISTICS&gt;
+- **Affiliation:** &lt;UNIVERSITY OF WISCONSIN-MADISON&gt;
 - **Email:** [your.email@university.edu](mailto:your.email@university.edu)
 - **Office Address:** &lt;BUILDING, STREET, CITY, COUNTRY&gt;
 
