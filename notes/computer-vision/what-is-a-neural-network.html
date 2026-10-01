@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
   <link rel="stylesheet" href="../notes.css">
+  <link rel="stylesheet" href="../../assets/css/toc.css">
 </head>
 <body>
 
@@ -27,10 +28,11 @@
     <a class="brand" href="../../index.html">Quoc Viet Le</a>
     <ul class="nav-links" id="nav-links">
       <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
       <li><a href="../../index.html#research">Research</a></li>
+      <li><a href="../../index.html#teaching">Teaching</a></li>
       <li><a class="current" href="../index.html">Notes</a></li>
       <li><a href="../../projects/index.html">Projects</a></li>
-      <li><a href="../../index.html#publications">Publications</a></li>
       <li><a href="../../index.html#contact">Contact</a></li>
     </ul>
     <div class="nav-tools">
@@ -212,6 +214,38 @@
 
 </article>
 </main>
+<button class="toc-btn" id="toc-btn" type="button" aria-expanded="false" aria-controls="toc-drawer"><span aria-hidden="true">☰</span> <span data-l="en">Contents</span><span data-l="vi">Mục lục</span></button>
+<aside class="toc-drawer" id="toc-drawer" aria-label="Contents" data-outline="article h2">
+  <p class="toc-h"><a href="../index.html#computer-vision"><span data-l="en">Computer vision</span><span data-l="vi">Thị giác máy tính</span></a></p>
+  <ol class="toc-series">
+    <li class="toc-part"><span data-l="en">Part A · Neural network basics</span><span data-l="vi">Phần A · Nền tảng mạng nơ-ron</span></li>
+    <li class="current"><a href="what-is-a-neural-network.html"><span class="n">1</span><span data-l="en">What is a neural network?</span><span data-l="vi">Mạng nơ-ron là gì?</span></a></li>
+    <li><a href="loss-functions.html"><span class="n">2</span><span data-l="en">Loss functions: measuring mistakes</span><span data-l="vi">Hàm mất mát: đo mức độ sai</span></a></li>
+    <li><a href="activation-functions.html"><span class="n">3</span><span data-l="en">Activation functions</span><span data-l="vi">Hàm kích hoạt</span></a></li>
+    <li><a href="why-deep-networks.html"><span class="n">4</span><span data-l="en">Why deep networks?</span><span data-l="vi">Vì sao cần mạng sâu?</span></a></li>
+    <li><a href="backpropagation.html"><span class="n">5</span><span data-l="en">Backpropagation</span><span data-l="vi">Backpropagation</span></a></li>
+    <li><a href="gradient-descent-and-optimizers.html"><span class="n">6</span><span data-l="en">Training: gradient descent and optimizers</span><span data-l="vi">Huấn luyện: gradient descent và các optimizer</span></a></li>
+    <li class="toc-part"><span data-l="en">Part B · Convolutional networks</span><span data-l="vi">Phần B · Mạng tích chập</span></li>
+    <li><a href="the-convolution-operation.html"><span class="n">7</span><span data-l="en">The convolution operation</span><span data-l="vi">Phép tích chập</span></a></li>
+    <li><a href="why-convolution-works.html"><span class="n">8</span><span data-l="en">Why convolution works so well</span><span data-l="vi">Vì sao tích chập hiệu quả đến vậy</span></a></li>
+    <li><a href="pooling.html"><span class="n">9</span><span data-l="en">Pooling</span><span data-l="vi">Pooling</span></a></li>
+    <li><a href="inside-a-conv-layer.html"><span class="n">10</span><span data-l="en">Inside a convolutional layer</span><span data-l="vi">Bên trong một lớp tích chập</span></a></li>
+    <li><a href="building-a-cnn.html"><span class="n">11</span><span data-l="en">Building a CNN</span><span data-l="vi">Xây dựng một CNN</span></a></li>
+    <li><a href="cnns-and-the-visual-cortex.html"><span class="n">12</span><span data-l="en">CNNs and the visual cortex</span><span data-l="vi">CNN và vỏ não thị giác</span></a></li>
+    <li class="toc-part"><span data-l="en">Part C · Case studies</span><span data-l="vi">Phần C · Các mô hình điển hình</span></li>
+    <li><a href="alexnet-architecture.html"><span class="n">13</span><span data-l="en">AlexNet: the network that started it all</span><span data-l="vi">AlexNet: mạng đã mở màn tất cả</span></a></li>
+    <li><a href="alexnet-training.html"><span class="n">14</span><span data-l="en">AlexNet: fighting overfitting</span><span data-l="vi">AlexNet: chống overfitting</span></a></li>
+    <li><a href="resnet-degradation.html"><span class="n">15</span><span data-l="en">ResNet: when deeper got worse</span><span data-l="vi">ResNet: khi sâu hơn lại tệ hơn</span></a></li>
+    <li><a href="resnet-residual-blocks.html"><span class="n">16</span><span data-l="en">ResNet: residual blocks</span><span data-l="vi">ResNet: các khối residual</span></a></li>
+  </ol>
+  <p class="toc-h"><span data-l="en">On this page</span><span data-l="vi">Trong trang này</span></p>
+  <ul class="toc-page"></ul>
+</aside>
+<a class="nav-arrow prev" data-l="en" href="../index.html#computer-vision" aria-label="All notes" title="All notes">←</a>
+<a class="nav-arrow prev" data-l="vi" href="../index.html#computer-vision" aria-label="Tất cả bài viết" title="Tất cả bài viết">←</a>
+<a class="nav-arrow next" data-l="en" href="loss-functions.html" aria-label="Next: Loss functions: measuring mistakes" title="Next: Loss functions: measuring mistakes">→</a>
+<a class="nav-arrow next" data-l="vi" href="loss-functions.html" aria-label="Bài tiếp: Hàm mất mát: đo mức độ sai" title="Bài tiếp: Hàm mất mát: đo mức độ sai">→</a>
+
 
 <footer class="site-footer">
   <div class="container">
@@ -228,6 +262,7 @@
 
 <script src="../../assets/js/main.js" defer></script>
 <script src="../../assets/js/submarine.js" defer></script>
+<script src="../../assets/js/toc.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
 <script src="../js/viz.js" defer></script>

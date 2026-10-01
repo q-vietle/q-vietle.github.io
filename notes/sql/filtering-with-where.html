@@ -16,6 +16,7 @@
   </script>
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../notes.css">
+  <link rel="stylesheet" href="../../assets/css/toc.css">
 </head>
 <body>
 
@@ -26,10 +27,11 @@
     <a class="brand" href="../../index.html">Quoc Viet Le</a>
     <ul class="nav-links" id="nav-links">
       <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
       <li><a href="../../index.html#research">Research</a></li>
+      <li><a href="../../index.html#teaching">Teaching</a></li>
       <li><a class="current" href="../index.html">Notes</a></li>
       <li><a href="../../projects/index.html">Projects</a></li>
-      <li><a href="../../index.html#publications">Publications</a></li>
       <li><a href="../../index.html#contact">Contact</a></li>
     </ul>
     <div class="nav-tools">
@@ -157,6 +159,36 @@ WHERE amount &gt; 100;</pre>
 
 </article>
 </main>
+<button class="toc-btn" id="toc-btn" type="button" aria-expanded="false" aria-controls="toc-drawer"><span aria-hidden="true">☰</span> <span data-l="en">Contents</span><span data-l="vi">Mục lục</span></button>
+<aside class="toc-drawer" id="toc-drawer" aria-label="Contents" data-outline="article h2">
+  <p class="toc-h"><a href="../index.html#sql"><span data-l="en">SQL</span><span data-l="vi">SQL</span></a></p>
+  <ol class="toc-series">
+    <li class="toc-part"><span data-l="en">Part A · Getting started</span><span data-l="vi">Phần A · Bắt đầu</span></li>
+    <li><a href="what-is-a-database.html"><span class="n">1</span><span data-l="en">What is a database?</span><span data-l="vi">Database là gì?</span></a></li>
+    <li><a href="select-and-from.html"><span class="n">2</span><span data-l="en">Your first query: SELECT and FROM</span><span data-l="vi">Truy vấn đầu tiên: SELECT và FROM</span></a></li>
+    <li class="current"><a href="filtering-with-where.html"><span class="n">3</span><span data-l="en">Filtering rows with WHERE</span><span data-l="vi">Lọc hàng bằng WHERE</span></a></li>
+    <li><a href="null-the-missing-value.html"><span class="n">4</span><span data-l="en">NULL: the missing value</span><span data-l="vi">NULL: giá trị bị thiếu</span></a></li>
+    <li><a href="sorting-and-limiting.html"><span class="n">5</span><span data-l="en">Sorting and limiting: ORDER BY and LIMIT</span><span data-l="vi">Sắp xếp và giới hạn: ORDER BY và LIMIT</span></a></li>
+    <li><a href="changing-data.html"><span class="n">6</span><span data-l="en">Changing data: INSERT, UPDATE, DELETE</span><span data-l="vi">Thay đổi dữ liệu: INSERT, UPDATE, DELETE</span></a></li>
+    <li class="toc-part"><span data-l="en">Part B · Summarising data</span><span data-l="vi">Phần B · Tổng hợp dữ liệu</span></li>
+    <li><a href="aggregate-functions.html"><span class="n">7</span><span data-l="en">Summarising: COUNT, SUM, AVG, MIN, MAX</span><span data-l="vi">Tổng hợp: COUNT, SUM, AVG, MIN, MAX</span></a></li>
+    <li><a href="group-by-and-having.html"><span class="n">8</span><span data-l="en">GROUP BY and HAVING</span><span data-l="vi">GROUP BY và HAVING</span></a></li>
+    <li><a href="how-a-query-runs.html"><span class="n">9</span><span data-l="en">How a query really runs</span><span data-l="vi">Một query thực sự chạy như thế nào</span></a></li>
+    <li class="toc-part"><span data-l="en">Part C · Intermediate</span><span data-l="vi">Phần C · Nâng cao</span></li>
+    <li><a href="joins.html"><span class="n">10</span><span data-l="en">JOIN: combining tables</span><span data-l="vi">JOIN: kết hợp các bảng</span></a></li>
+    <li><a href="subqueries-and-ctes.html"><span class="n">11</span><span data-l="en">Subqueries and CTEs</span><span data-l="vi">Subquery và CTE</span></a></li>
+    <li><a href="window-functions.html"><span class="n">12</span><span data-l="en">Window functions</span><span data-l="vi">Window function</span></a></li>
+    <li><a href="indexes.html"><span class="n">13</span><span data-l="en">Indexes: finding rows fast</span><span data-l="vi">Index: tìm hàng nhanh</span></a></li>
+    <li><a href="transactions.html"><span class="n">14</span><span data-l="en">Transactions: all or nothing</span><span data-l="vi">Transaction: được ăn cả, ngã về không</span></a></li>
+  </ol>
+  <p class="toc-h"><span data-l="en">On this page</span><span data-l="vi">Trong trang này</span></p>
+  <ul class="toc-page"></ul>
+</aside>
+<a class="nav-arrow prev" data-l="en" href="select-and-from.html" aria-label="Previous: Your first query: SELECT and FROM" title="Previous: Your first query: SELECT and FROM">←</a>
+<a class="nav-arrow prev" data-l="vi" href="select-and-from.html" aria-label="Bài trước: Truy vấn đầu tiên: SELECT và FROM" title="Bài trước: Truy vấn đầu tiên: SELECT và FROM">←</a>
+<a class="nav-arrow next" data-l="en" href="null-the-missing-value.html" aria-label="Next: NULL: the missing value" title="Next: NULL: the missing value">→</a>
+<a class="nav-arrow next" data-l="vi" href="null-the-missing-value.html" aria-label="Bài tiếp: NULL: giá trị bị thiếu" title="Bài tiếp: NULL: giá trị bị thiếu">→</a>
+
 
 <footer class="site-footer">
   <div class="container">
@@ -173,6 +205,7 @@ WHERE amount &gt; 100;</pre>
 
 <script src="../../assets/js/main.js" defer></script>
 <script src="../../assets/js/submarine.js" defer></script>
+<script src="../../assets/js/toc.js" defer></script>
 <script src="../js/sql.js" defer></script>
 <script src="../js/i18n-vi.js" defer></script>
 <script src="../js/i18n.js" defer></script>

@@ -49,6 +49,7 @@
       t.textContent = lang === 'vi' && t.getAttribute('data-vi') ? t.getAttribute('data-vi') + ' | Quoc Viet Le' : t.__en;
     }
     translateAll();
+    document.dispatchEvent(new Event('langchange'));
   }
 
   document.querySelectorAll('.lang-switch button').forEach(function (b) {

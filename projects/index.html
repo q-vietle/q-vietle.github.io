@@ -12,6 +12,7 @@
     try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
   </script>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/toc.css">
 </head>
 <body>
 
@@ -74,6 +75,12 @@
     </div>
   </section>
 </main>
+<button class="toc-btn" id="toc-btn" type="button" aria-expanded="false" aria-controls="toc-drawer"><span aria-hidden="true">☰</span> Contents</button>
+<aside class="toc-drawer" id="toc-drawer" aria-label="Contents" data-outline=".feature-body h3">
+  <p class="toc-h">Projects</p>
+  <ul class="toc-page"></ul>
+</aside>
+
 
 <footer class="site-footer">
   <div class="container">
@@ -90,5 +97,6 @@
 
 <script src="../assets/js/main.js" defer></script>
 <script src="../assets/js/submarine.js" defer></script>
+<script src="../assets/js/toc.js" defer></script>
 </body>
 </html>

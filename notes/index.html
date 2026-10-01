@@ -16,6 +16,7 @@
   </script>
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="notes.css">
+  <link rel="stylesheet" href="../assets/css/toc.css">
 </head>
 <body>
 
@@ -26,10 +27,11 @@
     <a class="brand" href="../index.html">Quoc Viet Le</a>
     <ul class="nav-links" id="nav-links">
       <li><a href="../index.html#about">About</a></li>
+      <li><a href="../index.html#publications">Publications</a></li>
       <li><a href="../index.html#research">Research</a></li>
+      <li><a href="../index.html#teaching">Teaching</a></li>
       <li><a class="current" href="index.html">Notes</a></li>
       <li><a href="../projects/index.html">Projects</a></li>
-      <li><a href="../index.html#publications">Publications</a></li>
       <li><a href="../index.html#contact">Contact</a></li>
     </ul>
     <div class="nav-tools">
@@ -248,6 +250,12 @@
     </div>
   </section>
 </main>
+<button class="toc-btn" id="toc-btn" type="button" aria-expanded="false" aria-controls="toc-drawer"><span aria-hidden="true">☰</span> <span data-l="en">Contents</span><span data-l="vi">Mục lục</span></button>
+<aside class="toc-drawer" id="toc-drawer" aria-label="Contents" data-outline="main > section > h2">
+  <p class="toc-h"><span data-l="en">On this page</span><span data-l="vi">Trong trang này</span></p>
+  <ul class="toc-page"></ul>
+</aside>
+
 
 <footer class="site-footer">
   <div class="container">
@@ -264,6 +272,7 @@
 
 <script src="../assets/js/main.js" defer></script>
 <script src="../assets/js/submarine.js" defer></script>
+<script src="../assets/js/toc.js" defer></script>
 <script src="js/i18n-vi.js" defer></script>
 <script src="js/i18n.js" defer></script>
 </body>
