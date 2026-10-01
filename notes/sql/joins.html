@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="JOIN: kết hợp các bảng">JOIN: combining tables | Quoc Viet Le</title>
+  <meta name="description" content="How rows from two tables are paired up, what happens to rows without a partner, and a classic trap.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part C · Note 10 of 14</p>
+    <h1>JOIN: combining tables</h1>
+    <p class="lead">How rows from two tables are paired up, what happens to rows without a partner, and a classic trap.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A <strong>JOIN</strong> pairs rows from two tables using a condition, usually <em>foreign key = primary key</em>.</li>
+      <li><code>INNER JOIN</code> keeps only matching pairs. <code>LEFT</code>, <code>RIGHT</code> and <code>FULL JOIN</code> also keep rows without a partner and fill the gaps with NULL.</li>
+      <li>A row that matches several rows appears several times. With a LEFT JOIN, a filter on the right-hand table belongs in <code>ON</code>, not in WHERE.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần C · Bài 10/14</p>
+    <h1>JOIN: kết hợp các bảng</h1>
+    <p class="lead">Cách các hàng của hai bảng được ghép đôi, điều gì xảy ra với hàng không có cặp, và một cái bẫy kinh điển.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Một <strong>JOIN</strong> ghép các hàng của hai bảng bằng một điều kiện, thường là <em>khoá ngoại = khoá chính</em>.</li>
+      <li><code>INNER JOIN</code> chỉ giữ các cặp khớp. <code>LEFT</code>, <code>RIGHT</code> và <code>FULL JOIN</code> còn giữ cả các hàng không có cặp và điền chỗ trống bằng NULL.</li>
+      <li>Một hàng khớp với nhiều hàng sẽ xuất hiện nhiều lần. Với LEFT JOIN, bộ lọc trên bảng bên phải thuộc về <code>ON</code>, không phải WHERE.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Matching rows</h2>
+    <pre class="sqlcode static">SELECT c.name, o.product, o.amount
+FROM customers c
+JOIN orders o ON o.customer_id = c.customer_id;</pre>
+    <p class="key">For every pair of rows (one customer, one order), the database checks the ON condition. Pairs where it is TRUE become result rows.</p>
+    <p><code>c</code> and <code>o</code> are short aliases for the tables, so <code>c.name</code> means "name from customers". Compare the join types: the lines show the matches, and the highlighted rows are the ones kept without a partner. Hover a result row to see where it came from.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Ghép các hàng khớp</h2>
+    <pre class="sqlcode static">SELECT c.name, o.product, o.amount
+FROM customers c
+JOIN orders o ON o.customer_id = c.customer_id;</pre>
+    <p class="key">Với mỗi cặp hàng (một khách, một đơn), database kiểm tra điều kiện ON. Các cặp cho kết quả TRUE trở thành hàng kết quả.</p>
+    <p><code>c</code> và <code>o</code> là các alias ngắn của các bảng, nên <code>c.name</code> nghĩa là "name từ customers". Hãy so sánh các loại join: các đường nối cho thấy các cặp khớp, và các hàng được tô sáng là những hàng được giữ lại mà không có cặp. Rê chuột lên một hàng kết quả để xem nó đến từ đâu.</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-join">
+    <div class="viz-head">
+      <p class="viz-title">INNER, LEFT, RIGHT and FULL JOIN</p>
+      <p class="viz-sub">Lines connect orders to their customer. NULL keys never match.</p>
+    </div>
+    <div class="seg" role="group" aria-label="Join type"><button type="button" data-join="inner" aria-pressed="true">INNER</button><button type="button" data-join="left" aria-pressed="false">LEFT</button><button type="button" data-join="right" aria-pressed="false">RIGHT</button><button type="button" data-join="full" aria-pressed="false">FULL</button><button type="button" data-join="anti" aria-pressed="false">anti-join</button></div>
+    <pre class="sqlcode" id="sj-sql" style="margin-top:10px"></pre>
+    <div class="hscroll"><div class="sql-join" id="sj-wrap"><div id="sj-left"></div><svg id="sj-svg" aria-hidden="true"></svg><div id="sj-right"></div></div></div>
+    <div class="sql-out" id="sj-out"></div>
+    <p class="readout" id="sj-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>The LEFT JOIN trap: ON or WHERE?</h2>
+    <p class="key">In a LEFT JOIN, a condition in ON decides which rows <em>match</em>; a condition in WHERE removes rows <em>afterwards</em>, including the ones the LEFT JOIN was meant to keep.</p>
+    <p>Question: "list every customer, with their orders over 100". Watch what happens when the condition moves.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Cái bẫy của LEFT JOIN: ON hay WHERE?</h2>
+    <p class="key">Trong LEFT JOIN, điều kiện đặt ở ON quyết định hàng nào <em>khớp</em>; điều kiện đặt ở WHERE loại hàng <em>sau đó</em>, kể cả những hàng mà LEFT JOIN định giữ lại.</p>
+    <p>Câu hỏi: "liệt kê mọi khách hàng, kèm các đơn trên 100 của họ". Hãy xem điều gì xảy ra khi điều kiện đổi chỗ.</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-onwhere">
+    <div class="viz-head">
+      <p class="viz-title">Same condition, two places</p>
+      <p class="viz-sub">Switch between the two queries.</p>
+    </div>
+    <div class="seg" role="group" aria-label="Where"><button type="button" data-where="on" aria-pressed="true">in ON</button><button type="button" data-where="where" aria-pressed="false">in WHERE</button></div>
+    <pre class="sqlcode" id="sow-sql" style="margin-top:10px"></pre>
+    <div id="sow-out"></div>
+    <p class="readout" id="sow-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <details class="more"><summary>Going further: CROSS JOIN and joining a table to itself</summary><p>A <code>CROSS JOIN</code> has no condition and pairs every row with every row: 6 customers × 12 orders = 72 rows. It is what you get by accident when you forget the ON condition, and a common reason for results that are suddenly huge. A table can also be joined to itself (a self join), for example to pair each customer with others from the same city: <code>FROM customers a JOIN customers b ON a.city = b.city AND a.customer_id &lt; b.customer_id</code>.</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <details class="more"><summary>Đi sâu hơn: CROSS JOIN và nối một bảng với chính nó</summary><p><code>CROSS JOIN</code> không có điều kiện và ghép mọi hàng với mọi hàng: 6 khách × 12 đơn = 72 hàng. Đó là thứ bạn nhận được khi lỡ quên điều kiện ON, và là lý do thường gặp khiến kết quả đột nhiên phình rất lớn. Một bảng cũng có thể join với chính nó (self join), ví dụ để ghép mỗi khách với những khách khác cùng thành phố: <code>FROM customers a JOIN customers b ON a.city = b.city AND a.customer_id &lt; b.customer_id</code>.</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;INNER&quot;, &quot;SELECT c.name, o.product, o.amount\nFROM customers c\nJOIN orders o ON o.customer_id = c.customer_id;&quot;], [&quot;LEFT&quot;, &quot;SELECT c.name, o.product\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.customer_id;&quot;], [&quot;FULL&quot;, &quot;SELECT c.name, o.order_id, o.product\nFROM customers c\nFULL JOIN orders o ON o.customer_id = c.customer_id;&quot;], [&quot;Customers without orders&quot;, &quot;SELECT c.name\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.customer_id\nWHERE o.order_id IS NULL;&quot;], [&quot;Spend per customer&quot;, &quot;SELECT c.name, COUNT(o.order_id) AS n, SUM(o.amount) AS total\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.customer_id\nGROUP BY c.customer_id, c.name\nORDER BY total DESC;&quot;]]">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite running in your browser. Edit the query and press Run (Ctrl + Enter). Nothing you do here is saved.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 7.2.1.1: Joined Tables. <a href="https://www.postgresql.org/docs/16/queries-table-expressions.html" target="_blank" rel="noopener">postgresql.org/docs/16/queries-table-expressions.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapters 5 and 10. O'Reilly Media.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="how-a-query-runs.html"><small>← Note 9</small>How a query really runs</a>
+    <a class="next" href="subqueries-and-ctes.html"><small>Note 11 →</small>Subqueries and CTEs</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="how-a-query-runs.html"><small>← Bài 9</small>Một query thực sự chạy như thế nào</a>
+    <a class="next" href="subqueries-and-ctes.html"><small>Bài 11 →</small>Subquery và CTE</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

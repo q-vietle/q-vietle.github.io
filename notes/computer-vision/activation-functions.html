@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Hàm kích hoạt">Activation functions | Quoc Viet Le</title>
+  <meta name="description" content="The nonlinear step inside each unit, and why ReLU is the default.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part A · Note 3 of 16</p>
+    <h1>Activation functions</h1>
+    <p class="lead">The nonlinear step inside each unit, and why ReLU is the default.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li><strong>ReLU</strong>, \(\max(0, z)\), is the default choice: simple, fast, and its gradient is 1 whenever the unit is on.</li>
+      <li><strong>Sigmoid</strong> and <strong>tanh</strong> flatten out for large inputs, so their gradients become tiny and learning slows down.</li>
+      <li>Variants such as leaky ReLU, PReLU and maxout fix ReLU's one weakness: a unit that is off gets no gradient.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần A · Bài 3/16</p>
+    <h1>Hàm kích hoạt</h1>
+    <p class="lead">Bước phi tuyến bên trong mỗi unit, và vì sao ReLU là lựa chọn mặc định.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>ReLU</strong>, \(\max(0, z)\), là lựa chọn mặc định: đơn giản, nhanh, và gradient bằng 1 mỗi khi unit đang bật.</li>
+      <li><strong>Sigmoid</strong> và <strong>tanh</strong> phẳng dần khi đầu vào lớn, nên gradient của chúng rất nhỏ và việc học chậm lại.</li>
+      <li>Các biến thể như leaky ReLU, PReLU và maxout sửa điểm yếu duy nhất của ReLU: unit đang tắt thì không nhận gradient.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Why the gradient matters</h2>
+    <p class="key">During training, the network learns through the <em>slope</em> (derivative) of each activation. A flat activation means almost no learning signal.</p>
+    <p>Look at the right-hand plot, which shows the derivative \(g'(z)\):</p>
+    <ul>
+      <li><strong>ReLU</strong> \(g(z)=\max(0,z)\): the slope is exactly 1 when \(z &gt; 0\), so gradients pass through unchanged. That is why deep ReLU networks are easy to train.</li>
+      <li><strong>Sigmoid</strong> and <strong>tanh</strong>: the slope is close to 0 for large \(|z|\). The unit is <em>saturated</em>. If you must use one, tanh usually works better than sigmoid.</li>
+      <li><strong>Leaky ReLU / PReLU</strong>, \(\max(0,z)+\alpha\min(0,z)\): a small slope \(\alpha\) for \(z &lt; 0\), so a unit that is off still learns.</li>
+      <li><strong>Maxout</strong>: the maximum of several learned lines, so the network learns the shape of the activation itself.</li>
+    </ul>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Vì sao gradient quan trọng</h2>
+    <p class="key">Khi huấn luyện, mạng học qua <em>độ dốc</em> (đạo hàm) của mỗi hàm kích hoạt. Hàm kích hoạt phẳng nghĩa là gần như không có tín hiệu để học.</p>
+    <p>Hãy nhìn đồ thị bên phải, thể hiện đạo hàm \(g'(z)\):</p>
+    <ul>
+      <li><strong>ReLU</strong> \(g(z)=\max(0,z)\): độ dốc đúng bằng 1 khi \(z &gt; 0\), nên gradient đi qua nguyên vẹn. Đó là lý do mạng ReLU sâu dễ huấn luyện.</li>
+      <li><strong>Sigmoid</strong> và <strong>tanh</strong>: độ dốc gần 0 khi \(|z|\) lớn. Unit bị <em>bão hoà</em> (saturated). Nếu buộc phải dùng một trong hai, tanh thường tốt hơn sigmoid.</li>
+      <li><strong>Leaky ReLU / PReLU</strong>, \(\max(0,z)+\alpha\min(0,z)\): có một độ dốc nhỏ \(\alpha\) khi \(z &lt; 0\), nên unit đang tắt vẫn học được.</li>
+      <li><strong>Maxout</strong>: giá trị lớn nhất của nhiều đường thẳng được học, nên mạng tự học luôn hình dạng của hàm kích hoạt.</li>
+    </ul>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-hidden">
+    <div class="viz-head">
+      <p class="viz-title">Hidden-unit activation functions and their derivatives</p>
+      <div class="ctl-row" style="margin:0">
+        <label class="ctl" style="flex-direction:row;align-items:center;gap:8px">unit
+          <select class="vsel" id="hu-act">
+            <option value="relu">ReLU</option><option value="gen">Generalised ReLU (α)</option><option value="maxout">Maxout (k pieces)</option>
+            <option value="sigmoid">Logistic sigmoid</option><option value="tanh">tanh</option><option value="softplus">Softplus</option>
+            <option value="hardtanh">Hard tanh</option><option value="cos">cos (unusual but works)</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="ctl-row">
+      <label class="ctl grow" id="hu-gen" hidden><span><span class="tex">\(\alpha\)</span></span> <output id="hu-alphao"></output><input type="range" id="hu-alpha" min="-1" max="1" step="0.01" value="0.1"></label>
+      <span id="hu-max" hidden class="ctl-row" style="margin:0"><label class="ctl grow"><span><span class="tex">\(k\)</span></span> <output id="hu-ko"></output><input type="range" id="hu-k" min="1" max="8" step="1" value="3"></label><button class="vbtn sm" id="hu-resample" type="button">Resample pieces</button></span>
+    </div>
+    <div class="viz-cols">
+      <canvas id="hu-f" style="height:200px" aria-label="Activation function"></canvas>
+      <canvas id="hu-d" style="height:200px" aria-label="Derivative of the activation"></canvas>
+    </div>
+    <p class="readout" id="hu-note"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <details class="more"><summary>Going further: ReLU is not differentiable at 0. Is that a problem?</summary>
+      <p>No. Training almost never lands exactly on \(z = 0\), and software simply uses a one-sided slope there. A useful trick is to start ReLU biases at a small positive value such as 0.1, so most units begin "on".</p>
+    </details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <details class="more"><summary>Đi sâu hơn: ReLU không khả vi tại 0. Có phải vấn đề không?</summary>
+      <p>Không. Quá trình huấn luyện gần như không bao giờ rơi đúng vào \(z = 0\), và phần mềm chỉ việc dùng độ dốc một phía tại đó. Một mẹo hữu ích là khởi tạo bias của ReLU ở một giá trị dương nhỏ như 0.1, để hầu hết các unit bắt đầu ở trạng thái "bật".</p>
+    </details>
+  </section>
+</div>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 6: Deep Feedforward Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Section 6.3)</span><span data-l="vi">(Mục 6.3)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="loss-functions.html"><small>← Note 2</small>Loss functions: measuring mistakes</a>
+    <a class="next" href="why-deep-networks.html"><small>Note 4 →</small>Why deep networks?</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="loss-functions.html"><small>← Bài 2</small>Hàm mất mát: đo mức độ sai</a>
+    <a class="next" href="why-deep-networks.html"><small>Bài 4 →</small>Vì sao cần mạng sâu?</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/ffn.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Window function">Window functions | Quoc Viet Le</title>
+  <meta name="description" content="Rankings, running totals and comparisons with the previous row, without collapsing rows.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part C · Note 12 of 14</p>
+    <h1>Window functions</h1>
+    <p class="lead">Rankings, running totals and comparisons with the previous row, without collapsing rows.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A <strong>window function</strong> computes a value for each row from a set of related rows (its <em>window</em>). Unlike GROUP BY, no rows are merged.</li>
+      <li><code>PARTITION BY</code> splits the rows into windows; <code>ORDER BY</code> inside <code>OVER (…)</code> orders the rows within each window.</li>
+      <li>Common uses: ranking (<code>ROW_NUMBER</code>, <code>RANK</code>), running totals (<code>SUM(…) OVER</code>) and the previous row (<code>LAG</code>).</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần C · Bài 12/14</p>
+    <h1>Window function</h1>
+    <p class="lead">Xếp hạng, tổng luỹ kế và so sánh với hàng trước, mà không gộp các hàng lại.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Một <strong>window function</strong> tính một giá trị cho mỗi hàng từ một tập các hàng liên quan (<em>cửa sổ</em> của nó). Khác với GROUP BY, không có hàng nào bị gộp.</li>
+      <li><code>PARTITION BY</code> chia các hàng thành các cửa sổ; <code>ORDER BY</code> bên trong <code>OVER (…)</code> sắp thứ tự các hàng trong mỗi cửa sổ.</li>
+      <li>Dùng phổ biến: xếp hạng (<code>ROW_NUMBER</code>, <code>RANK</code>), tổng luỹ kế (<code>SUM(…) OVER</code>) và hàng trước đó (<code>LAG</code>).</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>GROUP BY merges, a window keeps</h2>
+    <pre class="sqlcode static">SELECT order_id, category, amount,
+       SUM(amount) OVER (PARTITION BY category) AS category_total
+FROM orders;</pre>
+    <p class="key">Every order stays in the result, and each one gets the total of its own category next to it. That is impossible with GROUP BY, which would return one row per category.</p>
+    <p>Try the functions below. Click a row to outline the rows its value is computed from.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>GROUP BY gộp lại, window thì giữ nguyên</h2>
+    <pre class="sqlcode static">SELECT order_id, category, amount,
+       SUM(amount) OVER (PARTITION BY category) AS category_total
+FROM orders;</pre>
+    <p class="key">Mọi đơn đều ở lại trong kết quả, và mỗi đơn được kèm tổng của category của nó. Điều đó bất khả thi với GROUP BY, vì nó chỉ trả về một hàng cho mỗi category.</p>
+    <p>Hãy thử các hàm bên dưới. Bấm vào một hàng để khoanh những hàng dùng để tính giá trị của nó.</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-window">
+    <div class="viz-head">
+      <p class="viz-title">OVER (PARTITION BY … ORDER BY …)</p>
+      <p class="viz-sub">Coloured bars mark the partitions. The last column is the window function.</p>
+    </div>
+    <div class="ctl-row"><label class="ctl">function <select class="vsel" id="sw-fn"><option value="row_number">ROW_NUMBER()</option><option value="rank">RANK()</option><option value="dense_rank">DENSE_RANK()</option><option value="running">SUM(amount): running total</option><option value="total">SUM(amount): whole partition</option><option value="avg">AVG(amount)</option><option value="lag">LAG(amount)</option></select></label><label class="ctl">PARTITION BY <select class="vsel" id="sw-part"><option value="category">category</option><option value="customer_id">customer_id</option><option value="">(none)</option></select></label><label class="ctl">ORDER BY <select class="vsel" id="sw-ord"><option value="amount">amount DESC</option><option value="date">order_date</option></select></label></div>
+    <pre class="sqlcode" id="sw-sql"></pre>
+    <div id="sw-rows"></div>
+    <p class="readout" id="sw-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>A classic: the top row of each group</h2>
+    <pre class="sqlcode static">WITH ranked AS (
+  SELECT order_id, category, product, amount,
+         ROW_NUMBER() OVER (PARTITION BY category
+                            ORDER BY amount DESC NULLS LAST) AS rn
+  FROM orders
+)
+SELECT category, product, amount
+FROM ranked
+WHERE rn = 1;          -- the biggest order of each category</pre>
+    <p>Window functions run after WHERE (note 9), so you cannot write <code>WHERE ROW_NUMBER() … = 1</code> directly. Compute the number in a CTE, then filter it.</p>
+    <details class="more"><summary>Going further: the frame</summary><p>With ORDER BY, an aggregate such as SUM uses a <em>frame</em> that, by default, runs from the first row of the partition up to the current row and its ties. You can set it yourself: <code>ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</code> gives a moving sum over three rows.</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Một bài kinh điển: hàng đầu của mỗi nhóm</h2>
+    <pre class="sqlcode static">WITH ranked AS (
+  SELECT order_id, category, product, amount,
+         ROW_NUMBER() OVER (PARTITION BY category
+                            ORDER BY amount DESC NULLS LAST) AS rn
+  FROM orders
+)
+SELECT category, product, amount
+FROM ranked
+WHERE rn = 1;          -- đơn lớn nhất của mỗi category</pre>
+    <p>Window function chạy sau WHERE (bài 9), nên bạn không thể viết trực tiếp <code>WHERE ROW_NUMBER() … = 1</code>. Hãy tính số thứ tự trong một CTE, rồi lọc nó.</p>
+    <details class="more"><summary>Đi sâu hơn: frame</summary><p>Với ORDER BY, một hàm tổng hợp như SUM dùng một <em>frame</em> mà theo mặc định chạy từ hàng đầu tiên của partition đến hàng hiện tại và các hàng bằng nó. Bạn có thể tự đặt: <code>ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</code> cho tổng trượt trên ba hàng.</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;Rank in category&quot;, &quot;SELECT category, product, amount,\n       RANK() OVER (PARTITION BY category ORDER BY amount DESC) AS rnk\nFROM orders;&quot;], [&quot;Running total&quot;, &quot;SELECT order_date, amount,\n       SUM(amount) OVER (ORDER BY order_date) AS running_total\nFROM orders;&quot;], [&quot;Previous order&quot;, &quot;SELECT customer_id, order_date, amount,\n       LAG(amount) OVER (PARTITION BY customer_id ORDER BY order_date) AS previous\nFROM orders;&quot;], [&quot;Top per category&quot;, &quot;WITH ranked AS (\n  SELECT category, product, amount,\n         ROW_NUMBER() OVER (PARTITION BY category ORDER BY amount DESC NULLS LAST) AS rn\n  FROM orders\n)\nSELECT category, product, amount FROM ranked WHERE rn = 1;&quot;]]">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite running in your browser. Edit the query and press Run (Ctrl + Enter). Nothing you do here is saved.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 3.5: Window Functions. <a href="https://www.postgresql.org/docs/16/tutorial-window.html" target="_blank" rel="noopener">postgresql.org/docs/16/tutorial-window.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapter 16. O'Reilly Media.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="subqueries-and-ctes.html"><small>← Note 11</small>Subqueries and CTEs</a>
+    <a class="next" href="indexes.html"><small>Note 13 →</small>Indexes: finding rows fast</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="subqueries-and-ctes.html"><small>← Bài 11</small>Subquery và CTE</a>
+    <a class="next" href="indexes.html"><small>Bài 13 →</small>Index: tìm hàng nhanh</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

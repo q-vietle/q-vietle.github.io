@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HCMC Real Estate Price Map | Quoc Viet Le</title>
+<meta name="description" content="Interactive price map of Ho Chi Minh City land, houses and apartments: asking prices with links to their source listings, model estimates and held-out evaluation.">
+<meta name="theme-color" content="#0a4560">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+  html, body { margin: 0; height: 100%; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #1a1a1a; }
+  * { box-sizing: border-box; }
+  #map { position: absolute; inset: 0; }
+  a { color: #1a5fd1; }
+
+  .panel { position: absolute; z-index: 1; background: rgba(255,255,255,.97); border-radius: 10px; box-shadow: 0 1px 8px rgba(0,0,0,.22); padding: 12px 14px; font-size: 13px; }
+  #controls { top: 12px; left: 12px; width: 250px; max-height: calc(100vh - 24px); overflow-y: auto; }
+  #controls h1 { font-size: 15px; margin: 0 0 2px; }
+  #controls .by { font-size: 11.5px; color: #666; margin: 0 0 8px; }
+  #controls label.block { display: block; margin-top: 10px; font-weight: 600; }
+  #controls select { margin-top: 4px; width: 100%; font-size: 13px; padding: 4px; }
+  #controls h3 { font-size: 11px; margin: 12px 0 2px; color: #555; text-transform: uppercase; letter-spacing: .03em; }
+  .toggle-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+  .toggle-row label { display: flex; align-items: center; cursor: pointer; }
+  .swatch { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; flex: none; }
+  .note { margin-top: 10px; padding: 8px; border-radius: 6px; font-size: 11.5px; line-height: 1.45; background: #e8f0fe; color: #1a3a6b; }
+  .fine { margin-top: 8px; font-size: 10.5px; color: #777; line-height: 1.4; }
+
+  #legend { bottom: 24px; left: 274px; width: 230px; max-height: 45vh; overflow-y: auto; }
+  #legend h2 { font-size: 11px; margin: 0 0 6px; text-transform: uppercase; letter-spacing: .03em; color: #555; }
+  .legend-row { font-size: 11px; color: #444; margin-top: 5px; line-height: 1.35; }
+
+  #flow { top: 12px; right: 12px; width: 350px; max-height: calc(100vh - 24px); display: flex; flex-direction: column; overflow: hidden; }
+  #flow-body { overflow-y: auto; flex: 1; }
+  #flow h2 { font-size: 14px; margin: 0 0 4px; }
+  #flow h3 { font-size: 11.5px; margin: 12px 0 4px; color: #444; text-transform: uppercase; letter-spacing: .03em; }
+  .muted { color: #777; font-size: 12px; line-height: 1.5; }
+  .prop-card { border-bottom: 1px solid #eee; padding: 9px 2px; }
+  .prop-head { font-weight: 600; font-size: 12.5px; margin-bottom: 4px; }
+  .listing-row { display: flex; flex-wrap: wrap; gap: 2px 8px; font-size: 12px; padding: 2px 0; align-items: baseline; }
+  .listing-row .src { color: #1a3a6b; font-weight: 600; min-width: 74px; }
+  .est { margin-top: 5px; padding: 6px 8px; border-radius: 6px; background: #f2f7ff; border: 1px solid #d8e6ff; font-size: 12px; }
+  .est b { color: #1a3a6b; }
+  .back-btn { background: none; border: 1px solid #ccc; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; margin-bottom: 8px; }
+  .case { border-bottom: 1px solid #eee; padding: 6px 2px; font-size: 12px; line-height: 1.5; }
+  .stat { display: flex; justify-content: space-between; font-size: 12.5px; padding: 2px 0; }
+  .stat span:first-child { color: #555; }
+  .stat span:last-child { font-weight: 600; }
+  .popup { font-size: 12px; line-height: 1.5; max-width: 230px; }
+  .popup .price { font-size: 15px; font-weight: 700; }
+  .popup .caveat { font-size: 11px; color: #a33; margin-top: 3px; }
+  #status { top: 12px; left: 50%; transform: translateX(-50%); z-index: 2; display: none; }
+  #legend-btn { display: none; }
+
+  @media (max-width: 760px) {
+    #controls { width: calc(100% - 24px); max-height: 46vh; }
+    #flow { left: 12px; right: 12px; width: auto; top: 56vh; bottom: 12px; max-height: none; }
+    #legend { display: none; }
+    #legend.open { display: block; position: fixed; top: 8vh; left: 12px; right: 12px; bottom: auto; width: auto; z-index: 5; }
+    #legend-btn { display: inline-block; margin-top: 10px; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div id="map" role="application" aria-label="Ho Chi Minh City price map"></div>
+<div id="status" class="panel" role="status" aria-live="polite"></div>
+
+<div id="controls" class="panel">
+  <h1>HCMC Real Estate Price Map</h1>
+  <p class="by">Land, houses and apartments in Ho Chi Minh City</p>
+
+  <label class="block" for="mode">View</label>
+  <select id="mode">
+    <option value="market">Asking prices and estimates</option>
+    <option value="verification">Model accuracy (held-out test)</option>
+  </select>
+
+  <div id="market-controls">
+    <h3>Property type</h3>
+    <div class="toggle-row"><input type="checkbox" id="t-land" checked><label for="t-land"><span class="swatch" style="background:#e53935"></span>Land</label></div>
+    <div class="toggle-row"><input type="checkbox" id="t-house" checked><label for="t-house"><span class="swatch" style="background:#43a047"></span>House</label></div>
+    <div class="toggle-row"><input type="checkbox" id="t-apartment" checked><label for="t-apartment"><span class="swatch" style="background:#1e88e5"></span>Apartment</label></div>
+  </div>
+
+  <div id="verification-controls" hidden>
+    <label class="block" for="protocol">Test</label>
+    <select id="protocol">
+      <option value="within_district">Within district (local data available)</option>
+      <option value="district_holdout">Unseen district (no local data)</option>
+    </select>
+    <label class="block" for="vtype">Property type</label>
+    <select id="vtype">
+      <option value="land">Land</option>
+      <option value="house">House</option>
+      <option value="apartment">Apartment</option>
+    </select>
+    <div id="vsummary" style="font-size:11.5px; line-height:1.5; margin-top:8px;"></div>
+  </div>
+
+  <h3>Context</h3>
+  <div class="toggle-row"><input type="checkbox" id="metro"><label for="metro"><span class="swatch" style="background:#8e24aa"></span>Metro Line 1 stations</label></div>
+  <div class="toggle-row"><input type="checkbox" id="a-school" data-cat="school"><label for="a-school"><span class="swatch" style="background:#ffb300"></span>Schools</label></div>
+  <div class="toggle-row"><input type="checkbox" id="a-hospital" data-cat="hospital"><label for="a-hospital"><span class="swatch" style="background:#616161"></span>Hospitals</label></div>
+  <div class="toggle-row"><input type="checkbox" id="a-market" data-cat="market"><label for="a-market"><span class="swatch" style="background:#bf360c"></span>Markets</label></div>
+  <div class="toggle-row"><input type="checkbox" id="a-park" data-cat="park"><label for="a-park"><span class="swatch" style="background:#00897b"></span>Parks</label></div>
+
+  <button type="button" class="back-btn" id="legend-btn">Show legend</button>
+  <div class="note" id="mode-note"></div>
+  <p class="fine">Asking prices from public listings, not completed transactions. Each price links to its source listing.
+    Data collection, processing and estimates © Quoc Viet Le; please do not redistribute the dataset.
+    Basemap © OpenStreetMap contributors, OpenFreeMap.</p>
+</div>
+
+<div id="legend" class="panel">
+  <div id="legend-market">
+    <h2>Price per m² (VND)</h2>
+    <div id="legend-scales"></div>
+    <div class="legend-row">● Dot: one property with a street-level location.</div>
+    <div class="legend-row">📍 Pin: median of a ward or district (approximate location).</div>
+    <div class="legend-row">Soft cloud: smoothed price level; faint where data is thin.</div>
+  </div>
+  <div id="legend-verification" hidden>
+    <h2>Estimate error vs asking price</h2>
+    <div style="height:10px;border-radius:3px;background:linear-gradient(to right,#1a9850,#fee08b,#d73027)"></div>
+    <div style="display:flex;justify-content:space-between;font-size:10.5px;color:#444;margin-top:2px"><span>0%</span><span>≥100%</span></div>
+    <div class="legend-row">Small dot: one test property. Large circle: test properties of a district with only ward/district-level locations (colour = median error).</div>
+    <div class="legend-row">Grey: no estimate or not scored.</div>
+  </div>
+</div>
+
+<div id="flow" class="panel"><div id="flow-body"></div></div>
+
+<script>
+const TYPES = ["land", "house", "apartment"];
+const TYPE_LABEL = { land: "Land", house: "House", apartment: "Apartment" };
+const COLORS = {
+  land: { swatch: "#e53935", stops: [[0, [255, 235, 238]], [.25, [239, 154, 154]], [.5, [229, 57, 53]], [.75, [183, 28, 28]], [1, [98, 10, 10]]] },
+  house: { swatch: "#43a047", stops: [[0, [232, 245, 233]], [.25, [165, 214, 167]], [.5, [67, 160, 71]], [.75, [27, 94, 32]], [1, [10, 40, 12]]] },
+  apartment: { swatch: "#1e88e5", stops: [[0, [227, 242, 253]], [.25, [144, 202, 249]], [.5, [30, 136, 229]], [.75, [13, 71, 161]], [1, [6, 30, 70]]] },
+};
+const AMENITIES = [
+  { key: "school", label: "School", color: "#ffb300" }, { key: "hospital", label: "Hospital", color: "#616161" },
+  { key: "market", label: "Market", color: "#bf360c" }, { key: "park", label: "Park", color: "#00897b" },
+];
+const SOURCE_LABEL = { mogi_vn: "mogi.vn", muaban_net: "muaban.net", homedy: "homedy.com" };
+const PROTOCOL_LABEL = { within_district: "Within district", district_holdout: "Unseen district" };
+const MODE_NOTE = {
+  market: "Click a dot or pin to see each property's asking price at every source that listed it (with a link to the listing) and the model's estimated value.",
+  verification: "The model estimated properties it had not seen, and the estimate is compared with their asking price. \"Unseen district\" hides a whole district from the model, a harder test.",
+};
+
+const map = new maplibregl.Map({ container: "map", style: "https://tiles.openfreemap.org/styles/liberty", center: [106.70, 10.78], zoom: 11 });
+map.addControl(new maplibregl.NavigationControl(), "top-right");
+
+let S = {}, popup = null;
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function vnd(v) { return v == null ? "n/a" : Math.round(v).toLocaleString("en-US"); }
+function short(v) { // 12,500,000 -> 12.5M ; 3,500,000,000 -> 3.5B
+  if (v == null) return "n/a";
+  if (v >= 1e9) return (v / 1e9).toFixed(v >= 1e10 ? 1 : 2).replace(/\.?0+$/, "") + "B";
+  if (v >= 1e6) return (v / 1e6).toFixed(v >= 1e8 ? 0 : 1).replace(/\.0$/, "") + "M";
+  return vnd(v);
+}
+function status(msg, err) { const el = $("status"); el.textContent = msg; el.style.display = msg ? "block" : "none"; el.style.background = err ? "#fdecea" : ""; }
+async function getJson(p) { const r = await fetch(p); if (!r.ok) throw new Error(p + ": HTTP " + r.status); return r.json(); }
+
+function rampColor(t, stops) {
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [t0, c0] = stops[i], [t1, c1] = stops[i + 1];
+    if (t >= t0 && t <= t1) { const f = (t - t0) / (t1 - t0); const c = c0.map((v, k) => Math.round(v + f * (c1[k] - v))); return `rgb(${c})`; }
+  }
+  return `rgb(${stops[stops.length - 1][1]})`;
+}
+function domain(fc, type, field) {
+  const v = fc.features.filter(f => f.properties.property_type === type).map(f => f.properties[field]).filter(x => x != null);
+  return v.length ? [Math.min(...v), Math.max(...v)] : null;
+}
+function colorExpr(d, stops, field) {
+  if (!d || d[0] === d[1]) return rampColor(.5, stops);
+  const e = ["interpolate", ["linear"], ["get", field]];
+  for (let i = 0; i <= 8; i++) e.push(d[0] + i / 8 * (d[1] - d[0]), rampColor(i / 8, stops));
+  return e;
+}
+
+// Map pins for ward/district medians: one pre-drawn image per colour step.
+const PIN_STEPS = 9;
+function pinImage(fill) {
+  const c = document.createElement("canvas"); c.width = 40; c.height = 56; const x = c.getContext("2d");
+  x.beginPath(); x.moveTo(20, 54); x.bezierCurveTo(20, 54, 4, 34, 4, 20); x.arc(20, 20, 16, Math.PI, 0); x.bezierCurveTo(36, 34, 20, 54, 20, 54); x.closePath();
+  x.fillStyle = fill; x.fill(); x.lineWidth = 2.5; x.strokeStyle = "rgba(40,40,40,.8)"; x.stroke();
+  x.beginPath(); x.arc(20, 20, 6, 0, 7); x.fillStyle = "#fff"; x.fill();
+  return x.getImageData(0, 0, 40, 56);
+}
+function pinExpr(type, d) {
+  if (!d || d[0] === d[1]) return `pin-${type}-4`;
+  const e = ["step", ["get", "median_price_per_m2"], `pin-${type}-0`];
+  for (let i = 1; i < PIN_STEPS; i++) e.push(d[0] + (i - .5) / (PIN_STEPS - 1) * (d[1] - d[0]), `pin-${type}-${i}`);
+  return e;
+}
+
+function showPopup(e, html) {
+  map.getCanvas().style.cursor = "pointer";
+  if (popup) popup.remove();
+  popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false }).setLngLat(e.lngLat).setHTML(html).addTo(map);
+}
+function hidePopup() { map.getCanvas().style.cursor = ""; if (popup) { popup.remove(); popup = null; } }
+
+// ---------- market view ----------
+function marketLayers(type) { return [`cloud-${type}`, `district-${type}`, `ward-${type}`, `dot-${type}`]; }
+
+function addMarketLayers() {
+  TYPES.forEach(type => {
+    const cfg = COLORS[type], only = fc => ({ type: "FeatureCollection", features: fc.features.filter(f => f.properties.property_type === type) });
+    const cloud = only(S.surface), district = only(S.district), ward = only(S.ward), dots = only(S.points);
+    for (let i = 0; i < PIN_STEPS; i++) map.addImage(`pin-${type}-${i}`, pinImage(rampColor(i / (PIN_STEPS - 1), cfg.stops)), { pixelRatio: 2 });
+
+    map.addSource(`cloud-${type}`, { type: "geojson", data: cloud });
+    const lv = cloud.features.map(f => f.properties.smoothed_log_price_per_m2);
+    const cloudColor = lv.length ? (() => { const lo = Math.min(...lv), hi = Math.max(...lv), e = ["interpolate", ["linear"], ["get", "smoothed_log_price_per_m2"]]; cfg.stops.forEach(([t, c]) => e.push(lo + t * (hi - lo), `rgb(${c})`)); return e; })() : cfg.swatch;
+    map.addLayer({ id: `cloud-${type}`, type: "circle", source: `cloud-${type}`, paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 30, 14, 70, 17, 120], "circle-blur": 1.6,
+      "circle-color": cloudColor, "circle-opacity": ["interpolate", ["linear"], ["get", "confidence"], 0, .05, 1, .65] } });
+
+    const pin = { "icon-anchor": "bottom", "icon-size": .85, "icon-allow-overlap": true, "icon-ignore-placement": true };
+    map.addSource(`district-${type}`, { type: "geojson", data: district });
+    map.addLayer({ id: `district-${type}`, type: "symbol", source: `district-${type}`, layout: { ...pin, "icon-image": pinExpr(type, domain(S.district, type, "median_price_per_m2")) } });
+    map.addSource(`ward-${type}`, { type: "geojson", data: ward });
+    map.addLayer({ id: `ward-${type}`, type: "symbol", source: `ward-${type}`, layout: { ...pin, "icon-image": pinExpr(type, domain(S.ward, type, "median_price_per_m2")) } });
+    map.addSource(`dot-${type}`, { type: "geojson", data: dots });
+    map.addLayer({ id: `dot-${type}`, type: "circle", source: `dot-${type}`, paint: {
+      "circle-radius": 5.5, "circle-color": colorExpr(domain(S.points, type, "price_per_m2"), cfg.stops, "price_per_m2"),
+      "circle-opacity": .9, "circle-stroke-color": "#fff", "circle-stroke-width": 1 } });
+
+    [`district-${type}`, `ward-${type}`].forEach(id => {
+      map.on("mousemove", id, e => showPopup(e, areaPopup(e.features[0].properties)));
+      map.on("mouseleave", id, hidePopup);
+      map.on("click", id, e => selectArea(e.features[0].properties, type));
+    });
+    map.on("mousemove", `dot-${type}`, e => showPopup(e, dotPopup(e.features[0].properties)));
+    map.on("mouseleave", `dot-${type}`, hidePopup);
+    map.on("click", `dot-${type}`, e => selectDot(e, type));
+  });
+}
+
+function areaPopup(p) {
+  const d = p.geo_precision_tier === "DISTRICT_APPROXIMATE";
+  return `<div class="popup"><div>${d ? "District" : "Ward"} median · ${TYPE_LABEL[p.property_type]}</div>
+    <div class="price">${short(p.median_price_per_m2)} VND/m²</div>
+    <div>Middle half: ${short(p.price_per_m2_q25)} – ${short(p.price_per_m2_q75)}</div>
+    <div>${p.n_properties} properties · ${esc(p.area_label)}</div>
+    <div class="caveat">Location known only to the ${d ? "district" : "ward"}; the pin is approximate. Click for the list.</div></div>`;
+}
+function dotPopup(p) {
+  return `<div class="popup"><div>${TYPE_LABEL[p.property_type]} · ${esc(p.ward || p.district || "")}</div>
+    <div class="price">${short(p.price_per_m2)} VND/m²</div>
+    <div>${short(p.price_total)} VND total · ${p.area_m2 ?? "?"} m²</div>
+    ${p.n_listings > 1 ? `<div class="caveat">${p.n_listings} listings; prices differ by source.</div>` : ""}
+    <div>Click for sources and the estimate.</div></div>`;
+}
+
+function propertyCard(p) {
+  const listings = p.listings.length ? p.listings.map(l => `
+    <div class="listing-row"><span class="src">${esc(SOURCE_LABEL[l.src] || l.src)}</span>
+      <span>${short(l.ppm2)}/m² · ${short(l.total)} VND</span>
+      ${l.url ? `<a href="${esc(l.url)}" target="_blank" rel="noopener nofollow">view listing ↗</a>` : ""}</div>`).join("")
+    : '<div class="muted">No priced listing.</div>';
+  const est = p.estimate
+    ? `<div class="est">Estimated value: <b>${short(p.estimate.ppm2)} VND/m²</b>${p.estimate.total ? ` · ${short(p.estimate.total)} VND total` : ""}</div>`
+    : '<div class="est" style="background:#fafafa;border-color:#eee;color:#777">Not enough comparable data for an estimate.</div>';
+  return `<li class="prop-card"><div class="prop-head">${TYPE_LABEL[p.type] || esc(p.type)} · ${esc(p.ward || p.district || "Unknown area")} · ${p.area ?? "?"} m²${p.bedrooms ? " · " + p.bedrooms + " bed" : ""}</div>${listings}${est}</li>`;
+}
+function showList(title, sub, props) {
+  $("flow-body").innerHTML = `<h2>${esc(title)}</h2><p class="muted">${esc(sub)}</p>
+    <ul style="list-style:none;margin:0;padding:0">${props.map(propertyCard).join("") || '<li class="muted">No properties.</li>'}</ul>`;
+}
+function selectDot(e, type) {
+  const box = [[e.point.x - 6, e.point.y - 6], [e.point.x + 6, e.point.y + 6]];
+  const idx = [...new Set(map.queryRenderedFeatures(box, { layers: [`dot-${type}`] }).map(f => f.properties.i))];
+  showList(`${idx.length} ${idx.length === 1 ? "property" : "properties"} here (${TYPE_LABEL[type]})`, "Street-level location.", idx.map(i => S.properties[i]));
+}
+function selectArea(p, type) {
+  const ward = p.geo_precision_tier !== "DISTRICT_APPROXIMATE";
+  const list = S.properties.filter(q => q.type === type && q.precision === (ward ? "WARD" : "DISTRICT") && q.ppm2 != null &&
+    (ward ? q.ward === p.area_label : q.district === p.area_label));
+  showList(`${p.area_label} (${TYPE_LABEL[type]}): ${list.length} properties`, `Location known only to the ${ward ? "ward" : "district"}; the pin on the map is approximate.`, list);
+}
+function emptyFlow() {
+  $("flow-body").innerHTML = $("mode").value === "market"
+    ? '<p class="muted">Click a dot or pin on the map to see the properties there: every source\'s asking price, a link to each listing, and the estimated value.</p>'
+    : '<p class="muted">Click a coloured dot or circle to compare the model\'s estimates with the actual asking prices.</p>';
+}
+
+function updateLegend() {
+  const types = TYPES.filter(t => $(`t-${t}`).checked);
+  $("legend-scales").innerHTML = types.map(t => {
+    const d = domain(S.points, t, "price_per_m2"), g = COLORS[t].stops.map(([, c]) => `rgb(${c})`).join(",");
+    return `<div style="margin:6px 0 2px;font-size:11px;font-weight:600">${TYPE_LABEL[t]}</div>
+      <div style="height:9px;border-radius:3px;background:linear-gradient(to right,${g})"></div>
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:#444">${d ? `<span>${short(d[0])}</span><span>${short(d[1])}</span>` : "<span>no data</span>"}</div>`;
+  }).join("");
+}
+
+// ---------- verification view ----------
+function errColor(t) {
+  if (t == null) return "#9299a1";
+  const stops = [[0, [26, 152, 80]], [.25, [145, 207, 96]], [.5, [254, 224, 139]], [.75, [252, 141, 89]], [1, [215, 48, 39]]];
+  return rampColor(Math.max(0, Math.min(1, t)), stops);
+}
+function verificationData() {
+  const type = $("vtype").value, proto = $("protocol").value;
+  const f = S.verification.features.filter(x => x.properties.property_type === type && x.properties.protocol === proto)
+    .map(x => ({ ...x, properties: { ...x.properties, color: errColor(x.properties.kind === "point" ? x.properties.abs_pct_error : (x.properties.medape_pct == null ? null : x.properties.medape_pct / 100)) } }));
+  return {
+    points: { type: "FeatureCollection", features: f.filter(x => x.properties.kind === "point") },
+    groups: { type: "FeatureCollection", features: f.filter(x => x.properties.kind !== "point") },
+  };
+}
+function addVerificationLayers() {
+  const d = verificationData();
+  map.addSource("v-groups", { type: "geojson", data: d.groups });
+  map.addLayer({ id: "v-groups", type: "circle", source: "v-groups", layout: { visibility: "none" }, paint: {
+    "circle-radius": ["interpolate", ["linear"], ["get", "n_total"], 1, 8, 40, 22], "circle-color": ["get", "color"],
+    "circle-opacity": .85, "circle-stroke-color": "#fff", "circle-stroke-width": 1.5 } });
+  map.addSource("v-points", { type: "geojson", data: d.points });
+  map.addLayer({ id: "v-points", type: "circle", source: "v-points", layout: { visibility: "none" }, paint: {
+    "circle-radius": 5.5, "circle-color": ["get", "color"], "circle-opacity": .9, "circle-stroke-color": "#333", "circle-stroke-width": 1 } });
+  map.on("mousemove", "v-groups", e => showPopup(e, groupPopup(e.features[0].properties)));
+  map.on("mouseleave", "v-groups", hidePopup);
+  map.on("click", "v-groups", e => selectGroup(e.features[0].properties));
+  map.on("mousemove", "v-points", e => showPopup(e, casePopup(e.features[0].properties)));
+  map.on("mouseleave", "v-points", hidePopup);
+  map.on("click", "v-points", e => showCases(`${TYPE_LABEL[e.features[0].properties.property_type]} · ${e.features[0].properties.district || ""}`, [e.features[0].properties]));
+}
+function pct(x) { return x == null ? "n/a" : (x * 100).toFixed(1) + "%"; }
+function groupPopup(p) {
+  return `<div class="popup"><b>${esc(p.district)}</b> · ${TYPE_LABEL[p.property_type]}<div>${p.n_scored} of ${p.n_total} test properties scored</div>
+    <div>Median error: <b>${p.medape_pct == null ? "n/a" : p.medape_pct.toFixed(1) + "%"}</b></div><div>Click for each property.</div></div>`;
+}
+function casePopup(p) {
+  return `<div class="popup"><b>${TYPE_LABEL[p.property_type]}</b> · ${esc(p.district || "")}
+    <div>${p.status === "estimated" && p.abs_pct_error != null ? "Error " + pct(p.abs_pct_error) : "No estimate / not scored"}</div></div>`;
+}
+function caseHtml(c) {
+  if (c.status !== "estimated" || c.abs_pct_error == null)
+    return `<div class="case">Asking ${short(c.actual)}/m² · <span class="muted">no estimate or not scored</span></div>`;
+  const s = c.signed_pct_error;
+  return `<div class="case"><span class="swatch" style="background:${errColor(c.abs_pct_error)}"></span>
+    Asking <b>${short(c.actual)}</b>/m² · estimated <b>${short(c.estimated)}</b>/m² · error ${pct(c.abs_pct_error)} (${s > 0 ? "over" : "under"})</div>`;
+}
+function showCases(title, cases, extra) {
+  $("flow-body").innerHTML = `<h2>${esc(title)}</h2>${extra || ""}<h3>Test properties</h3>${cases.map(caseHtml).join("") || '<p class="muted">None.</p>'}
+    <p class="muted" style="margin-top:10px">The model never saw these properties' prices. Asking prices are not transaction prices.</p>`;
+}
+function selectGroup(p) {
+  const cases = typeof p.cases === "string" ? JSON.parse(p.cases) : p.cases;
+  showCases(`${p.district} · ${TYPE_LABEL[p.property_type]}`, cases,
+    `<p class="muted">${PROTOCOL_LABEL[p.protocol]} test. Locations known only to the ward or district, grouped at one approximate point.</p>
+     <div class="stat"><span>Median error</span><span>${p.medape_pct == null ? "n/a" : p.medape_pct.toFixed(1) + "%"}</span></div>
+     <div class="stat"><span>Scored</span><span>${p.n_scored} of ${p.n_total}</span></div>`);
+}
+function refreshVerification() {
+  const d = verificationData();
+  map.getSource("v-points").setData(d.points); map.getSource("v-groups").setData(d.groups);
+  const proto = S.vsummary.protocols[$("protocol").value], seg = proto.segments[$("vtype").value];
+  $("vsummary").innerHTML = `<div class="stat"><span>Median error (${TYPE_LABEL[$("vtype").value].toLowerCase()})</span><span>${seg.medape_pct == null ? "n/a" : seg.medape_pct.toFixed(1) + "%"}</span></div>
+    <div class="stat"><span>Median error (all types)</span><span>${proto.medape_pct == null ? "n/a" : proto.medape_pct.toFixed(1) + "%"}</span></div>
+    <div class="stat"><span>Test properties scored</span><span>${seg.n_scored} of ${seg.n_total}</span></div>`;
+}
+
+// ---------- context layers ----------
+function addContextLayers() {
+  map.addSource("metro", { type: "geojson", data: S.metro });
+  map.addLayer({ id: "metro", type: "circle", source: "metro", layout: { visibility: "none" }, paint: { "circle-radius": 5, "circle-color": "#8e24aa", "circle-stroke-color": "#fff", "circle-stroke-width": 1.5 } });
+  map.addLayer({ id: "metro-label", type: "symbol", source: "metro", layout: { visibility: "none", "text-field": ["get", "name"], "text-size": 10, "text-offset": [0, 1.2], "text-anchor": "top" }, paint: { "text-color": "#1a3a6b", "text-halo-color": "#fff", "text-halo-width": 1 } });
+  map.addSource("pois", { type: "geojson", data: S.pois });
+  AMENITIES.forEach(a => {
+    map.addLayer({ id: `poi-${a.key}`, type: "circle", source: "pois", filter: ["==", ["get", "category"], a.key], layout: { visibility: "none" },
+      paint: { "circle-radius": 4.5, "circle-color": a.color, "circle-opacity": .85, "circle-stroke-color": "#fff", "circle-stroke-width": 1 } });
+    map.on("mousemove", `poi-${a.key}`, e => showPopup(e, `<div class="popup"><b>${esc(e.features[0].properties.name || "(unnamed)")}</b><div>${a.label} · OpenStreetMap</div></div>`));
+    map.on("mouseleave", `poi-${a.key}`, hidePopup);
+  });
+}
+function vis(id, on) { if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", on ? "visible" : "none"); }
+
+function applyMode() {
+  const market = $("mode").value === "market";
+  TYPES.forEach(t => marketLayers(t).forEach(id => vis(id, market && $(`t-${t}`).checked)));
+  ["v-points", "v-groups"].forEach(id => vis(id, !market));
+  $("market-controls").hidden = !market; $("verification-controls").hidden = market;
+  $("legend-market").hidden = !market; $("legend-verification").hidden = market;
+  $("mode-note").textContent = MODE_NOTE[$("mode").value];
+  if (!market) refreshVerification();
+  updateLegend(); hidePopup(); emptyFlow();
+}
+
+map.on("load", async () => {
+  try {
+    status("Loading map data…");
+    const [properties, points, ward, district, surface, metro, pois, verification, vsummary] = await Promise.all(
+      ["properties.json", "points.geojson", "ward.geojson", "district.geojson", "surface.geojson", "metro.geojson", "pois.geojson", "verification.geojson", "verification_summary.json"].map(n => getJson("data/" + n)));
+    S = { properties, points, ward, district, surface, metro, pois, verification, vsummary };
+    addMarketLayers(); addContextLayers(); addVerificationLayers();
+    status("");
+    $("mode").addEventListener("change", applyMode);
+    TYPES.forEach(t => $(`t-${t}`).addEventListener("change", applyMode));
+    ["protocol", "vtype"].forEach(id => $(id).addEventListener("change", () => { refreshVerification(); emptyFlow(); }));
+    $("metro").addEventListener("change", () => { vis("metro", $("metro").checked); vis("metro-label", $("metro").checked); });
+    AMENITIES.forEach(a => $(`a-${a.key}`).addEventListener("change", () => vis(`poi-${a.key}`, $(`a-${a.key}`).checked)));
+    $("legend-btn").addEventListener("click", () => $("legend").classList.toggle("open"));
+    applyMode();
+  } catch (err) {
+    status("Could not load the map data: " + err.message, true);
+  }
+});
+map.on("error", e => status("Map error: " + (e && e.error ? e.error.message : "unknown"), true));
+</script>
+</body>
+</html>

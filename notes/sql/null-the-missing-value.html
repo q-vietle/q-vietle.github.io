@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="NULL: giá trị bị thiếu">NULL: the missing value | Quoc Viet Le</title>
+  <meta name="description" content="Why a missing value makes comparisons answer &quot;unknown&quot;, and how to handle it safely.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part A · Note 4 of 14</p>
+    <h1>NULL: the missing value</h1>
+    <p class="lead">Why a missing value makes comparisons answer "unknown", and how to handle it safely.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>NULL means the value is <strong>missing or unknown</strong>. It is not 0 and not an empty text.</li>
+      <li>Any comparison with NULL gives <strong>UNKNOWN</strong>, a third truth value. WHERE keeps only TRUE, so UNKNOWN rows disappear.</li>
+      <li>Test for missing values with <code>IS NULL</code> / <code>IS NOT NULL</code>, and replace them with <code>COALESCE</code>.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần A · Bài 4/14</p>
+    <h1>NULL: giá trị bị thiếu</h1>
+    <p class="lead">Vì sao giá trị thiếu khiến phép so sánh trả lời "không biết", và cách xử lý an toàn.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>NULL nghĩa là giá trị <strong>bị thiếu hoặc chưa biết</strong>. Nó không phải 0 và cũng không phải chuỗi rỗng.</li>
+      <li>Mọi phép so sánh với NULL cho ra <strong>UNKNOWN</strong>, một giá trị đúng/sai thứ ba. WHERE chỉ giữ TRUE, nên các hàng UNKNOWN biến mất.</li>
+      <li>Kiểm tra giá trị thiếu bằng <code>IS NULL</code> / <code>IS NOT NULL</code>, và thay thế chúng bằng <code>COALESCE</code>.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Three truth values</h2>
+    <p class="key">Is Emma's city HCMC? We do not know her city, so the honest answer is neither yes nor no: it is UNKNOWN.</p>
+    <p>SQL uses three truth values: TRUE, FALSE and UNKNOWN. <code>NULL = 5</code>, <code>NULL &lt;&gt; 5</code> and even <code>NULL = NULL</code> are all UNKNOWN. AND, OR and NOT follow the rules below: an UNKNOWN only matters when the other side does not already decide the answer.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Ba giá trị đúng/sai</h2>
+    <p class="key">Thành phố của Emma có phải HCMC không? Ta không biết thành phố của cô ấy, nên câu trả lời trung thực không phải có cũng không phải không: nó là UNKNOWN.</p>
+    <p>SQL dùng ba giá trị đúng/sai: TRUE, FALSE và UNKNOWN. <code>NULL = 5</code>, <code>NULL &lt;&gt; 5</code> và thậm chí <code>NULL = NULL</code> đều là UNKNOWN. AND, OR và NOT tuân theo các quy tắc bên dưới: một UNKNOWN chỉ có ý nghĩa khi vế còn lại chưa quyết định được kết quả.</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-3vl">
+    <div class="viz-head">
+      <p class="viz-title">AND, OR and NOT with UNKNOWN</p>
+      <p class="viz-sub">Choose A and B.</p>
+    </div>
+    <div class="ctl-row"><span class="muted">A</span><div class="seg" role="group" aria-label="A"><button type="button" data-a="T" aria-pressed="true">TRUE</button><button type="button" data-a="F" aria-pressed="false">FALSE</button><button type="button" data-a="U" aria-pressed="false">UNKNOWN</button></div><span class="muted">B</span><div class="seg" role="group" aria-label="B"><button type="button" data-b="T" aria-pressed="false">TRUE</button><button type="button" data-b="F" aria-pressed="false">FALSE</button><button type="button" data-b="U" aria-pressed="true">UNKNOWN</button></div></div>
+    <div id="tt-out"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>NULL in WHERE</h2>
+    <p class="key">WHERE keeps a row only when the condition is TRUE. FALSE and UNKNOWN are both thrown away.</p>
+    <p>So a row with a NULL can vanish from <em>both</em> a query and its opposite. Try the cases below, especially <code>city = NULL</code>, which never returns anything.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>NULL trong WHERE</h2>
+    <p class="key">WHERE chỉ giữ một hàng khi điều kiện là TRUE. FALSE và UNKNOWN đều bị bỏ đi.</p>
+    <p>Vì vậy một hàng chứa NULL có thể biến mất khỏi <em>cả</em> một query lẫn query đối lập của nó. Hãy thử các trường hợp bên dưới, đặc biệt là <code>city = NULL</code>, không bao giờ trả về gì.</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-nullw">
+    <div class="viz-head">
+      <p class="viz-title">Conditions on columns that contain NULL</p>
+      <p class="viz-sub">Emma has no city; the Keyboard order has no amount.</p>
+    </div>
+    <div class="ctl-row"><label class="ctl grow">condition <select class="vsel" id="nullw-preset"></select></label></div>
+    <pre class="sqlcode" id="nullw-sql"></pre>
+    <div id="nullw-rows"></div>
+    <div class="sql-out" id="nullw-out"></div>
+    <p class="readout" id="nullw-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Working with NULL</h2>
+    <pre class="sqlcode static">SELECT name FROM customers WHERE city IS NULL;        -- missing city
+
+SELECT name, COALESCE(city, &#x27;unknown&#x27;) AS city   -- first non-NULL value
+FROM customers;
+
+SELECT product, amount * 1.1 FROM orders;       -- NULL * 1.1 is NULL</pre>
+    <p><code>COALESCE(a, b, …)</code> returns the first value that is not NULL, which is handy for display. Arithmetic with NULL gives NULL: an unknown number times 1.1 is still unknown.</p>
+    <details class="more"><summary>Going further: NULL shows up again later</summary><p>Aggregates such as SUM and AVG skip NULLs (note 7), GROUP BY puts all NULLs in one group (note 8), a NULL key never matches in a JOIN (note 10), and <code>NOT IN</code> with a NULL in the list returns nothing at all (note 11).</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Làm việc với NULL</h2>
+    <pre class="sqlcode static">SELECT name FROM customers WHERE city IS NULL;        -- thành phố bị thiếu
+
+SELECT name, COALESCE(city, &#x27;unknown&#x27;) AS city   -- giá trị đầu tiên không phải NULL
+FROM customers;
+
+SELECT product, amount * 1.1 FROM orders;       -- NULL * 1.1 vẫn là NULL</pre>
+    <p><code>COALESCE(a, b, …)</code> trả về giá trị đầu tiên không phải NULL, tiện để hiển thị. Phép tính với NULL cho ra NULL: một con số chưa biết nhân với 1.1 vẫn là chưa biết.</p>
+    <details class="more"><summary>Đi sâu hơn: NULL còn xuất hiện lại ở phần sau</summary><p>Các hàm tổng hợp như SUM và AVG bỏ qua NULL (bài 7), GROUP BY gom mọi NULL vào một nhóm (bài 8), khoá NULL không bao giờ khớp trong JOIN (bài 10), và <code>NOT IN</code> với một NULL trong danh sách thì không trả về gì cả (bài 11).</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;IS NULL&quot;, &quot;SELECT * FROM customers WHERE city IS NULL;&quot;], [&quot;= NULL (wrong)&quot;, &quot;SELECT * FROM customers WHERE city = NULL;&quot;], [&quot;COALESCE&quot;, &quot;SELECT name, COALESCE(city, &#x27;unknown&#x27;) AS city FROM customers;&quot;], [&quot;NULL in arithmetic&quot;, &quot;SELECT product, amount, amount * 1.1 FROM orders;&quot;]]">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite running in your browser. Edit the query and press Run (Ctrl + Enter). Nothing you do here is saved.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 9.2: Comparison Functions and Operators. <a href="https://www.postgresql.org/docs/16/functions-comparison.html" target="_blank" rel="noopener">postgresql.org/docs/16/functions-comparison.html</a></li>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 9.18: Conditional Expressions (COALESCE). <a href="https://www.postgresql.org/docs/16/functions-conditional.html" target="_blank" rel="noopener">postgresql.org/docs/16/functions-conditional.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapter 4. O'Reilly Media.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="filtering-with-where.html"><small>← Note 3</small>Filtering rows with WHERE</a>
+    <a class="next" href="sorting-and-limiting.html"><small>Note 5 →</small>Sorting and limiting: ORDER BY and LIMIT</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="filtering-with-where.html"><small>← Bài 3</small>Lọc hàng bằng WHERE</a>
+    <a class="next" href="sorting-and-limiting.html"><small>Bài 5 →</small>Sắp xếp và giới hạn: ORDER BY và LIMIT</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

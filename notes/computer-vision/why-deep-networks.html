@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Vì sao cần mạng sâu?">Why deep networks? | Quoc Viet Le</title>
+  <meta name="description" content="One hidden layer can in theory learn anything. So why stack many layers?">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part A · Note 4 of 16</p>
+    <h1>Why deep networks?</h1>
+    <p class="lead">One hidden layer can in theory learn anything. So why stack many layers?</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li><strong>Universal approximation theorem:</strong> one hidden layer with enough units can approximate any continuous function.</li>
+      <li>But "enough" can mean an enormous number of units, and being able to represent a function does not mean training will find it.</li>
+      <li>Deep networks <strong>reuse</strong> what earlier layers computed, so they can represent exponentially more patterns with the same number of units.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần A · Bài 4/16</p>
+    <h1>Vì sao cần mạng sâu?</h1>
+    <p class="lead">Về lý thuyết, một lớp ẩn có thể học mọi thứ. Vậy vì sao phải xếp chồng nhiều lớp?</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>Định lý xấp xỉ phổ quát:</strong> một lớp ẩn với đủ nhiều unit có thể xấp xỉ mọi hàm liên tục.</li>
+      <li>Nhưng "đủ nhiều" có thể là một số lượng unit khổng lồ, và biểu diễn được một hàm không có nghĩa là quá trình huấn luyện sẽ tìm ra nó.</li>
+      <li>Mạng sâu <strong>tái sử dụng</strong> những gì các lớp trước đã tính, nên với cùng số unit nó biểu diễn được nhiều mẫu hơn theo cấp số mũ.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>One layer can approximate anything…</h2>
+    <p class="key">A single hidden layer of ReLUs builds a function out of straight pieces. More units means more pieces and a closer fit.</p>
+    <p>Each ReLU unit adds one "bend" to the curve. With enough bends you can follow any smooth shape. Increase \(n\) below and watch the error drop:</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Một lớp có thể xấp xỉ mọi thứ…</h2>
+    <p class="key">Một lớp ẩn gồm các ReLU dựng nên hàm số từ các đoạn thẳng. Càng nhiều unit thì càng nhiều đoạn và khớp càng sát.</p>
+    <p>Mỗi unit ReLU thêm một "khúc cua" cho đường cong. Với đủ nhiều khúc cua, bạn có thể bám theo mọi hình dạng trơn. Hãy tăng \(n\) bên dưới và xem sai số giảm:</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-approx">
+    <div class="viz-head">
+      <p class="viz-title">One hidden layer of ReLUs approximating a function</p>
+      <div class="ctl-row" style="margin:0">
+        <label class="ctl" style="flex-direction:row;align-items:center;gap:8px">target
+          <select class="vsel" id="ua-target"><option value="wave">two sine waves</option><option value="bump">narrow bump</option><option value="step">steps</option></select>
+        </label>
+      </div>
+    </div>
+    <div class="ctl-row"><label class="ctl grow"><span>hidden units <span class="tex">\(n\)</span></span> <output id="ua-no"></output><input type="range" id="ua-n" min="1" max="64" step="1" value="6"></label></div>
+    <canvas id="ua-canvas" style="height:220px" aria-label="Target function and network approximation"></canvas>
+    <div class="legend"><span><i style="background:var(--muted)"></i>target</span><span><i style="background:var(--accent)"></i>network (output weights fitted by least squares)</span></div>
+    <div class="readout" id="ua-read"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>…but depth is far more efficient</h2>
+    <p class="key">Each layer can "fold" the input, and every later layer reuses all the folds. The number of pieces then doubles with every layer.</p>
+    <p>Think of folding a sheet of paper: fold it \(L\) times and cut once, and you get \(2^L\) pieces. Below, each layer is one fold made of just two ReLU units:</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>…nhưng độ sâu hiệu quả hơn nhiều</h2>
+    <p class="key">Mỗi lớp có thể "gấp" đầu vào, và mọi lớp sau tái sử dụng tất cả các nếp gấp đó. Số đoạn khi đó nhân đôi sau mỗi lớp.</p>
+    <p>Hãy nghĩ đến việc gấp một tờ giấy: gấp \(L\) lần rồi cắt một nhát, bạn được \(2^L\) mảnh. Bên dưới, mỗi lớp là một nếp gấp chỉ làm từ hai unit ReLU:</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-fold">
+    <div class="viz-head">
+      <p class="viz-title">Folding: pieces grow exponentially with depth</p>
+      <p class="viz-sub">Each layer applies <span class="tex">\(T(x) = 2\max(0, x) - 4\max(0, x - \tfrac12)\)</span> on <span class="tex">\([0, 1]\)</span>.</p>
+    </div>
+    <div class="ctl-row"><label class="ctl grow">depth (number of folds) <output id="fold-Lo"></output><input type="range" id="fold-L" min="1" max="8" step="1" value="3"></label></div>
+    <canvas id="fold-canvas" style="height:200px" aria-label="Composed folding function"></canvas>
+    <div class="readout" id="fold-read"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <p>With depth 8, the deep network uses 16 units to make 256 pieces. A single hidden layer would need at least 255 units. In general, a deep ReLU network can split its input into a number of regions that grows <strong>exponentially with depth</strong>.</p>
+    <details class="more"><summary>Going further</summary>
+      <p>Depth is also a sensible assumption about the world: complex things are built from simpler parts (edges → shapes → objects). Experiments in the textbook show that deeper networks generalise better, and not just because they have more parameters. Layers can also skip ahead through <em>skip connections</em>, an idea that returns in the ResNet note.</p>
+    </details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <p>Với độ sâu 8, mạng sâu dùng 16 unit để tạo ra 256 đoạn. Một lớp ẩn duy nhất sẽ cần ít nhất 255 unit. Nói chung, một mạng ReLU sâu có thể chia đầu vào thành một số vùng tăng <strong>theo hàm mũ của độ sâu</strong>.</p>
+    <details class="more"><summary>Đi sâu hơn</summary>
+      <p>Độ sâu cũng là một giả định hợp lý về thế giới: những thứ phức tạp được dựng từ những phần đơn giản hơn (cạnh → hình dạng → vật thể). Các thí nghiệm trong sách giáo khoa cho thấy mạng sâu hơn tổng quát hoá tốt hơn, và không chỉ vì chúng có nhiều tham số hơn. Các lớp cũng có thể "nhảy cóc" qua <em>skip connection</em>, một ý tưởng sẽ quay lại trong bài về ResNet.</p>
+    </details>
+  </section>
+</div>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 6: Deep Feedforward Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Section 6.4)</span><span data-l="vi">(Mục 6.4)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="activation-functions.html"><small>← Note 3</small>Activation functions</a>
+    <a class="next" href="backpropagation.html"><small>Note 5 →</small>Backpropagation</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="activation-functions.html"><small>← Bài 3</small>Hàm kích hoạt</a>
+    <a class="next" href="backpropagation.html"><small>Bài 5 →</small>Backpropagation</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/ffn.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

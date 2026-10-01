@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Hàm mất mát: đo mức độ sai">Loss functions: measuring mistakes | Quoc Viet Le</title>
+  <meta name="description" content="How a network knows it is wrong, and why cross-entropy works better than squared error for classification.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part A · Note 2 of 16</p>
+    <h1>Loss functions: measuring mistakes</h1>
+    <p class="lead">How a network knows it is wrong, and why cross-entropy works better than squared error for classification.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>The <strong>loss</strong> (or cost) is a single number that measures how wrong the network is. Training means making it small.</li>
+      <li>The standard choice is <strong>cross-entropy</strong>, the negative log of the probability the network gives to the correct answer.</li>
+      <li>Use cross-entropy with a <strong>sigmoid</strong> (two classes) or <strong>softmax</strong> (many classes) output. With squared error, a network that is very wrong can almost stop learning.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần A · Bài 2/16</p>
+    <h1>Hàm mất mát: đo mức độ sai</h1>
+    <p class="lead">Mạng biết mình sai thế nào, và vì sao cross-entropy phù hợp hơn sai số bình phương cho bài toán phân loại.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>Hàm mất mát</strong> (loss, hay cost) là một con số đo mạng đang sai đến mức nào. Huấn luyện nghĩa là làm cho nó nhỏ đi.</li>
+      <li>Lựa chọn chuẩn là <strong>cross-entropy</strong>: âm log của xác suất mà mạng gán cho đáp án đúng.</li>
+      <li>Dùng cross-entropy với đầu ra <strong>sigmoid</strong> (hai lớp) hoặc <strong>softmax</strong> (nhiều lớp). Với sai số bình phương, một mạng sai rất nặng lại gần như ngừng học.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>What a loss does</h2>
+    <p class="key">A good loss is small when the network is right and large when it is confidently wrong.</p>
+    <p>For classification, the network outputs a probability for each answer. The loss is the <strong>negative log-probability of the correct answer</strong>, averaged over the training data:</p>
+    <div class="math">$$J(\theta) = -\,\frac{1}{m}\sum_{i=1}^{m} \log p_{\text{model}}\big(y^{(i)} \mid x^{(i)}\big)$$</div>
+    <p>If the network gives the correct class probability 0.9, the loss is \(-\log 0.9 \approx 0.1\). If it gives 0.01, the loss is \(-\log 0.01 \approx 4.6\). This idea is called <strong>maximum likelihood</strong>, and it tells us which loss to use for each kind of output:</p>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>task</th><th>output unit</th><th>loss</th></tr></thead>
+        <tbody>
+          <tr><td>predict a number</td><td>linear: \(\hat y = W^\top h + b\)</td><td>mean squared error</td></tr>
+          <tr><td>yes / no</td><td>sigmoid: \(\hat y = \sigma(z) = 1/(1+e^{-z})\)</td><td>binary cross-entropy</td></tr>
+          <tr><td>one of \(n\) classes</td><td>softmax: \(\hat y_i = e^{z_i}/\sum_j e^{z_j}\)</td><td>cross-entropy</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="prose">
+    <h2>Why not squared error?</h2>
+    <p class="key">The gradient of cross-entropy stays large when the network is wrong. The gradient of squared error can vanish.</p>
+    <p>A sigmoid output flattens out for large \(|z|\). With squared error, a network that is <em>confidently wrong</em> sits on that flat part, so its gradient is almost zero and it barely learns. The log in cross-entropy cancels the flattening, so the gradient is simply</p>
+    <div class="math">$$\frac{\partial J}{\partial z} = \sigma(z) - y$$</div>
+    <p>which stays close to −1 when the model is wrong. Drag \(z\) to about −6 with target \(y = 1\) and compare the two curves:</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Hàm mất mát làm gì</h2>
+    <p class="key">Một hàm mất mát tốt thì nhỏ khi mạng đúng và lớn khi mạng sai mà lại rất tự tin.</p>
+    <p>Với bài toán phân loại, mạng cho ra một xác suất cho mỗi đáp án. Hàm mất mát là <strong>âm log xác suất của đáp án đúng</strong>, lấy trung bình trên dữ liệu huấn luyện:</p>
+    <div class="math">$$J(\theta) = -\,\frac{1}{m}\sum_{i=1}^{m} \log p_{\text{model}}\big(y^{(i)} \mid x^{(i)}\big)$$</div>
+    <p>Nếu mạng gán xác suất 0.9 cho lớp đúng thì loss là \(-\log 0.9 \approx 0.1\). Nếu gán 0.01 thì loss là \(-\log 0.01 \approx 4.6\). Ý tưởng này gọi là <strong>maximum likelihood</strong> (cực đại hoá hợp lý), và nó cho ta biết nên dùng loss nào cho từng loại đầu ra:</p>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>bài toán</th><th>unit đầu ra</th><th>loss</th></tr></thead>
+        <tbody>
+          <tr><td>dự đoán một con số</td><td>tuyến tính: \(\hat y = W^\top h + b\)</td><td>sai số bình phương trung bình</td></tr>
+          <tr><td>có / không</td><td>sigmoid: \(\hat y = \sigma(z) = 1/(1+e^{-z})\)</td><td>binary cross-entropy</td></tr>
+          <tr><td>một trong \(n\) lớp</td><td>softmax: \(\hat y_i = e^{z_i}/\sum_j e^{z_j}\)</td><td>cross-entropy</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="prose">
+    <h2>Vì sao không dùng sai số bình phương?</h2>
+    <p class="key">Gradient của cross-entropy vẫn lớn khi mạng sai. Gradient của sai số bình phương có thể biến mất.</p>
+    <p>Đầu ra sigmoid phẳng dần khi \(|z|\) lớn. Với sai số bình phương, một mạng <em>sai mà rất tự tin</em> nằm ngay trên đoạn phẳng đó, nên gradient gần như bằng 0 và nó hầu như không học. Phép log trong cross-entropy triệt tiêu đoạn phẳng này, nên gradient đơn giản là</p>
+    <div class="math">$$\frac{\partial J}{\partial z} = \sigma(z) - y$$</div>
+    <p>và nó vẫn gần −1 khi mô hình sai. Hãy kéo \(z\) về khoảng −6 với mục tiêu \(y = 1\) rồi so sánh hai đường cong:</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-out">
+    <div class="viz-head">
+      <p class="viz-title">Sigmoid output: log-likelihood vs squared error</p>
+      <div class="ctl-row" style="margin:0">
+        <div class="seg" role="group" aria-label="Target"><button type="button" data-y="0" aria-pressed="false"><span class="tex">\(y = 0\)</span></button><button type="button" data-y="1" aria-pressed="true"><span class="tex">\(y = 1\)</span></button></div>
+      </div>
+    </div>
+    <div class="viz-cols">
+      <canvas id="ou-loss" style="height:220px" aria-label="Cost as a function of the logit"></canvas>
+      <canvas id="ou-grad" style="height:220px" aria-label="Gradient as a function of the logit"></canvas>
+    </div>
+    <div class="ctl-row"><label class="ctl grow"><span>logit <span class="tex">\(z\)</span></span> <output id="ou-zo"></output><input type="range" id="ou-z" min="-8" max="8" step="0.1" value="-5"></label></div>
+    <div class="legend"><span><i style="background:var(--accent)"></i>negative log-likelihood</span><span><i style="background:var(--viz-grad)"></i>mean squared error</span></div>
+    <div class="readout" id="ou-read"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Many classes: softmax</h2>
+    <p>For \(n\) classes, softmax turns raw scores (logits) \(z_i\) into probabilities that add up to 1. The cross-entropy loss becomes</p>
+    <div class="math">$$J = -z_y + \log\sum_j e^{z_j}, \qquad \frac{\partial J}{\partial z} = \operatorname{softmax}(z) - \text{onehot}(y)$$</div>
+    <p>The gradient is "prediction minus truth", simple and never stuck.</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Nhiều lớp: softmax</h2>
+    <p>Với \(n\) lớp, softmax biến các điểm số thô (logit) \(z_i\) thành các xác suất có tổng bằng 1. Hàm cross-entropy trở thành</p>
+    <div class="math">$$J = -z_y + \log\sum_j e^{z_j}, \qquad \frac{\partial J}{\partial z} = \operatorname{softmax}(z) - \text{onehot}(y)$$</div>
+    <p>Gradient là "dự đoán trừ đi sự thật": đơn giản và không bao giờ bị kẹt.</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-softmax">
+    <div class="viz-head">
+      <p class="viz-title">Softmax output and its cross-entropy</p>
+      <p class="viz-sub">Click a bar to change the correct class.</p>
+    </div>
+    <div class="viz-cols">
+      <div><div class="ctl-row" id="sm-sliders"></div><button class="vbtn sm" id="sm-shift" type="button">Add the same constant to every z</button></div>
+      <div><div class="bars" id="sm-bars"></div></div>
+    </div>
+    <div class="readout" id="sm-read"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <details class="more"><summary>Going further</summary>
+      <p>Minimising squared error makes the network predict the <em>average</em> of \(y\) for each \(x\). Minimising absolute error makes it predict the <em>median</em>. In practice we also add a penalty such as <strong>weight decay</strong> \(\lambda\lVert W\rVert^2\) to keep weights small.</p>
+    </details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <details class="more"><summary>Đi sâu hơn</summary>
+      <p>Cực tiểu hoá sai số bình phương khiến mạng dự đoán <em>trung bình</em> của \(y\) với mỗi \(x\). Cực tiểu hoá sai số tuyệt đối khiến nó dự đoán <em>trung vị</em>. Trong thực tế ta còn thêm một thành phần phạt như <strong>weight decay</strong> \(\lambda\lVert W\rVert^2\) để giữ các trọng số nhỏ.</p>
+    </details>
+  </section>
+</div>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 6: Deep Feedforward Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Section 6.2)</span><span data-l="vi">(Mục 6.2)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="what-is-a-neural-network.html"><small>← Note 1</small>What is a neural network?</a>
+    <a class="next" href="activation-functions.html"><small>Note 3 →</small>Activation functions</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="what-is-a-neural-network.html"><small>← Bài 1</small>Mạng nơ-ron là gì?</a>
+    <a class="next" href="activation-functions.html"><small>Bài 3 →</small>Hàm kích hoạt</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/ffn.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

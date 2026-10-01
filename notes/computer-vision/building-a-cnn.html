@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Xây dựng một CNN">Building a CNN | Quoc Viet Le</title>
+  <meta name="description" content="Stacking layers into a full classifier, and watching one learn.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part B · Note 11 of 16</p>
+    <h1>Building a CNN</h1>
+    <p class="lead">Stacking layers into a full classifier, and watching one learn.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A CNN alternates convolution and pooling: the maps get smaller while the number of channels grows.</li>
+      <li>At the end, turn the maps into class scores: flatten and use a fully connected layer, pool to a fixed grid, or average one map per class.</li>
+      <li>Nobody designs the kernels. <strong>Backpropagation learns them</strong>, and the first layer usually ends up detecting edges.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần B · Bài 11/16</p>
+    <h1>Xây dựng một CNN</h1>
+    <p class="lead">Xếp chồng các lớp thành một bộ phân loại hoàn chỉnh, và xem nó học.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Một CNN luân phiên tích chập và pooling: các map nhỏ dần trong khi số kênh tăng lên.</li>
+      <li>Ở cuối, biến các map thành điểm số theo lớp: trải phẳng rồi dùng lớp kết nối đầy đủ, pooling về lưới cố định, hoặc lấy trung bình một map cho mỗi lớp.</li>
+      <li>Không ai thiết kế các kernel. <strong>Backpropagation học chúng</strong>, và lớp đầu tiên thường kết thúc bằng việc dò cạnh.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Three ways to finish a CNN</h2>
+    <p class="key">How you turn feature maps into class scores decides whether the input size can vary.</p>
+    <ol>
+      <li><strong>Flatten + fully connected:</strong> simple, but it fixes the input size and holds most of the parameters.</li>
+      <li><strong>Pool to a fixed grid</strong> (e.g. 3 × 3): works for any image size.</li>
+      <li><strong>No fully connected layer:</strong> one map per class, then average each map. Few parameters, and any input size.</li>
+    </ol>
+    <p>Change the input size in row 0 and compare the three designs:</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Ba cách kết thúc một CNN</h2>
+    <p class="key">Cách bạn biến feature map thành điểm số theo lớp quyết định liệu kích thước đầu vào có thể thay đổi hay không.</p>
+    <ol>
+      <li><strong>Trải phẳng + kết nối đầy đủ:</strong> đơn giản, nhưng cố định kích thước đầu vào và chứa phần lớn tham số.</li>
+      <li><strong>Pooling về lưới cố định</strong> (ví dụ 3 × 3): dùng được cho mọi kích thước ảnh.</li>
+      <li><strong>Không có lớp kết nối đầy đủ:</strong> một map cho mỗi lớp, rồi lấy trung bình từng map. Ít tham số, và nhận mọi kích thước đầu vào.</li>
+    </ol>
+    <p>Hãy đổi kích thước đầu vào ở hàng 0 và so sánh ba thiết kế:</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-arch">
+    <div class="viz-head">
+      <p class="viz-title">Example classification architectures (figure 9.11)</p>
+      <label class="ctl" style="flex-direction:row;align-items:center;gap:8px">architecture
+        <select class="vsel" id="ar-preset">
+          <option value="fixed">Fixed input size (left)</option>
+          <option value="variable">Variable size, fixed pooling grid (center)</option>
+          <option value="fullyconv">No fully connected layer (right)</option>
+        </select>
+      </label>
+    </div>
+    <canvas id="ar-canvas" style="height:200px" aria-label="Layer shapes"></canvas>
+    <div class="table-wrap" style="margin-top:10px">
+      <table class="data">
+        <thead><tr><th>#</th><th>stage</th><th>settings</th><th>output shape</th><th>parameters</th><th>receptive field</th></tr></thead>
+        <tbody id="ar-body"></tbody>
+      </table>
+    </div>
+    <p class="viz-cap" id="ar-total"></p>
+    <p class="viz-cap">Kernel sizes are not given in figure 9.11; <span class="tex">\(3 \times 3\)</span> convolutions with "same" padding are assumed. Every design ends with a softmax over 1,000 classes.</p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Watch a CNN learn its kernels</h2>
+    <p>A tiny CNN (444 parameters) learns to tell apart vertical lines, horizontal lines, diagonals and boxes, right in your browser. Press <em>Train</em> and watch the four kernels turn from random noise into line detectors:</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Xem một CNN học các kernel của nó</h2>
+    <p>Một CNN rất nhỏ (444 tham số) học phân biệt đường dọc, đường ngang, đường chéo và hình hộp ngay trong trình duyệt của bạn. Hãy bấm <em>Huấn luyện</em> và xem bốn kernel biến từ nhiễu ngẫu nhiên thành các máy dò đường nét:</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-tiny">
+    <div class="viz-head">
+      <p class="viz-title">A 444-parameter CNN learning its kernels</p>
+      <div class="ctl-row" style="margin:0">
+        <button class="vbtn primary" id="tc-play" type="button">▶ Train</button>
+        <button class="vbtn" id="tc-step" type="button">+1 step</button>
+        <button class="vbtn" id="tc-reset" type="button">New weights</button>
+        <label class="ctl" style="flex-direction:row;align-items:center;gap:6px;min-width:0">lr
+          <select class="vsel" id="tc-lr"><option>0.01</option><option>0.03</option><option selected>0.1</option><option>0.3</option></select>
+        </label>
+      </div>
+    </div>
+    <p class="viz-cap" style="margin:0 0 6px"><span class="tex">\(12 \times 12 \times 1\)</span> → conv <span class="tex">\(3 \times 3\)</span>, 4 kernels (+4 biases) → ReLU → <span class="tex">\(2 \times 2\)</span> max pool → 100 → matrix multiply <span class="tex">\(100 \to 4\)</span> (+4 biases) → softmax. Classes: vertical line, horizontal line, diagonal, box.</p>
+    <div class="hscroll"><canvas id="tc-net" style="height:250px;min-width:640px" aria-label="Network structure with activations"></canvas></div>
+    <p class="viz-cap" id="tc-probs"></p>
+    <div class="viz-cols three" style="margin-top:12px">
+      <div>
+        <p class="viz-cap" style="margin-top:0"><b>Convolution stage:</b> the 4 kernels and their biases</p>
+        <canvas id="tc-filters" style="height:120px" aria-label="Learned convolution kernels"></canvas>
+        <p class="viz-cap" style="margin-top:12px"><b>Test it:</b> draw here (click or drag), or pick a sample</p>
+        <canvas class="sq" id="tc-pad" style="max-width:220px" aria-label="Drawing pad"></canvas>
+        <div class="ctl-row"><button class="vbtn sm" id="tc-sample" type="button">Random test image</button><button class="vbtn sm" id="tc-clear" type="button">Clear &amp; draw</button></div>
+      </div>
+      <div class="span2">
+        <p class="viz-cap" style="margin-top:0"><b>Classifier weights</b>, one row per class, reshaped into the 4 pooled <span class="tex">\(5 \times 5\)</span> maps. Orange votes for the class, blue against.</p>
+        <canvas id="tc-fc" style="height:260px" aria-label="Classifier weights per class"></canvas>
+        <canvas id="tc-loss" style="height:80px;margin-top:8px" aria-label="Loss curve"></canvas>
+        <div class="stats" id="tc-stats"></div>
+      </div>
+    </div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 9: Convolutional Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Sections 9.4&ndash;9.9)</span><span data-l="vi">(Mục 9.4&ndash;9.9)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="inside-a-conv-layer.html"><small>← Note 10</small>Inside a convolutional layer</a>
+    <a class="next" href="cnns-and-the-visual-cortex.html"><small>Note 12 →</small>CNNs and the visual cortex</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="inside-a-conv-layer.html"><small>← Bài 10</small>Bên trong một lớp tích chập</a>
+    <a class="next" href="cnns-and-the-visual-cortex.html"><small>Bài 12 →</small>CNN và vỏ não thị giác</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/conv.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

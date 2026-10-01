@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Phép tích chập">The convolution operation | Quoc Viet Le</title>
+  <meta name="description" content="Sliding a small grid of weights over an image to find patterns.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part B · Note 7 of 16</p>
+    <h1>The convolution operation</h1>
+    <p class="lead">Sliding a small grid of weights over an image to find patterns.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A <strong>kernel</strong> (filter) is a small grid of weights, for example 3×3.</li>
+      <li>Slide it over the image. At each position, multiply element by element and add everything up. The results form a <strong>feature map</strong>.</li>
+      <li>A kernel acts as a pattern detector (edges, blobs, …). In a CNN the kernel values are <strong>learned</strong>.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần B · Bài 7/16</p>
+    <h1>Phép tích chập</h1>
+    <p class="lead">Trượt một lưới trọng số nhỏ trên ảnh để tìm các mẫu hình.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>Kernel</strong> (bộ lọc, filter) là một lưới trọng số nhỏ, ví dụ 3×3.</li>
+      <li>Trượt nó trên ảnh. Tại mỗi vị trí, nhân từng phần tử rồi cộng tất cả lại. Các kết quả tạo thành một <strong>feature map</strong>.</li>
+      <li>Một kernel đóng vai trò máy dò mẫu (cạnh, đốm, …). Trong CNN, giá trị của kernel được <strong>học</strong>.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Multiply and add</h2>
+    <p class="key">Each output value = the sum of (kernel weight × pixel under it).</p>
+    <div class="math">$$S(i,j) = \sum_{m}\sum_{n} I(i+m,\; j+n)\; K(m,n)$$</div>
+    <p>\(I\) is the image, \(K\) the kernel and \(S\) the feature map. A large output means "the pattern of the kernel is here". For example, a kernel with negative weights on the left and positive weights on the right lights up at left-to-right brightness changes: a vertical edge.</p>
+    <p><em>A small detail:</em> the mathematical convolution flips the kernel first, while deep learning libraries do not flip it (this is called cross-correlation). Since the network learns the kernel anyway, the difference does not matter.</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Nhân rồi cộng</h2>
+    <p class="key">Mỗi giá trị đầu ra = tổng của (trọng số kernel × pixel nằm dưới nó).</p>
+    <div class="math">$$S(i,j) = \sum_{m}\sum_{n} I(i+m,\; j+n)\; K(m,n)$$</div>
+    <p>\(I\) là ảnh, \(K\) là kernel và \(S\) là feature map. Đầu ra lớn nghĩa là "mẫu hình của kernel đang ở đây". Ví dụ, một kernel có trọng số âm ở bên trái và dương ở bên phải sẽ sáng lên tại những chỗ độ sáng đổi từ trái sang phải: một cạnh dọc.</p>
+    <p><em>Một chi tiết nhỏ:</em> phép tích chập trong toán học lật kernel trước, còn các thư viện học sâu thì không lật (gọi là cross-correlation). Vì mạng vẫn tự học kernel, sự khác biệt này không quan trọng.</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-conv">
+    <div class="viz-head">
+      <p class="viz-title">2-D convolution, step by step (figure 9.1)</p>
+      <p class="viz-sub">Click or drag on the input to draw.</p>
+    </div>
+    <div class="ctl-row">
+      <label class="ctl">image
+        <select class="vsel" id="cv-pic">
+          <option value="seven">Digit 7</option><option value="square">Square</option><option value="cross">Cross</option>
+          <option value="blob">Blob</option><option value="clear">Blank</option><option value="custom" hidden>Custom</option>
+        </select>
+      </label>
+      <label class="ctl">kernel
+        <select class="vsel" id="cv-kpreset">
+          <option value="vedge">Vertical edges (Sobel)</option><option value="hedge">Horizontal edges (Sobel)</option>
+          <option value="outline">Outline (Laplacian)</option><option value="blur">Blur (box)</option>
+          <option value="sharpen">Sharpen</option><option value="identity">Identity</option><option value="custom" hidden>Custom</option>
+        </select>
+      </label>
+      <label class="ctl"><span>stride <span class="tex">\(s\)</span></span> <select class="vsel" id="cv-stride"><option>1</option><option>2</option></select></label>
+      <label class="ctl"><span>padding <span class="tex">\(p\)</span></span> <select class="vsel" id="cv-pad"><option>0</option><option selected>1</option></select></label>
+      <label class="chk"><input type="checkbox" id="cv-flip"> flip kernel (true convolution)</label>
+      <label class="chk"><input type="checkbox" id="cv-relu"> ReLU</label>
+      <button class="vbtn primary" id="cv-anim" type="button">▶ Animate</button>
+      <span class="ctl">shift input
+        <span>
+          <button class="vbtn sm" data-shift="-1,0" type="button" aria-label="Shift left">←</button>
+          <button class="vbtn sm" data-shift="1,0" type="button" aria-label="Shift right">→</button>
+          <button class="vbtn sm" data-shift="0,-1" type="button" aria-label="Shift up">↑</button>
+          <button class="vbtn sm" data-shift="0,1" type="button" aria-label="Shift down">↓</button>
+        </span>
+      </span>
+    </div>
+    <div class="viz-cols three">
+      <div><canvas class="sq" id="cv-in" aria-label="Input image, drawable"></canvas><p class="viz-cap">Input (dashed ring = implicit zero padding)</p></div>
+      <div><canvas class="sq" id="cv-fm" aria-label="Feature map"></canvas><p class="viz-cap">Feature map (orange +, blue −)</p></div>
+      <div><canvas class="sq" id="cv-pool" aria-label="Pooled feature map"></canvas><p class="viz-cap">After <span class="tex">\(2 \times 2\)</span> max pooling</p></div>
+    </div>
+    <div class="viz-cols">
+      <div><p class="viz-cap" style="margin-top:12px">Kernel <span class="tex">\(K\)</span> (<span class="tex">\(3 \times 3\)</span>, editable):</p><div class="kernel-grid" id="cv-kernel"></div></div>
+      <div class="readout" id="cv-calc"></div>
+    </div>
+    <p class="viz-cap" id="cv-size"></p>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 9: Convolutional Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Section 9.1)</span><span data-l="vi">(Mục 9.1)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="gradient-descent-and-optimizers.html"><small>← Note 6</small>Training: gradient descent and optimizers</a>
+    <a class="next" href="why-convolution-works.html"><small>Note 8 →</small>Why convolution works so well</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="gradient-descent-and-optimizers.html"><small>← Bài 6</small>Huấn luyện: gradient descent và các optimizer</a>
+    <a class="next" href="why-convolution-works.html"><small>Bài 8 →</small>Vì sao tích chập hiệu quả đến vậy</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/conv.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

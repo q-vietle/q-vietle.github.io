@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="ResNet: các khối residual">ResNet: residual blocks | Quoc Viet Le</title>
+  <meta name="description" content="The simple shortcut that made networks with a hundred or more layers trainable.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part C · Note 16 of 16</p>
+    <h1>ResNet: residual blocks</h1>
+    <p class="lead">The simple shortcut that made networks with a hundred or more layers trainable.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>Instead of learning the full mapping \(H(x)\), each block learns only the change: the <strong>residual</strong> \(F(x) = H(x) - x\).</li>
+      <li>A <strong>shortcut</strong> adds the input back: \(y = F(x) + x\). It needs no extra weights.</li>
+      <li>With this, deeper is better again: ResNet-152 won ImageNet 2015 with 3.57% top-5 error.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần C · Bài 16/16</p>
+    <h1>ResNet: các khối residual</h1>
+    <p class="lead">Đường tắt đơn giản giúp các mạng hàng trăm lớp trở nên huấn luyện được.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Thay vì học toàn bộ ánh xạ \(H(x)\), mỗi khối chỉ học phần thay đổi: <strong>phần dư</strong> (residual) \(F(x) = H(x) - x\).</li>
+      <li>Một <strong>shortcut</strong> cộng đầu vào trở lại: \(y = F(x) + x\). Nó không cần thêm trọng số nào.</li>
+      <li>Nhờ vậy, sâu hơn lại tốt hơn: ResNet-152 thắng ImageNet 2015 với sai số top-5 là 3.57%.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>The residual block</h2>
+    <p class="key">If a layer has nothing useful to add, it only needs to output zero, which is much easier than learning to copy its input.</p>
+    <div class="math">$$y = \operatorname{ReLU}\big(F(x) + x\big),\qquad F(x) = W_2\,\operatorname{ReLU}(W_1 x)$$</div>
+    <ul>
+      <li>The shortcut adds <strong>no parameters and almost no computation</strong>.</li>
+      <li>When the shape changes (fewer pixels, more channels), a 1 × 1 convolution \(W_s x\) adjusts the shortcut.</li>
+      <li>For 50 or more layers, a <strong>bottleneck</strong> block (1×1 → 3×3 → 1×1 convolutions) keeps the cost low.</li>
+    </ul>
+    <p>Pick a model and click a block to open it:</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Khối residual</h2>
+    <p class="key">Nếu một lớp không có gì hữu ích để thêm vào, nó chỉ cần cho ra số 0, dễ hơn nhiều so với việc học cách sao chép đầu vào.</p>
+    <div class="math">$$y = \operatorname{ReLU}\big(F(x) + x\big),\qquad F(x) = W_2\,\operatorname{ReLU}(W_1 x)$$</div>
+    <ul>
+      <li>Shortcut thêm <strong>không tham số nào và gần như không tốn tính toán</strong>.</li>
+      <li>Khi kích thước thay đổi (ít pixel hơn, nhiều kênh hơn), một phép tích chập 1 × 1 \(W_s x\) điều chỉnh shortcut.</li>
+      <li>Với 50 lớp trở lên, khối <strong>bottleneck</strong> (các phép tích chập 1×1 → 3×3 → 1×1) giữ chi phí thấp.</li>
+    </ul>
+    <p>Hãy chọn một mô hình và bấm vào một khối để mở nó:</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-rn">
+    <div class="viz-head">
+      <p class="viz-title">ImageNet architectures (figure 3 and Table 1)</p>
+      <label class="ctl" style="flex-direction:row;align-items:center;gap:8px">model
+        <select class="vsel" id="rn-model">
+          <option value="vgg19">VGG-19 (reference)</option><option value="plain34">34-layer plain</option>
+          <option value="res18">ResNet-18</option><option value="res34" selected>ResNet-34</option><option value="res50">ResNet-50</option>
+          <option value="res101">ResNet-101</option><option value="res152">ResNet-152</option>
+        </select>
+      </label>
+    </div>
+    <div class="hscroll" id="rn-wrap"><canvas id="rn-canvas" aria-label="Architecture block diagram"></canvas></div>
+    <div class="readout" id="rn-info"></div>
+    <div id="rn-dwrap" hidden>
+      <p class="viz-cap" style="margin:14px 0 4px"><b id="rn-dtitle"></b> (hover the parts)</p>
+      <div class="hscroll"><canvas id="rn-detail" aria-label="Inside the selected block"></canvas></div>
+      <div class="readout" id="rn-dinfo"></div>
+    </div>
+    <div class="legend"><span><i style="background:var(--viz-neg)"></i>input</span><span><i style="background:var(--viz-fwd)"></i>convolution</span><span><i style="background:var(--muted)"></i>pooling / BN</span><span><i style="background:var(--viz-pos)"></i>fully connected</span><span><i style="background:var(--accent)"></i>shortcut</span></div>
+    <p class="viz-cap">FLOPs are from Table 1. Parameter counts are our own tally of the Table 1 architectures (biases omitted before BN, BN scale and shift included); the paper does not list them for ImageNet.</p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Results</h2>
+    <p class="key">With shortcuts, deeper networks are simply better.</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Kết quả</h2>
+    <p class="key">Có shortcut, mạng sâu hơn đơn giản là tốt hơn.</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-rn-results">
+    <div class="viz-head">
+      <p class="viz-title">Results reported in the ResNet paper</p>
+      <select class="vsel" id="rr-sel" aria-label="Table">
+        <option value="rn_plain">Plain vs ResNet, 18/34 layers (Table 2)</option>
+        <option value="rn_deep">Deeper ResNets and shortcut options (Table 3)</option>
+        <option value="rn_ens">Ensembles on the test set (Table 5)</option>
+        <option value="rn_cifar">CIFAR-10 (Table 6)</option>
+      </select>
+    </div>
+    <div id="rr-chart"></div>
+    <p class="viz-cap">Error rates, lower is better. Highlighted rows are residual networks.</p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <ul>
+      <li>Plain networks got worse from 18 to 34 layers. ResNets got better (27.88% → 25.03% top-1 error).</li>
+      <li>ResNet-152 is still cheaper to run than VGG-19, and an ensemble won ImageNet 2015 with <strong>3.57%</strong> top-5 error.</li>
+      <li>The learned features also improved object detection on COCO by 28% (relative).</li>
+    </ul>
+    <h2>AlexNet vs ResNet</h2>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th></th><th>AlexNet (2012)</th><th>ResNet (2015)</th></tr></thead>
+        <tbody>
+          <tr><td>layers</td><td>8</td><td>18–152 (up to 1,202 on CIFAR-10)</td></tr>
+          <tr><td>top-5 error</td><td>15.3%</td><td>3.57%</td></tr>
+          <tr><td>normalization</td><td>local response norm.</td><td>batch norm.</td></tr>
+          <tr><td>big idea</td><td>big CNN + GPUs + ReLU + data</td><td>shortcuts make depth trainable</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <ul>
+      <li>Các mạng plain tệ đi từ 18 lên 34 lớp. ResNet thì tốt lên (sai số top-1 từ 27.88% xuống 25.03%).</li>
+      <li>ResNet-152 vẫn rẻ hơn VGG-19 khi chạy, và một ensemble đã thắng ImageNet 2015 với sai số top-5 <strong>3.57%</strong>.</li>
+      <li>Các đặc trưng học được cũng cải thiện việc phát hiện vật thể trên COCO tới 28% (tương đối).</li>
+    </ul>
+    <h2>AlexNet và ResNet</h2>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th></th><th>AlexNet (2012)</th><th>ResNet (2015)</th></tr></thead>
+        <tbody>
+          <tr><td>số lớp</td><td>8</td><td>18–152 (tới 1,202 trên CIFAR-10)</td></tr>
+          <tr><td>sai số top-5</td><td>15.3%</td><td>3.57%</td></tr>
+          <tr><td>chuẩn hoá</td><td>local response norm.</td><td>batch norm.</td></tr>
+          <tr><td>ý tưởng lớn</td><td>CNN lớn + GPU + ReLU + dữ liệu</td><td>shortcut giúp độ sâu huấn luyện được</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>He, K., Zhang, X., Ren, S., &amp; Sun, J. (2016). Deep residual learning for image recognition. In <em>Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</em>, pp. 770&ndash;778. <a href="https://arxiv.org/abs/1512.03385" target="_blank" rel="noopener">arXiv:1512.03385</a> <span class="ref-sec"><span data-l="en">(Sections 3&ndash;4)</span><span data-l="vi">(Mục 3&ndash;4)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="resnet-degradation.html"><small>← Note 15</small>ResNet: when deeper got worse</a>
+    <a class="next" href="../index.html#computer-vision"><small>End of series →</small>All notes</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="resnet-degradation.html"><small>← Bài 15</small>ResNet: khi sâu hơn lại tệ hơn</a>
+    <a class="next" href="../index.html#computer-vision"><small>Hết loạt bài →</small>Tất cả bài viết</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/cases.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

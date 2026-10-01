@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quoc Viet Le | Statistics PhD Student</title>
+  <meta name="description" content="Portfolio of Quoc Viet Le (Viet Le), Ph.D. student in Statistics at the University of Wisconsin-Madison.">
+  <meta property="og:title" content="Quoc Viet Le | Statistics PhD Student">
+  <meta property="og:description" content="Portfolio of Quoc Viet Le, Ph.D. student in Statistics at the University of Wisconsin-Madison.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://q-vietle.github.io/">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    // Runs before first paint: enables JS-only styles and applies the saved theme (no flash).
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="#top">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#notes">Notes</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#publications">Publications</a></li>
+      <li><a href="#teaching">Teaching</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- Hero -->
+  <section class="hero">
+    <canvas id="hero-canvas" aria-hidden="true"></canvas>
+    <p class="tank-hint" id="tank-hint" aria-hidden="true">Click to drop a fuel cell, or poke a bot to chat</p>
+    <div class="container hero-inner">
+      <div class="avatar" aria-hidden="true">QL</div>
+      <div>
+        <p class="eyebrow">Ph.D. Student in Statistics</p>
+        <h1>Quoc Viet Le</h1>
+        <p class="lead">University of Wisconsin&ndash;Madison</p>
+        <p class="hero-actions">
+          <a class="btn btn-primary" href="#projects">View projects</a>
+          <a class="btn" href="https://github.com/q-vietle" target="_blank" rel="noopener">GitHub</a>
+          <a class="btn" href="#contact">Get in touch</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="section">
+    <div class="container reveal">
+      <h2>About</h2>
+      <!-- TODO: replace with your own bio -->
+      <p>
+        I am a Ph.D. student in Statistics at the University of Wisconsin&ndash;Madison.
+        [Write 2&ndash;3 sentences about your background, what you work on, and what you are looking for.]
+      </p>
+    </div>
+  </section>
+
+  <!-- Research -->
+  <section id="research" class="section alt">
+    <div class="container reveal">
+      <h2>Research Interests</h2>
+      <!-- TODO: replace tags with your real research interests -->
+      <ul class="tags">
+        <li>[Research interest 1]</li>
+        <li>[Research interest 2]</li>
+        <li>[Research interest 3]</li>
+        <li>[Research interest 4]</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Notes -->
+  <section id="notes" class="section">
+    <div class="container">
+      <h2 class="reveal">Notes</h2>
+      <article class="card feature feature-narrow reveal">
+        <a class="feature-media" href="notes/index.html#computer-vision" aria-label="Open the computer vision notes">
+          <img src="notes/preview.jpg" width="800" height="800" loading="lazy" alt="Interactive figure from the notes: the XOR decision regions a small neural network has learned">
+        </a>
+        <div class="feature-body">
+          <p class="meta">Series · interactive notes</p>
+          <h3><a href="notes/index.html#computer-vision">Computer vision</a></h3>
+          <p>How neural networks learn to see, from a single layer to convolutional networks, AlexNet and ResNet. Short reads with figures you can play with.</p>
+          <ol class="parts">
+            <li><a href="notes/computer-vision/what-is-a-neural-network.html"><span>A</span>Neural network basics</a></li>
+            <li><a href="notes/computer-vision/the-convolution-operation.html"><span>B</span>Convolutional networks</a></li>
+            <li><a href="notes/computer-vision/alexnet-architecture.html"><span>C</span>Case studies: AlexNet and ResNet</a></li>
+          </ol>
+          <p class="links"><a href="notes/index.html#computer-vision">All notes →</a></p>
+        </div>
+      </article>
+      <article class="card feature feature-narrow reveal">
+        <a class="feature-media" href="notes/index.html#sql" aria-label="Open the SQL notes">
+          <img src="notes/sql-preview.jpg" width="900" height="566" loading="lazy" alt="Interactive figure from the SQL notes: lines matching each order to its customer in a JOIN">
+        </a>
+        <div class="feature-body">
+          <p class="meta">Series · interactive notes</p>
+          <h3><a href="notes/index.html#sql">SQL</a></h3>
+          <p>From your first SELECT to joins, window functions, indexes and transactions, with pictures of what the database does at each step and SQL you can run in the browser.</p>
+          <ol class="parts">
+            <li><a href="notes/sql/what-is-a-database.html"><span>A</span>Getting started</a></li>
+            <li><a href="notes/sql/aggregate-functions.html"><span>B</span>Summarising data</a></li>
+            <li><a href="notes/sql/joins.html"><span>C</span>Intermediate: joins, subqueries, windows, indexes, transactions</a></li>
+          </ol>
+          <p class="links"><a href="notes/index.html#sql">All notes →</a></p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects" class="section alt">
+    <div class="container">
+      <h2 class="reveal">Projects</h2>
+      <!-- Filter buttons are generated from the tech chips once there are 2+ projects -->
+      <div class="filters reveal" id="filters" role="group" aria-label="Filter projects by technology" hidden></div>
+      <div class="project-list" id="project-grid">
+        <article class="card feature reveal">
+          <a class="feature-media" href="projects/hcmc-map/index.html" target="_blank" rel="noopener" aria-label="Open the live map in a new tab">
+            <img src="projects/hcmc-map/preview.jpg" width="960" height="600" loading="lazy" alt="Price map of Ho Chi Minh City: coloured property dots, ward and district pins, and a smoothed price cloud">
+          </a>
+          <div class="feature-body">
+            <h3><a href="projects/hcmc-map/index.html" target="_blank" rel="noopener">HCMC Real Estate Intelligence</a></h3>
+            <p>An interactive price map of Ho Chi Minh City land, houses and apartments. Public listings are parsed with a local LLM, merged into unique properties and geocoded, then each property is valued from comparable properties nearby, with accuracy checked on held-out asking prices.</p>
+            <ul class="chips"><li>Python</li><li>pandas</li><li>NumPy</li><li>scikit-learn</li><li>Pydantic</li><li>BeautifulSoup</li><li>PyArrow</li><li>H3</li><li>pypdf</li><li>PostgreSQL</li><li>PostGIS</li><li>Docker</li><li>Ollama</li><li>Qwen2.5</li><li>pytest</li><li>MapLibre GL</li><li>OpenStreetMap</li></ul>
+            <p class="links"><a href="projects/hcmc-map/index.html" target="_blank" rel="noopener">Live map ↗</a></p>
+          </div>
+        </article>
+        <!-- To add a project, copy the <article> above (the image link is optional). -->
+      </div>
+      <p class="empty" id="filter-empty" hidden>No projects match this filter.</p>
+    </div>
+  </section>
+
+  <!-- Publications -->
+  <section id="publications" class="section">
+    <div class="container reveal">
+      <h2>Publications</h2>
+      <ol class="pubs">
+        <!-- TODO: add your publications / preprints / manuscripts in preparation -->
+        <li>
+          <span class="year">[Year]</span>
+          <div>
+            <p class="pub-title">[Paper title]</p>
+            <p class="meta">Quoc Viet Le, [Coauthors]. <em>[Venue]</em></p>
+            <p class="links"><a href="#">PDF</a> <a href="#">DOI</a></p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Teaching -->
+  <section id="teaching" class="section alt">
+    <div class="container reveal">
+      <h2>Teaching</h2>
+      <ul class="rows">
+        <!-- TODO: add your courses -->
+        <li><span class="year">[Term]</span><div><p class="pub-title">[Course code: Course title]</p><p class="meta">[Role, e.g. Teaching Assistant]</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="section">
+    <div class="container reveal">
+      <h2>Contact</h2>
+      <p>Open to collaboration, research discussions, and opportunities. The best way to reach me is by email.</p>
+      <ul class="contact-list">
+        <!-- TODO: replace with your real email (both the href and the text) -->
+        <li>
+          <strong>Email</strong>
+          <span class="email-row">
+            <a id="email-link" href="mailto:your.email@wisc.edu">your.email@wisc.edu</a>
+            <button class="copy-btn" id="copy-email" type="button">Copy</button>
+            <span class="sr-only" id="copy-status" role="status" aria-live="polite"></span>
+          </span>
+        </li>
+        <li><strong>GitHub</strong><a href="https://github.com/q-vietle" target="_blank" rel="noopener">github.com/q-vietle</a></li>
+        <li><strong>Affiliation</strong><span>Department of Statistics, University of Wisconsin&ndash;Madison</span></li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="assets/js/main.js" defer></script>
+<script src="assets/js/aquarium.js" defer></script>
+<script src="assets/js/submarine.js" defer></script>
+</body>
+</html>

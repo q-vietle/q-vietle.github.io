@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Index: tìm hàng nhanh">Indexes: finding rows fast | Quoc Viet Le</title>
+  <meta name="description" content="Why some queries read a whole table and others jump straight to the answer.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part C · Note 13 of 14</p>
+    <h1>Indexes: finding rows fast</h1>
+    <p class="lead">Why some queries read a whole table and others jump straight to the answer.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>Without an index, the database must read the <strong>whole table</strong> to find matching rows: a full (sequential) scan.</li>
+      <li>An <strong>index</strong> is a separate, sorted structure (usually a B-tree) that leads straight to the rows, like the index at the back of a book.</li>
+      <li>The planner decides whether to use it. Functions on the column, patterns starting with <code>%</code> and conditions matching a large share of rows prevent or discourage it. Every index also slows down writes a little.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần C · Bài 13/14</p>
+    <h1>Index: tìm hàng nhanh</h1>
+    <p class="lead">Vì sao có query phải đọc cả bảng còn có query nhảy thẳng tới câu trả lời.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Không có index, database phải đọc <strong>cả bảng</strong> để tìm các hàng khớp: quét toàn bảng (sequential scan).</li>
+      <li>Một <strong>index</strong> là một cấu trúc riêng, đã sắp xếp (thường là B-tree), dẫn thẳng tới các hàng, giống như mục lục tra cứu ở cuối sách.</li>
+      <li>Planner quyết định có dùng nó hay không. Hàm áp lên cột, mẫu bắt đầu bằng <code>%</code> và điều kiện khớp một tỉ lệ lớn các hàng sẽ cản trở hoặc làm nản việc dùng index. Mỗi index cũng làm thao tác ghi chậm đi một chút.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>A book with and without an index</h2>
+    <p class="key">To find "B-tree" in a book without an index you read every page. With an index you look it up in sorted order and jump to the right page.</p>
+    <p>A table is stored in <em>pages</em> (blocks of a few kilobytes, about 100 rows each here). A full scan reads them all. A B-tree index is sorted and very wide: each node points to hundreds of children, so even a billion rows need only four or five steps from the top to the bottom. Change the table size and the query:</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Một cuốn sách có và không có mục lục</h2>
+    <p class="key">Để tìm "B-tree" trong một cuốn sách không có mục lục, bạn đọc từng trang. Có mục lục, bạn tra theo thứ tự rồi nhảy tới đúng trang.</p>
+    <p>Một bảng được lưu trong các <em>trang</em> (page; các khối vài kilobyte, ở đây khoảng 100 hàng mỗi trang). Quét toàn bảng đọc tất cả. Một index B-tree được sắp xếp và rất rộng: mỗi nút trỏ tới hàng trăm nút con, nên ngay cả một tỉ hàng cũng chỉ cần bốn năm bước từ đỉnh xuống đáy. Hãy đổi kích thước bảng và query:</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-index">
+    <div class="viz-head">
+      <p class="viz-title">Full scan or index lookup?</p>
+      <p class="viz-sub">The users table. Squares are table pages; lit squares are pages actually read.</p>
+    </div>
+    <div class="ctl-row"><label class="ctl grow">query <select class="vsel" id="si-q"></select></label><label class="ctl grow">table size <output id="si-no"></output><input type="range" id="si-n" min="3" max="9" step="1" value="6"></label></div>
+    <pre class="sqlcode" id="si-sql"></pre>
+    <div class="si-grid"><svg id="si-svg" role="img" aria-label="B-tree index and table pages"></svg><div id="si-stats"></div></div>
+    <p class="readout" id="si-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Creating and checking an index</h2>
+    <pre class="sqlcode static">CREATE INDEX users_email_idx ON users (email);
+
+EXPLAIN SELECT * FROM users WHERE email = &#x27;lan.tran@example.com&#x27;;
+--  Index Scan using users_email_idx on users ...
+
+CREATE INDEX users_email_lower_idx ON users (LOWER(email));   -- for LOWER(email) = ...</pre>
+    <p><code>EXPLAIN</code> shows the plan the database chose without running the query. Use it when a query is slow: "Seq Scan" on a big table with a selective condition usually means a missing or unusable index.</p>
+    <ul><li>Index columns that you search, join or sort on often, and that pick out few rows.</li><li>Do not index everything: each INSERT, UPDATE and DELETE must also update every index, and indexes take disk space.</li><li>Primary keys and UNIQUE columns get an index automatically.</li></ul>
+    <details class="more"><summary>Going further: why is the tree so shallow?</summary><p>If each node holds about 300 keys, one level reaches 300 rows, two levels 90,000, three levels 27 million and four levels 8 billion. The number of steps grows with the logarithm of the table size, while a full scan grows in step with it.</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Tạo và kiểm tra một index</h2>
+    <pre class="sqlcode static">CREATE INDEX users_email_idx ON users (email);
+
+EXPLAIN SELECT * FROM users WHERE email = &#x27;lan.tran@example.com&#x27;;
+--  Index Scan using users_email_idx on users ...
+
+CREATE INDEX users_email_lower_idx ON users (LOWER(email));   -- cho LOWER(email) = ...</pre>
+    <p><code>EXPLAIN</code> cho thấy kế hoạch mà database đã chọn mà không chạy query. Hãy dùng nó khi một query chậm: "Seq Scan" trên một bảng lớn với điều kiện chọn lọc thường nghĩa là thiếu index hoặc index không dùng được.</p>
+    <ul><li>Đánh index cho các cột bạn thường tìm kiếm, join hoặc sắp xếp, và chọn ra ít hàng.</li><li>Đừng đánh index mọi thứ: mỗi INSERT, UPDATE và DELETE cũng phải cập nhật mọi index, và index tốn dung lượng đĩa.</li><li>Khoá chính và các cột UNIQUE được tự động tạo index.</li></ul>
+    <details class="more"><summary>Đi sâu hơn: vì sao cây lại nông đến vậy?</summary><p>Nếu mỗi nút chứa khoảng 300 khoá, một tầng với tới 300 hàng, hai tầng 90,000, ba tầng 27 triệu và bốn tầng 8 tỉ. Số bước tăng theo logarit của kích thước bảng, trong khi quét toàn bảng tăng theo tỉ lệ thuận.</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;Plan: primary key&quot;, &quot;EXPLAIN QUERY PLAN\nSELECT * FROM users WHERE user_id = 48213;&quot;], [&quot;Plan: indexed email&quot;, &quot;EXPLAIN QUERY PLAN\nSELECT * FROM users WHERE email = &#x27;user4821@example.com&#x27;;&quot;], [&quot;Plan: function on column&quot;, &quot;EXPLAIN QUERY PLAN\nSELECT * FROM users WHERE LOWER(email) = &#x27;user4821@example.com&#x27;;&quot;], [&quot;Plan: leading %&quot;, &quot;EXPLAIN QUERY PLAN\nSELECT * FROM users WHERE email LIKE &#x27;%@example.com&#x27;;&quot;], [&quot;Plan: range&quot;, &quot;EXPLAIN QUERY PLAN\nSELECT * FROM users WHERE signup_date BETWEEN &#x27;2024-03-01&#x27; AND &#x27;2024-03-07&#x27;;&quot;], [&quot;Run it&quot;, &quot;SELECT * FROM users WHERE email = &#x27;user4821@example.com&#x27;;&quot;]]" data-init="CREATE TABLE users (user_id INTEGER PRIMARY KEY, email TEXT, city TEXT, signup_date TEXT);
+WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i &lt; 50000)
+INSERT INTO users SELECT i, &#x27;user&#x27; || i || &#x27;@example.com&#x27;,
+  CASE i % 5 WHEN 0 THEN &#x27;Hanoi&#x27; WHEN 3 THEN &#x27;Da Nang&#x27; WHEN 4 THEN &#x27;Hue&#x27; ELSE &#x27;HCMC&#x27; END,
+  date(&#x27;2022-01-01&#x27;, &#x27;+&#x27; || (i % 1100) || &#x27; days&#x27;) FROM n;
+CREATE INDEX users_email_idx ON users (email);
+CREATE INDEX users_signup_idx ON users (signup_date);">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite in your browser, with a 50,000-row users table. SQLite prints SEARCH … USING INDEX for an index lookup and SCAN for a full scan.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Chapter 11: Indexes. <a href="https://www.postgresql.org/docs/16/indexes.html" target="_blank" rel="noopener">postgresql.org/docs/16/indexes.html</a></li>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 14.1: Using EXPLAIN. <a href="https://www.postgresql.org/docs/16/using-explain.html" target="_blank" rel="noopener">postgresql.org/docs/16/using-explain.html</a></li>
+      <li>Winand, M. (2012). <em>SQL Performance Explained</em>. Self-published; online as <a href="https://use-the-index-luke.com/" target="_blank" rel="noopener">Use The Index, Luke!</a></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="window-functions.html"><small>← Note 12</small>Window functions</a>
+    <a class="next" href="transactions.html"><small>Note 14 →</small>Transactions: all or nothing</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="window-functions.html"><small>← Bài 12</small>Window function</a>
+    <a class="next" href="transactions.html"><small>Bài 14 →</small>Transaction: được ăn cả, ngã về không</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

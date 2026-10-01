@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Vì sao tích chập hiệu quả đến vậy">Why convolution works so well | Quoc Viet Le</title>
+  <meta name="description" content="Three properties that make convolution ideal for images.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part B · Note 8 of 16</p>
+    <h1>Why convolution works so well</h1>
+    <p class="lead">Three properties that make convolution ideal for images.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li><strong>Sparse connections:</strong> each output looks at only a small patch, not the whole image.</li>
+      <li><strong>Parameter sharing:</strong> the same small kernel is reused at every position, so there are very few weights to learn.</li>
+      <li><strong>Equivariance:</strong> if an object moves in the image, its feature map moves the same way. Units in deeper layers see larger areas.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần B · Bài 8/16</p>
+    <h1>Vì sao tích chập hiệu quả đến vậy</h1>
+    <p class="lead">Ba tính chất khiến tích chập lý tưởng cho ảnh.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>Kết nối thưa:</strong> mỗi đầu ra chỉ nhìn một mảng nhỏ, không phải cả bức ảnh.</li>
+      <li><strong>Chia sẻ tham số:</strong> cùng một kernel nhỏ được dùng lại ở mọi vị trí, nên có rất ít trọng số cần học.</li>
+      <li><strong>Đồng biến (equivariance):</strong> nếu vật thể di chuyển trong ảnh, feature map của nó cũng di chuyển y như vậy. Các unit ở lớp sâu hơn nhìn thấy vùng lớn hơn.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Convolution vs a fully connected layer</h2>
+    <p class="key">Convolution does the same local job everywhere, with a handful of shared weights.</p>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th></th><th>fully connected (\(m\) inputs, \(n\) outputs)</th><th>convolution (kernel of \(k\) weights)</th></tr></thead>
+        <tbody>
+          <tr><td>connections</td><td>\(m \times n\)</td><td>\(k \times n\)</td></tr>
+          <tr><td>weights to learn</td><td>\(m \times n\)</td><td>\(k\)</td></tr>
+          <tr><td>object moves</td><td>output changes arbitrarily</td><td>output moves the same way</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:1em"><strong>Example from the textbook:</strong> detecting vertical edges in a 320 × 280 photo takes a two-weight kernel and about 268,000 operations. The same job as a fully connected layer would need a matrix with over <em>8 billion</em> entries.</p>
+    <p>Click any node to see its connections, and switch the connection type to compare:</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Tích chập và lớp kết nối đầy đủ</h2>
+    <p class="key">Tích chập làm cùng một việc cục bộ ở mọi nơi, chỉ với một nhúm trọng số dùng chung.</p>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th></th><th>kết nối đầy đủ (\(m\) đầu vào, \(n\) đầu ra)</th><th>tích chập (kernel có \(k\) trọng số)</th></tr></thead>
+        <tbody>
+          <tr><td>số kết nối</td><td>\(m \times n\)</td><td>\(k \times n\)</td></tr>
+          <tr><td>trọng số cần học</td><td>\(m \times n\)</td><td>\(k\)</td></tr>
+          <tr><td>khi vật thể di chuyển</td><td>đầu ra thay đổi tuỳ ý</td><td>đầu ra di chuyển theo y như vậy</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:1em"><strong>Ví dụ từ sách giáo khoa:</strong> dò cạnh dọc trong một bức ảnh 320 × 280 chỉ cần một kernel hai trọng số và khoảng 268,000 phép tính. Cùng việc đó với lớp kết nối đầy đủ sẽ cần một ma trận có hơn <em>8 tỉ</em> phần tử.</p>
+    <p>Hãy bấm vào một nút để xem các kết nối của nó, và đổi loại kết nối để so sánh:</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-conn">
+    <div class="viz-head">
+      <p class="viz-title">Connectivity and sharing (figures 9.2, 9.3, 9.5, 9.14, 9.16)</p>
+      <div class="ctl-row" style="margin:0">
+        <div class="seg" role="group" aria-label="Connectivity">
+          <button type="button" data-mode="conv" aria-pressed="true">Convolution</button><button type="button" data-mode="dense" aria-pressed="false">Fully connected</button>
+          <button type="button" data-mode="local" aria-pressed="false">Locally connected</button><button type="button" data-mode="tiled" aria-pressed="false">Tiled (<span class="tex">\(t = 2\)</span>)</button>
+        </div>
+        <label class="ctl" style="flex-direction:row;align-items:center;gap:6px;min-width:0">kernel width <select class="vsel" id="cn-k"><option>3</option><option>2</option></select></label>
+      </div>
+    </div>
+    <canvas id="cn-canvas" style="height:230px" aria-label="Connections between inputs and outputs"></canvas>
+    <p class="viz-cap">Click any <span class="tex">\(x\)</span> (bottom) or <span class="tex">\(s\)</span> (top). Edge colour and letter identify the parameter each connection uses.</p>
+    <div class="readout" id="cn-read"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Deeper units see more</h2>
+    <p class="key">Each layer only looks at a small patch, but patches of patches cover more and more of the image.</p>
+    <p>The area of the input that a unit depends on is its <strong>receptive field</strong>. It grows with every layer, and even faster with a stride:</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Unit ở lớp sâu nhìn thấy nhiều hơn</h2>
+    <p class="key">Mỗi lớp chỉ nhìn một mảng nhỏ, nhưng mảng của mảng thì phủ ngày càng nhiều ảnh hơn.</p>
+    <p>Vùng đầu vào mà một unit phụ thuộc vào gọi là <strong>vùng tiếp nhận</strong> (receptive field). Nó lớn dần sau mỗi lớp, và còn nhanh hơn khi có stride:</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-rf">
+    <div class="viz-head">
+      <p class="viz-title">Receptive fields grow with depth (figure 9.4)</p>
+      <p class="viz-sub">1-D, no padding. Hover the top row to pick a unit.</p>
+    </div>
+    <div class="ctl-row">
+      <label class="ctl grow">layers <output id="rf-layerso"></output><input type="range" id="rf-layers" min="1" max="4" step="1" value="3"></label>
+      <label class="ctl">kernel <select class="vsel" id="rf-k"><option>3</option><option>5</option></select></label>
+      <label class="chk"><input type="checkbox" id="rf-stride"> stride 2 in layer 1</label>
+    </div>
+    <canvas id="rf-canvas" style="height:260px" aria-label="Receptive field cone"></canvas>
+    <div class="readout" id="rf-out"></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 9: Convolutional Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Section 9.2)</span><span data-l="vi">(Mục 9.2)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="the-convolution-operation.html"><small>← Note 7</small>The convolution operation</a>
+    <a class="next" href="pooling.html"><small>Note 9 →</small>Pooling</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="the-convolution-operation.html"><small>← Bài 7</small>Phép tích chập</a>
+    <a class="next" href="pooling.html"><small>Bài 9 →</small>Pooling</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/conv.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

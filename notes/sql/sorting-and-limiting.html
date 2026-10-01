@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Sắp xếp và giới hạn: ORDER BY và LIMIT">Sorting and limiting: ORDER BY and LIMIT | Quoc Viet Le</title>
+  <meta name="description" content="Putting rows in order, keeping the top few, and splitting results into pages.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part A · Note 5 of 14</p>
+    <h1>Sorting and limiting: ORDER BY and LIMIT</h1>
+    <p class="lead">Putting rows in order, keeping the top few, and splitting results into pages.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A table has no built-in order. Without <code>ORDER BY</code>, rows can come back in any order.</li>
+      <li><code>ORDER BY</code> sorts by one or more columns, ascending (<code>ASC</code>, the default) or descending (<code>DESC</code>).</li>
+      <li><code>LIMIT n</code> keeps the first n rows; <code>OFFSET k</code> skips k rows first. Together they make pages of results.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần A · Bài 5/14</p>
+    <h1>Sắp xếp và giới hạn: ORDER BY và LIMIT</h1>
+    <p class="lead">Đặt các hàng theo thứ tự, giữ lại vài hàng đầu, và chia kết quả thành các trang.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Một bảng không có thứ tự sẵn. Không có <code>ORDER BY</code>, các hàng có thể trả về theo bất kỳ thứ tự nào.</li>
+      <li><code>ORDER BY</code> sắp xếp theo một hoặc nhiều cột, tăng dần (<code>ASC</code>, mặc định) hoặc giảm dần (<code>DESC</code>).</li>
+      <li><code>LIMIT n</code> giữ n hàng đầu; <code>OFFSET k</code> bỏ qua k hàng trước. Dùng cùng nhau chúng tạo ra các trang kết quả.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Sort, then cut</h2>
+    <p class="key">ORDER BY decides the order; LIMIT and OFFSET then choose a slice of the sorted rows.</p>
+    <pre class="sqlcode static">-- the three biggest orders
+SELECT order_id, product, amount
+FROM orders
+ORDER BY amount DESC NULLS LAST
+LIMIT 3;</pre>
+    <p>With several sort keys, the second key only matters when the first one ties: <code>ORDER BY category, amount DESC</code> sorts by category, and inside each category by amount. Watch the rows slide:</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Sắp xếp, rồi cắt</h2>
+    <p class="key">ORDER BY quyết định thứ tự; LIMIT và OFFSET sau đó chọn một lát cắt của các hàng đã sắp.</p>
+    <pre class="sqlcode static">-- ba đơn hàng lớn nhất
+SELECT order_id, product, amount
+FROM orders
+ORDER BY amount DESC NULLS LAST
+LIMIT 3;</pre>
+    <p>Với nhiều khoá sắp xếp, khoá thứ hai chỉ có tác dụng khi khoá thứ nhất bằng nhau: <code>ORDER BY category, amount DESC</code> sắp theo category, và trong mỗi category thì theo amount. Hãy xem các hàng trượt:</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-order">
+    <div class="viz-head">
+      <p class="viz-title">ORDER BY, LIMIT and OFFSET</p>
+      <p class="viz-sub">Rows move to their new place. Faded rows are skipped by OFFSET or cut by LIMIT.</p>
+    </div>
+    <div class="ctl-row"><label class="ctl">sort by <select class="vsel" id="so-k1"><option>amount</option><option>order_date</option><option>product</option><option>category</option><option>order_id</option></select></label><div class="seg" role="group" aria-label="Direction"><button type="button" data-d1="asc" aria-pressed="true">ASC</button><button type="button" data-d1="desc" aria-pressed="false">DESC</button></div><label class="ctl">then by <select class="vsel" id="so-k2"><option value="">(none)</option><option>category</option><option>amount</option><option>order_date</option><option>order_id</option></select></label><div class="seg" role="group" aria-label="Direction 2"><button type="button" data-d2="asc" aria-pressed="true">ASC</button><button type="button" data-d2="desc" aria-pressed="false">DESC</button></div></div>
+    <div class="ctl-row"><label class="ctl grow">LIMIT <output id="so-limito"></output><input type="range" id="so-limit" min="0" max="12" value="0"></label><label class="ctl grow">OFFSET <output id="so-offseto"></output><input type="range" id="so-offset" min="0" max="11" value="0"></label></div>
+    <pre class="sqlcode" id="so-sql"></pre>
+    <div id="so-rows"></div>
+    <p class="readout" id="so-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Pages of results</h2>
+    <p>A website that shows 5 orders per page asks for page <em>k</em> with <code>LIMIT 5 OFFSET 5 × (k − 1)</code>. Always sort by something unique (such as <code>order_id</code>) at the end, or rows that tie can jump between pages.</p>
+    <details class="more"><summary>Going further: why big OFFSETs get slow</summary><p>To skip 100,000 rows the database still has to find and step over them. For deep pages, remember the last row you showed and continue from it instead: <code>WHERE order_id &gt; 110 ORDER BY order_id LIMIT 5</code>. This is called keyset pagination. SQL Server writes LIMIT differently (<code>TOP</code> or <code>OFFSET … FETCH</code>).</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Phân trang kết quả</h2>
+    <p>Một website hiển thị 5 đơn mỗi trang sẽ xin trang <em>k</em> bằng <code>LIMIT 5 OFFSET 5 × (k − 1)</code>. Luôn sắp xếp theo một thứ duy nhất (như <code>order_id</code>) ở cuối, nếu không các hàng bằng nhau có thể nhảy qua lại giữa các trang.</p>
+    <details class="more"><summary>Đi sâu hơn: vì sao OFFSET lớn thì chậm</summary><p>Để bỏ qua 100,000 hàng, database vẫn phải tìm và bước qua chúng. Với các trang sâu, hãy nhớ hàng cuối bạn vừa hiển thị và tiếp tục từ đó: <code>WHERE order_id &gt; 110 ORDER BY order_id LIMIT 5</code>. Kỹ thuật này gọi là keyset pagination. SQL Server viết LIMIT khác (<code>TOP</code> hoặc <code>OFFSET … FETCH</code>).</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;Top 3&quot;, &quot;SELECT order_id, product, amount FROM orders\nORDER BY amount DESC NULLS LAST\nLIMIT 3;&quot;], [&quot;Two keys&quot;, &quot;SELECT category, product, amount FROM orders ORDER BY category, amount DESC;&quot;], [&quot;Page 2&quot;, &quot;SELECT order_id, product FROM orders ORDER BY order_id LIMIT 5 OFFSET 5;&quot;], [&quot;Where do NULLs go?&quot;, &quot;SELECT product, amount FROM orders ORDER BY amount;&quot;]]">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite in your browser. Note: SQLite puts NULLs <em>first</em> in ascending order, PostgreSQL puts them last.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 7.5: Sorting Rows. <a href="https://www.postgresql.org/docs/16/queries-order.html" target="_blank" rel="noopener">postgresql.org/docs/16/queries-order.html</a></li>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 7.6: LIMIT and OFFSET. <a href="https://www.postgresql.org/docs/16/queries-limit.html" target="_blank" rel="noopener">postgresql.org/docs/16/queries-limit.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapter 3. O'Reilly Media.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="null-the-missing-value.html"><small>← Note 4</small>NULL: the missing value</a>
+    <a class="next" href="changing-data.html"><small>Note 6 →</small>Changing data: INSERT, UPDATE, DELETE</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="null-the-missing-value.html"><small>← Bài 4</small>NULL: giá trị bị thiếu</a>
+    <a class="next" href="changing-data.html"><small>Bài 6 →</small>Thay đổi dữ liệu: INSERT, UPDATE, DELETE</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

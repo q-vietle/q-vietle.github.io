@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Huấn luyện: gradient descent và các optimizer">Training: gradient descent and optimizers | Quoc Viet Le</title>
+  <meta name="description" content="Walking downhill on the loss surface, and why the learning rate matters most.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part A · Note 6 of 16</p>
+    <h1>Training: gradient descent and optimizers</h1>
+    <p class="lead">Walking downhill on the loss surface, and why the learning rate matters most.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li><strong>Gradient descent</strong> repeatedly takes a small step opposite to the gradient: \(\theta \leftarrow \theta - \eta \nabla J\).</li>
+      <li>The <strong>learning rate</strong> \(\eta\) is the most important setting: too small is slow, too large overshoots or blows up.</li>
+      <li><strong>Momentum</strong> and <strong>Adam</strong> handle narrow valleys better. In practice we use <strong>minibatches</strong> of data (SGD).</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần A · Bài 6/16</p>
+    <h1>Huấn luyện: gradient descent và các optimizer</h1>
+    <p class="lead">Đi xuống dốc trên bề mặt loss, và vì sao tốc độ học là thứ quan trọng nhất.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>Gradient descent</strong> lặp đi lặp lại việc bước một bước nhỏ ngược chiều gradient: \(\theta \leftarrow \theta - \eta \nabla J\).</li>
+      <li><strong>Tốc độ học</strong> (learning rate) \(\eta\) là thiết lập quan trọng nhất: quá nhỏ thì chậm, quá lớn thì vọt qua hoặc nổ tung.</li>
+      <li><strong>Momentum</strong> và <strong>Adam</strong> xử lý tốt hơn các thung lũng hẹp. Trong thực tế ta dùng các <strong>minibatch</strong> dữ liệu (SGD).</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Three optimizers</h2>
+    <p class="key">All three use the same gradient. They differ in how they turn it into a step.</p>
+    <div class="math">$$\begin{aligned}
+      \text{Gradient descent:}&\quad \theta \leftarrow \theta - \eta\,\nabla J\\
+      \text{Momentum:}&\quad v \leftarrow \beta v + \nabla J,\qquad \theta \leftarrow \theta - \eta\, v\\
+      \text{Adam:}&\quad m \leftarrow \beta_1 m + (1-\beta_1)\nabla J,\quad s \leftarrow \beta_2 s + (1-\beta_2)(\nabla J)^2,\quad \theta \leftarrow \theta - \eta\,\frac{m}{\sqrt{s}+\epsilon}
+    \end{aligned}$$</div>
+    <p>In Adam, \(m\) is a running average of the gradient (like momentum) and \(s\) a running average of its square. Dividing by \(\sqrt{s}\) gives every parameter its own step size.</p>
+    <p>Momentum works like a heavy ball: it keeps rolling in a consistent direction and smooths out zig-zags. Click anywhere on the surface to choose a starting point:</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Ba optimizer</h2>
+    <p class="key">Cả ba dùng cùng một gradient. Chúng khác nhau ở cách biến gradient thành một bước đi.</p>
+    <div class="math">$$\begin{aligned}
+      \text{Gradient descent:}&\quad \theta \leftarrow \theta - \eta\,\nabla J\\
+      \text{Momentum:}&\quad v \leftarrow \beta v + \nabla J,\qquad \theta \leftarrow \theta - \eta\, v\\
+      \text{Adam:}&\quad m \leftarrow \beta_1 m + (1-\beta_1)\nabla J,\quad s \leftarrow \beta_2 s + (1-\beta_2)(\nabla J)^2,\quad \theta \leftarrow \theta - \eta\,\frac{m}{\sqrt{s}+\epsilon}
+    \end{aligned}$$</div>
+    <p>Trong Adam, \(m\) là trung bình trượt của gradient (giống momentum) và \(s\) là trung bình trượt của bình phương gradient. Chia cho \(\sqrt{s}\) cho mỗi tham số một bước đi riêng.</p>
+    <p>Momentum hoạt động như một quả bóng nặng: nó cứ lăn theo một hướng ổn định và làm mượt các đường zig-zag. Hãy bấm vào bất kỳ đâu trên bề mặt để chọn điểm xuất phát:</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="gd">
+    <div class="viz-head">
+      <p class="viz-title">Optimizers on a loss surface</p>
+      <p class="viz-sub">Darker = lower loss. × = best minimum, ○ = a worse local one. Click to choose a start.</p>
+    </div>
+    <div class="viz-cols wide-left">
+      <canvas id="gd-canvas" style="aspect-ratio:4/3" aria-label="Loss surface with optimizer paths"></canvas>
+      <div>
+        <div class="ctl-row">
+          <label class="ctl">surface
+            <select class="vsel" id="gd-fn">
+              <option value="bowl">Elongated bowl</option>
+              <option value="valley">Curved valley</option>
+              <option value="wells">Two basins</option>
+            </select>
+          </label>
+          <label class="ctl grow"><span>learning rate <span class="tex">\(\eta\)</span></span> <output id="gd-lro"></output><input type="range" id="gd-lr" min="0" max="100" step="1" value="57"></label>
+        </div>
+        <div class="ctl-row">
+          <button class="vbtn primary" id="gd-run" type="button">Run</button>
+          <button class="vbtn" id="gd-reset" type="button">Reset</button>
+        </div>
+        <div class="legend" id="gd-legend" style="flex-direction:column"></div>
+      </div>
+    </div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Putting it all together</h2>
+    <p>Real training uses <strong>stochastic gradient descent</strong>: at each step, compute the gradient on a small random <em>minibatch</em> instead of the whole dataset. It is much cheaper, and the noise often helps. Below, a small network learns to separate orange from blue points. The tiles show what each hidden unit has learned.</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Ghép tất cả lại</h2>
+    <p>Huấn luyện thực tế dùng <strong>stochastic gradient descent</strong>: ở mỗi bước, tính gradient trên một <em>minibatch</em> ngẫu nhiên nhỏ thay vì cả tập dữ liệu. Cách này rẻ hơn nhiều, và nhiễu thường còn có ích. Bên dưới, một mạng nhỏ học tách các điểm cam khỏi các điểm xanh. Các ô cho thấy mỗi unit ẩn đã học được gì.</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="pg">
+    <div class="viz-head">
+      <p class="viz-title">Training playground</p>
+      <p class="viz-sub">Epoch <span class="epoch" id="pg-epoch">0000</span></p>
+    </div>
+    <div class="ctl-row">
+      <button class="vbtn primary" id="pg-play" type="button">▶ Train</button>
+      <button class="vbtn" id="pg-step" type="button">+1 epoch</button>
+      <button class="vbtn" id="pg-reset" type="button">New weights</button>
+      <label class="ctl">dataset
+        <select class="vsel" id="pg-data">
+          <option value="xor">XOR</option><option value="circle">Circle</option><option value="gauss">Two blobs</option><option value="spiral">Spiral</option>
+        </select>
+      </label>
+      <label class="ctl">hidden units
+        <select class="vsel" id="pg-act"><option value="relu">ReLU</option><option value="tanh">tanh</option><option value="sigmoid">sigmoid</option></select>
+      </label>
+      <label class="ctl">learning rate
+        <select class="vsel" id="pg-lr">
+          <option>0.001</option><option>0.003</option><option>0.01</option><option>0.03</option>
+          <option selected>0.1</option><option>0.3</option><option>1</option><option>3</option>
+        </select>
+      </label>
+      <label class="ctl"><span>weight decay <span class="tex">\(\lambda\)</span></span>
+        <select class="vsel" id="pg-l2"><option value="0" selected>none</option><option>0.0001</option><option>0.001</option><option>0.01</option><option>0.03</option></select>
+      </label>
+      <label class="ctl grow">input noise <output id="pg-noiseo">0.05</output><input type="range" id="pg-noise" min="0" max="0.3" step="0.01" value="0.05"></label>
+    </div>
+    <div class="layers-row" id="pg-layers"></div>
+    <div class="viz-cols wide-left">
+      <div>
+        <canvas id="pg-net" style="height:300px" aria-label="Network with per-unit activation maps"></canvas>
+        <p class="viz-cap">Hover a tile to show that unit on the right. Edge colour = weight sign, thickness = size.</p>
+      </div>
+      <div>
+        <canvas class="sq" id="pg-out" aria-label="Decision boundary and data"></canvas>
+        <p class="viz-cap" id="pg-showing"></p>
+        <canvas id="pg-loss" style="height:90px;margin-top:8px" aria-label="Cost curve"></canvas>
+        <div class="stats" id="pg-stats"></div>
+        <label class="chk" style="margin-top:6px"><input type="checkbox" id="pg-test" checked> show test points (◆)</label>
+        <div class="legend"><span><i style="background:var(--accent)"></i>train cost</span><span><i style="background:var(--muted)"></i>test cost (dashed)</span></div>
+      </div>
+    </div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 6: Deep Feedforward Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Section 6.2)</span><span data-l="vi">(Mục 6.2)</span></span></li>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 8: Optimization for Training Deep Models. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Sections 8.3.2 and 8.5.3)</span><span data-l="vi">(Mục 8.3.2 và 8.5.3)</span></span></li>
+      <li>Kingma, D. P., &amp; Ba, J. (2015). Adam: A method for stochastic optimization. In <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/1412.6980" target="_blank" rel="noopener">arXiv:1412.6980</a></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="backpropagation.html"><small>← Note 5</small>Backpropagation</a>
+    <a class="next" href="the-convolution-operation.html"><small>Note 7 →</small>The convolution operation</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="backpropagation.html"><small>← Bài 5</small>Backpropagation</a>
+    <a class="next" href="the-convolution-operation.html"><small>Bài 7 →</small>Phép tích chập</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/ffn.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

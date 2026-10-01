@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="GROUP BY và HAVING">GROUP BY and HAVING | Quoc Viet Le</title>
+  <meta name="description" content="One summary row per group, and how to filter groups instead of rows.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part B · Note 8 of 14</p>
+    <h1>GROUP BY and HAVING</h1>
+    <p class="lead">One summary row per group, and how to filter groups instead of rows.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li><code>GROUP BY</code> puts rows that share a value into the same group, and aggregates are computed <strong>per group</strong>: one result row per group.</li>
+      <li>Every column in SELECT must be either listed in GROUP BY or wrapped in an aggregate.</li>
+      <li><code>WHERE</code> filters rows <em>before</em> grouping; <code>HAVING</code> filters groups <em>after</em>.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần B · Bài 8/14</p>
+    <h1>GROUP BY và HAVING</h1>
+    <p class="lead">Một hàng tóm tắt cho mỗi nhóm, và cách lọc nhóm thay vì lọc hàng.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><code>GROUP BY</code> đặt các hàng có cùng một giá trị vào cùng một nhóm, và các hàm tổng hợp được tính <strong>cho từng nhóm</strong>: một hàng kết quả cho mỗi nhóm.</li>
+      <li>Mọi cột trong SELECT phải hoặc nằm trong GROUP BY, hoặc được bọc trong một hàm tổng hợp.</li>
+      <li><code>WHERE</code> lọc hàng <em>trước</em> khi nhóm; <code>HAVING</code> lọc nhóm <em>sau</em> khi nhóm.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Rows fall into buckets</h2>
+    <pre class="sqlcode static">SELECT category, COUNT(*) AS n, SUM(amount) AS revenue
+FROM orders
+GROUP BY category;</pre>
+    <p class="key">Imagine sorting the orders into one bucket per category, then running COUNT and SUM inside each bucket.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Các hàng rơi vào các giỏ</h2>
+    <pre class="sqlcode static">SELECT category, COUNT(*) AS n, SUM(amount) AS revenue
+FROM orders
+GROUP BY category;</pre>
+    <p class="key">Hãy tưởng tượng xếp các đơn vào một giỏ cho mỗi category, rồi chạy COUNT và SUM bên trong từng giỏ.</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-group">
+    <div class="viz-head">
+      <p class="viz-title">GROUP BY, then HAVING</p>
+      <p class="viz-sub">Each card is one group; its chips are the rows inside it.</p>
+    </div>
+    <div class="ctl-row"><label class="ctl">GROUP BY <select class="vsel" id="sg-by"><option>category</option><option>customer_id</option><option>product</option></select></label><label class="ctl">aggregate <select class="vsel" id="sg-fn"><option>COUNT(*)</option><option>SUM(amount)</option><option>AVG(amount)</option><option>MAX(amount)</option></select></label><label class="chk"><input type="checkbox" id="sg-having"> HAVING … &gt;=</label><label class="ctl grow">threshold <output id="sg-thro"></output><input type="range" id="sg-thr" min="1" max="5" value="2"></label></div>
+    <pre class="sqlcode" id="sg-sql"></pre>
+    <div class="gcards" id="sg-groups"></div>
+    <div class="sql-out" id="sg-out"></div>
+    <p class="readout" id="sg-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>WHERE or HAVING?</h2>
+    <pre class="sqlcode static">SELECT customer_id, SUM(amount) AS total
+FROM orders
+WHERE category &lt;&gt; &#x27;Office&#x27;      -- rows: drop office orders first
+GROUP BY customer_id
+HAVING SUM(amount) &gt; 100;       -- groups: keep big spenders</pre>
+    <p>A condition on a single row (its category, its date) belongs in WHERE. A condition on a summary (a count, a total) can only go in HAVING, because the summary does not exist until the groups are formed. Filtering early with WHERE is also faster: fewer rows to group.</p>
+    <details class="more"><summary>Going further: grouping by several columns</summary><p><code>GROUP BY customer_id, category</code> makes one group for every combination that occurs, for example "customer 2, Drinks". Grouping by an expression works too: <code>GROUP BY EXTRACT(MONTH FROM order_date)</code> gives monthly totals.</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>WHERE hay HAVING?</h2>
+    <pre class="sqlcode static">SELECT customer_id, SUM(amount) AS total
+FROM orders
+WHERE category &lt;&gt; &#x27;Office&#x27;      -- theo hàng: bỏ các đơn Office trước
+GROUP BY customer_id
+HAVING SUM(amount) &gt; 100;       -- theo nhóm: giữ khách chi nhiều</pre>
+    <p>Điều kiện trên một hàng đơn lẻ (category, ngày của nó) thuộc về WHERE. Điều kiện trên một số tổng hợp (một số đếm, một tổng) chỉ có thể nằm trong HAVING, vì số tổng hợp chưa tồn tại cho đến khi các nhóm được tạo ra. Lọc sớm bằng WHERE cũng nhanh hơn: ít hàng cần nhóm hơn.</p>
+    <details class="more"><summary>Đi sâu hơn: nhóm theo nhiều cột</summary><p><code>GROUP BY customer_id, category</code> tạo một nhóm cho mỗi tổ hợp xuất hiện, ví dụ "khách 2, Drinks". Nhóm theo một biểu thức cũng được: <code>GROUP BY EXTRACT(MONTH FROM order_date)</code> cho tổng theo tháng.</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;Per category&quot;, &quot;SELECT category, COUNT(*) AS n, SUM(amount) AS revenue\nFROM orders GROUP BY category;&quot;], [&quot;HAVING&quot;, &quot;SELECT customer_id, SUM(amount) AS total\nFROM orders\nGROUP BY customer_id\nHAVING SUM(amount) &gt; 100;&quot;], [&quot;Two columns&quot;, &quot;SELECT customer_id, category, COUNT(*) FROM orders GROUP BY customer_id, category;&quot;], [&quot;Per month&quot;, &quot;SELECT strftime(&#x27;%m&#x27;, order_date) AS month, SUM(amount) FROM orders GROUP BY month;&quot;]]">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite running in your browser. Edit the query and press Run (Ctrl + Enter). Nothing you do here is saved.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 7.2.3: The GROUP BY and HAVING Clauses. <a href="https://www.postgresql.org/docs/16/queries-table-expressions.html" target="_blank" rel="noopener">postgresql.org/docs/16/queries-table-expressions.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapter 8. O'Reilly Media.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="aggregate-functions.html"><small>← Note 7</small>Summarising: COUNT, SUM, AVG, MIN, MAX</a>
+    <a class="next" href="how-a-query-runs.html"><small>Note 9 →</small>How a query really runs</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="aggregate-functions.html"><small>← Bài 7</small>Tổng hợp: COUNT, SUM, AVG, MIN, MAX</a>
+    <a class="next" href="how-a-query-runs.html"><small>Bài 9 →</small>Một query thực sự chạy như thế nào</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

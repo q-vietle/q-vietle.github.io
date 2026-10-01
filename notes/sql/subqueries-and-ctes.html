@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Subquery và CTE">Subqueries and CTEs | Quoc Viet Le</title>
+  <meta name="description" content="Queries inside queries: a value, a list, a check per row, or a named step.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part C · Note 11 of 14</p>
+    <h1>Subqueries and CTEs</h1>
+    <p class="lead">Queries inside queries: a value, a list, a check per row, or a named step.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A <strong>subquery</strong> is a query in brackets inside another query. Its result is used as a single value, a list or a table.</li>
+      <li>A <strong>correlated</strong> subquery refers to the outer row, so it is (conceptually) re-run for every row, as with <code>EXISTS</code>.</li>
+      <li><code>WITH</code> gives a subquery a name (a <strong>CTE</strong>), which makes long queries readable. Beware <code>NOT IN</code> when the list can contain NULL.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần C · Bài 11/14</p>
+    <h1>Subquery và CTE</h1>
+    <p class="lead">Query trong query: một giá trị, một danh sách, một phép kiểm tra cho mỗi hàng, hoặc một bước có tên.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Một <strong>subquery</strong> là một query đặt trong ngoặc bên trong query khác. Kết quả của nó được dùng như một giá trị đơn, một danh sách hoặc một bảng.</li>
+      <li>Một subquery <strong>tương quan</strong> (correlated) tham chiếu tới hàng ngoài, nên (về mặt khái niệm) nó chạy lại cho mỗi hàng, như với <code>EXISTS</code>.</li>
+      <li><code>WITH</code> đặt tên cho một subquery (một <strong>CTE</strong>), giúp query dài dễ đọc. Hãy cẩn thận với <code>NOT IN</code> khi danh sách có thể chứa NULL.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Inside out</h2>
+    <p class="key">Read a subquery from the inside out: the inner query produces something, and the outer query uses it.</p>
+    <p>Choose a case and step through it. The highlighted part of the query is the one running.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Từ trong ra ngoài</h2>
+    <p class="key">Hãy đọc subquery từ trong ra ngoài: query bên trong tạo ra một thứ, và query bên ngoài dùng thứ đó.</p>
+    <p>Chọn một trường hợp và đi từng bước. Phần được tô sáng của query là phần đang chạy.</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-sub">
+    <div class="viz-head">
+      <p class="viz-title">Subqueries, step by step</p>
+      <p class="viz-sub">Five common shapes, including the NOT IN trap.</p>
+    </div>
+    <div class="ctl-row"><label class="ctl grow">case <select class="vsel" id="sq-preset"></select></label></div>
+    <pre class="sqlcode" id="sq-sql"></pre>
+    <div class="ctl-row"><button type="button" class="vbtn" id="sq-prev">◀ Back</button><button type="button" class="vbtn primary" id="sq-next">Next ▶</button><span class="muted" id="sq-count"></span></div>
+    <div id="sq-stage"></div>
+    <p class="readout" id="sq-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Which one to use</h2>
+    <ul><li><strong>A single value</strong> (scalar subquery): compare with a statistic, e.g. orders above the average.</li><li><strong>IN / EXISTS</strong>: "rows that have a related row". EXISTS stops at the first match and handles NULLs safely.</li><li><strong>NOT EXISTS</strong> for "rows that have no related row". Avoid NOT IN unless the list can never contain NULL.</li><li><strong>CTE</strong> (<code>WITH name AS (…)</code>): split a long query into named steps that you can read, test and reuse within the query.</li></ul>
+    <details class="more"><summary>Going further: does the database really re-run a correlated subquery for every row?</summary><p>Conceptually yes, but the optimiser usually rewrites EXISTS and IN into a join, which is much faster. The step-by-step picture shows what the query <em>means</em>, not how much work it costs.</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Dùng cái nào</h2>
+    <ul><li><strong>Một giá trị đơn</strong> (scalar subquery): so sánh với một thống kê, ví dụ các đơn trên mức trung bình.</li><li><strong>IN / EXISTS</strong>: "những hàng có một hàng liên quan". EXISTS dừng ở lần khớp đầu tiên và xử lý NULL an toàn.</li><li><strong>NOT EXISTS</strong> cho "những hàng không có hàng liên quan nào". Tránh NOT IN trừ khi danh sách chắc chắn không bao giờ chứa NULL.</li><li><strong>CTE</strong> (<code>WITH name AS (…)</code>): chia một query dài thành các bước có tên mà bạn có thể đọc, kiểm tra và tái sử dụng trong query.</li></ul>
+    <details class="more"><summary>Đi sâu hơn: database có thật sự chạy lại subquery tương quan cho từng hàng không?</summary><p>Về mặt khái niệm là có, nhưng bộ tối ưu thường viết lại EXISTS và IN thành một join, nhanh hơn nhiều. Hình từng bước cho thấy query <em>có nghĩa là gì</em>, không phải nó tốn bao nhiêu công.</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;Above average&quot;, &quot;SELECT order_id, product, amount\nFROM orders\nWHERE amount &gt; (SELECT AVG(amount) FROM orders);&quot;], [&quot;EXISTS&quot;, &quot;SELECT name FROM customers c\nWHERE EXISTS (SELECT 1 FROM orders o\n              WHERE o.customer_id = c.customer_id AND o.amount &gt; 100);&quot;], [&quot;NOT IN trap&quot;, &quot;SELECT name FROM customers\nWHERE customer_id NOT IN (SELECT customer_id FROM orders);&quot;], [&quot;NOT EXISTS fix&quot;, &quot;SELECT name FROM customers c\nWHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.customer_id);&quot;], [&quot;CTE&quot;, &quot;WITH spend AS (\n  SELECT customer_id, SUM(amount) AS total\n  FROM orders\n  GROUP BY customer_id\n)\nSELECT c.name, s.total\nFROM customers c\nJOIN spend s ON s.customer_id = c.customer_id\nWHERE s.total &gt; 100;&quot;]]">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite running in your browser. Edit the query and press Run (Ctrl + Enter). Nothing you do here is saved.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 9.23: Subquery Expressions. <a href="https://www.postgresql.org/docs/16/functions-subquery.html" target="_blank" rel="noopener">postgresql.org/docs/16/functions-subquery.html</a></li>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 7.8: WITH Queries (Common Table Expressions). <a href="https://www.postgresql.org/docs/16/queries-with.html" target="_blank" rel="noopener">postgresql.org/docs/16/queries-with.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapter 9. O'Reilly Media.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="joins.html"><small>← Note 10</small>JOIN: combining tables</a>
+    <a class="next" href="window-functions.html"><small>Note 12 →</small>Window functions</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="joins.html"><small>← Bài 10</small>JOIN: kết hợp các bảng</a>
+    <a class="next" href="window-functions.html"><small>Bài 12 →</small>Window function</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

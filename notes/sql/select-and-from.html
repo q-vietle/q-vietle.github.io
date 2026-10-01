@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Truy vấn đầu tiên: SELECT và FROM">Your first query: SELECT and FROM | Quoc Viet Le</title>
+  <meta name="description" content="Asking for columns from a table, renaming them, computing new ones and removing duplicates.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part A · Note 2 of 14</p>
+    <h1>Your first query: SELECT and FROM</h1>
+    <p class="lead">Asking for columns from a table, renaming them, computing new ones and removing duplicates.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A <strong>query</strong> asks for data. It reads the table and never changes it.</li>
+      <li><code>SELECT</code> lists the columns you want and <code>FROM</code> names the table. <code>*</code> means every column.</li>
+      <li>You can rename a column with <code>AS</code>, compute new values such as <code>amount * 1.1</code>, and remove duplicate rows with <code>DISTINCT</code>.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần A · Bài 2/14</p>
+    <h1>Truy vấn đầu tiên: SELECT và FROM</h1>
+    <p class="lead">Chọn cột từ một bảng, đổi tên, tính cột mới và loại bỏ trùng lặp.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Một <strong>query</strong> (truy vấn) hỏi dữ liệu. Nó đọc bảng và không bao giờ thay đổi bảng.</li>
+      <li><code>SELECT</code> liệt kê các cột bạn muốn và <code>FROM</code> nêu tên bảng. Dấu <code>*</code> nghĩa là mọi cột.</li>
+      <li>Bạn có thể đổi tên một cột bằng <code>AS</code>, tính giá trị mới như <code>amount * 1.1</code>, và loại bỏ các hàng trùng bằng <code>DISTINCT</code>.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Reading a query</h2>
+    <p class="key">SELECT <em>which columns</em> FROM <em>which table</em>. The answer is a new, temporary table.</p>
+    <pre class="sqlcode static">SELECT name, city
+FROM customers;</pre>
+    <ul><li>Keywords (<code>SELECT</code>, <code>FROM</code>) are not case-sensitive: <code>select</code> works too. Writing them in capitals is just a habit that makes queries easier to read.</li><li>Line breaks and spaces do not matter. The semicolon ends the statement.</li><li>Text values are written in single quotes, <code>'Hanoi'</code>. Numbers are written as they are.</li></ul>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Đọc một query</h2>
+    <p class="key">SELECT <em>những cột nào</em> FROM <em>bảng nào</em>. Câu trả lời là một bảng mới, tạm thời.</p>
+    <pre class="sqlcode static">SELECT name, city
+FROM customers;</pre>
+    <ul><li>Từ khoá (<code>SELECT</code>, <code>FROM</code>) không phân biệt hoa thường: <code>select</code> cũng được. Viết hoa chỉ là thói quen giúp query dễ đọc hơn.</li><li>Xuống dòng và khoảng trắng không quan trọng. Dấu chấm phẩy kết thúc câu lệnh.</li><li>Giá trị văn bản đặt trong dấu nháy đơn, <code>'Hanoi'</code>. Số thì viết nguyên như vậy.</li></ul>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-select">
+    <div class="viz-head">
+      <p class="viz-title">SELECT picks columns</p>
+      <p class="viz-sub">Tick columns and options; the query and the result update.</p>
+    </div>
+    <div class="seg" role="group" aria-label="Table"><button type="button" data-t="customers" aria-pressed="true">customers</button><button type="button" data-t="orders" aria-pressed="false">orders</button></div>
+    <div class="ctl-row" id="ss-cols"></div>
+    <div class="ctl-row"><label class="chk"><input type="checkbox" id="ss-distinct"> DISTINCT</label><label class="chk"><input type="checkbox" id="ss-alias"> rename a column (AS)</label><label class="chk"><input type="checkbox" id="ss-expr"> add a computed column</label></div>
+    <pre class="sqlcode" id="ss-sql"></pre>
+    <div class="sql-pair"><div id="ss-src"></div><div id="ss-out"></div></div>
+    <p class="readout" id="ss-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Computed columns, aliases and DISTINCT</h2>
+    <pre class="sqlcode static">SELECT product,
+       amount,
+       amount * 1.1 AS amount_with_vat   -- computed for every row
+FROM orders;
+
+SELECT DISTINCT city   -- each city once
+FROM customers;</pre>
+    <p>A computed column exists only in the result; the table is not changed. <code>AS</code> gives any column a new name in the result. <code>DISTINCT</code> compares whole result rows and keeps one copy of each, so <code>SELECT DISTINCT city</code> lists every city once (NULL included, as one value).</p>
+    <details class="more"><summary>Going further: why experienced people avoid SELECT *</summary><p><code>SELECT *</code> is perfect for exploring. In an application it fetches columns nobody uses, and the program can break when someone adds or reorders columns. Listing the columns you need makes the query faster and its intent clear.</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Cột tính toán, alias và DISTINCT</h2>
+    <pre class="sqlcode static">SELECT product,
+       amount,
+       amount * 1.1 AS amount_with_vat   -- tính cho từng hàng
+FROM orders;
+
+SELECT DISTINCT city   -- mỗi thành phố một lần
+FROM customers;</pre>
+    <p>Cột tính toán chỉ tồn tại trong kết quả; bảng không bị thay đổi. <code>AS</code> đặt cho một cột tên mới trong kết quả. <code>DISTINCT</code> so sánh toàn bộ hàng kết quả và chỉ giữ một bản của mỗi hàng, nên <code>SELECT DISTINCT city</code> liệt kê mỗi thành phố một lần (NULL cũng tính là một giá trị).</p>
+    <details class="more"><summary>Đi sâu hơn: vì sao người có kinh nghiệm tránh SELECT *</summary><p><code>SELECT *</code> tuyệt vời để khám phá dữ liệu. Trong ứng dụng, nó lấy cả những cột chẳng ai dùng, và chương trình có thể hỏng khi ai đó thêm hoặc đổi thứ tự cột. Liệt kê các cột cần dùng làm query nhanh hơn và ý định rõ ràng.</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;Two columns&quot;, &quot;SELECT name, city FROM customers;&quot;], [&quot;Every city once&quot;, &quot;SELECT DISTINCT city FROM customers;&quot;], [&quot;Computed column&quot;, &quot;SELECT product, amount, amount * 1.1 AS amount_with_vat FROM orders;&quot;], [&quot;Everything&quot;, &quot;SELECT * FROM orders;&quot;]]">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite running in your browser. Edit the query and press Run (Ctrl + Enter). Nothing you do here is saved.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 7.3: Select Lists. <a href="https://www.postgresql.org/docs/16/queries-select-lists.html" target="_blank" rel="noopener">postgresql.org/docs/16/queries-select-lists.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapter 3. O'Reilly Media.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="what-is-a-database.html"><small>← Note 1</small>What is a database?</a>
+    <a class="next" href="filtering-with-where.html"><small>Note 3 →</small>Filtering rows with WHERE</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="what-is-a-database.html"><small>← Bài 1</small>Database là gì?</a>
+    <a class="next" href="filtering-with-where.html"><small>Bài 3 →</small>Lọc hàng bằng WHERE</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

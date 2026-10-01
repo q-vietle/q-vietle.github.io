@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Mạng nơ-ron là gì?">What is a neural network? | Quoc Viet Le</title>
+  <meta name="description" content="Layers, weights, biases, and why a network needs a nonlinear step.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part A · Note 1 of 16</p>
+    <h1>What is a neural network?</h1>
+    <p class="lead">Layers, weights, biases, and why a network needs a nonlinear step.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A neural network is a stack of <strong>layers</strong>. Each layer takes a weighted sum of its inputs, adds a bias, and applies a simple nonlinear function.</li>
+      <li>The middle layers are called <strong>hidden layers</strong>. They learn useful features by themselves.</li>
+      <li>Without the nonlinear step, the whole network collapses into one straight-line (linear) model. That model cannot solve even a simple puzzle like XOR.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần A · Bài 1/16</p>
+    <h1>Mạng nơ-ron là gì?</h1>
+    <p class="lead">Các lớp, trọng số, bias, và vì sao mạng cần một bước phi tuyến.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Mạng nơ-ron là một chồng các <strong>lớp</strong>. Mỗi lớp lấy tổng có trọng số của các đầu vào, cộng thêm một bias, rồi áp dụng một hàm phi tuyến đơn giản.</li>
+      <li>Các lớp ở giữa gọi là <strong>lớp ẩn</strong> (hidden layer). Chúng tự học ra những đặc trưng hữu ích.</li>
+      <li>Nếu không có bước phi tuyến, cả mạng thu lại thành một mô hình đường thẳng (tuyến tính). Mô hình đó không giải nổi cả một bài đơn giản như XOR.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>One layer</h2>
+    <p class="key">A layer multiplies its inputs by weights, adds a bias, and passes the result through an activation function.</p>
+    <div class="math">$$h = g\big(W^\top x + b\big)$$</div>
+    <ul>
+      <li>\(x\) is the input, for example the pixel values of an image.</li>
+      <li>\(W\) holds the <strong>weights</strong>, which say how much each input matters.</li>
+      <li>\(b\) is the <strong>bias</strong>, which shifts the result up or down.</li>
+      <li>\(g\) is the <strong>activation function</strong>, a simple nonlinear function such as ReLU, \(g(z) = \max(0, z)\).</li>
+    </ul>
+    <p>A network chains layers together, \(f(x) = f^{(3)}(f^{(2)}(f^{(1)}(x)))\). The number of layers is the <strong>depth</strong> (hence "deep" learning), and the number of units in a layer is its <strong>width</strong>. The training data only tells us what the <em>output</em> should be. The layers in between have to work out their job on their own, which is why they are called <strong>hidden</strong>.</p>
+  </section>
+
+  <section class="prose">
+    <h2>The XOR puzzle</h2>
+    <p class="key">A straight line cannot solve XOR. A network with one small hidden layer can.</p>
+    <p>XOR ("exclusive or") takes two inputs that are 0 or 1 and outputs 1 when <em>exactly one</em> of them is 1:</p>
+    <div class="table-wrap">
+      <table class="data" style="width:auto;min-width:260px">
+        <thead><tr><th>\(x_1\)</th><th>\(x_2\)</th><th>XOR \(y\)</th></tr></thead>
+        <tbody><tr><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>1</td></tr><tr><td>1</td><td>0</td><td>1</td></tr><tr><td>1</td><td>1</td><td>0</td></tr></tbody>
+      </table>
+    </div>
+    <p style="margin-top:1em">The figure below tries three models on these four points. Go through them in order:</p>
+    <ol>
+      <li><strong>Straight line (a linear model).</strong> \(f(x) = w_1x_1 + w_2x_2 + b\). Plot the four points and you will see that the two 1s sit on opposite corners, so no single straight line can separate them from the 0s. The best a linear model can do is answer 0.5 everywhere.</li>
+      <li><strong>Hand-picked weights.</strong> Add a hidden layer of two ReLU units. The <em>Deep Learning</em> book gives a set of weights, chosen by hand, that solves XOR exactly:
+        <div class="math">$$f(x) = w^\top \max\{0,\, W^\top x + c\} + b,\qquad W=\begin{bmatrix}1&1\\1&1\end{bmatrix},\; c=\begin{bmatrix}0\\-1\end{bmatrix},\; w=\begin{bmatrix}1\\-2\end{bmatrix},\; b=0$$</div>
+        The table under the figure shows the computation in three steps (weighted sum, ReLU, output) for each input. The trick is that the hidden layer sends (0, 1) and (1, 0) to the same point, and after that a straight line <em>can</em> separate the classes.</li>
+      <li><strong>Learn the weights.</strong> In practice nobody picks weights by hand. We start from random weights and let <strong>gradient descent</strong> improve them step by step (training). Sometimes it finds a solution; sometimes a hidden unit "dies" (its ReLU outputs 0 for every input) and training gets stuck.</li>
+    </ol>
+    <p>This is the key idea of deep learning: the hidden layer <strong>learns a new representation</strong> of the input in which the problem becomes easy.</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Một lớp</h2>
+    <p class="key">Một lớp nhân đầu vào với trọng số, cộng bias, rồi đưa kết quả qua một hàm kích hoạt (activation function).</p>
+    <div class="math">$$h = g\big(W^\top x + b\big)$$</div>
+    <ul>
+      <li>\(x\) là đầu vào, ví dụ giá trị các pixel của một bức ảnh.</li>
+      <li>\(W\) chứa các <strong>trọng số</strong> (weight), cho biết mỗi đầu vào quan trọng đến đâu.</li>
+      <li>\(b\) là <strong>bias</strong>, dịch kết quả lên hoặc xuống.</li>
+      <li>\(g\) là <strong>hàm kích hoạt</strong>, một hàm phi tuyến đơn giản như ReLU, \(g(z) = \max(0, z)\).</li>
+    </ul>
+    <p>Một mạng nối các lớp lại với nhau, \(f(x) = f^{(3)}(f^{(2)}(f^{(1)}(x)))\). Số lớp là <strong>độ sâu</strong> (depth; vì thế mới gọi là học "sâu"), còn số unit trong một lớp là <strong>độ rộng</strong> (width). Dữ liệu huấn luyện chỉ cho ta biết <em>đầu ra</em> cần là gì. Các lớp ở giữa phải tự tìm ra vai trò của mình, nên chúng được gọi là <strong>ẩn</strong>.</p>
+  </section>
+
+  <section class="prose">
+    <h2>Bài toán XOR</h2>
+    <p class="key">Một đường thẳng không giải được XOR. Một mạng có một lớp ẩn nhỏ thì giải được.</p>
+    <p>XOR ("exclusive or") nhận hai đầu vào là 0 hoặc 1 và cho ra 1 khi <em>đúng một</em> trong hai đầu vào bằng 1:</p>
+    <div class="table-wrap">
+      <table class="data" style="width:auto;min-width:260px">
+        <thead><tr><th>\(x_1\)</th><th>\(x_2\)</th><th>XOR \(y\)</th></tr></thead>
+        <tbody><tr><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>1</td></tr><tr><td>1</td><td>0</td><td>1</td></tr><tr><td>1</td><td>1</td><td>0</td></tr></tbody>
+      </table>
+    </div>
+    <p style="margin-top:1em">Hình bên dưới thử ba mô hình trên bốn điểm này. Hãy đi qua theo thứ tự:</p>
+    <ol>
+      <li><strong>Đường thẳng (mô hình tuyến tính).</strong> \(f(x) = w_1x_1 + w_2x_2 + b\). Vẽ bốn điểm ra và bạn sẽ thấy hai điểm 1 nằm ở hai góc đối diện, nên không có đường thẳng nào tách chúng khỏi các điểm 0. Tốt nhất một mô hình tuyến tính chỉ có thể trả lời 0.5 ở mọi nơi.</li>
+      <li><strong>Trọng số chọn tay.</strong> Thêm một lớp ẩn gồm hai unit ReLU. Sách <em>Deep Learning</em> đưa ra một bộ trọng số, chọn bằng tay, giải XOR chính xác:
+        <div class="math">$$f(x) = w^\top \max\{0,\, W^\top x + c\} + b,\qquad W=\begin{bmatrix}1&1\\1&1\end{bmatrix},\; c=\begin{bmatrix}0\\-1\end{bmatrix},\; w=\begin{bmatrix}1\\-2\end{bmatrix},\; b=0$$</div>
+        Bảng dưới hình cho thấy phép tính qua ba bước (tổng có trọng số, ReLU, đầu ra) với từng đầu vào. Mấu chốt là lớp ẩn đưa (0, 1) và (1, 0) về cùng một điểm, và sau đó một đường thẳng <em>có thể</em> tách hai lớp.</li>
+      <li><strong>Học các trọng số.</strong> Thực tế không ai chọn trọng số bằng tay. Ta bắt đầu từ trọng số ngẫu nhiên và để <strong>gradient descent</strong> cải thiện chúng từng bước (huấn luyện). Có lần nó tìm ra lời giải; có lần một unit ẩn "chết" (ReLU của nó cho 0 với mọi đầu vào) và quá trình huấn luyện bị kẹt.</li>
+    </ol>
+    <p>Đây là ý tưởng cốt lõi của học sâu: lớp ẩn <strong>học một biểu diễn mới</strong> của đầu vào, trong đó bài toán trở nên dễ.</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-xor">
+    <div class="viz-head">
+      <p class="viz-title">Solving XOR: three models</p>
+      <p class="viz-sub tex">Circles = the four XOR inputs, labelled with the correct answer (blue 0, orange 1).</p>
+    </div>
+    <div class="seg xor-steps" role="group" aria-label="Model">
+      <button type="button" data-mode="linear" aria-pressed="false">① Straight line</button>
+      <button type="button" data-mode="book" aria-pressed="true">② Hand-picked weights</button>
+      <button type="button" data-mode="train" aria-pressed="false">③ Learn the weights</button>
+    </div>
+    <p class="xor-explain" id="xor-explain"></p>
+    <div class="ctl-row" id="xor-trainrow" hidden>
+      <button class="vbtn primary" id="xor-train" type="button">Train again from a new random start</button>
+      <span class="xor-status" id="xor-status" aria-live="polite"></span>
+    </div>
+    <div class="viz-cols">
+      <div><canvas class="sq" id="xor-x" aria-label="Input space"></canvas><p class="viz-cap tex"><b>Input space</b> \((x_1, x_2)\). Background = the model's answer at that point: orange <span class="tex">\(\approx 1\)</span>, blue <span class="tex">\(\approx 0\)</span>, white <span class="tex">\(\approx 0.5\)</span>.</p></div>
+      <div><canvas class="sq" id="xor-h" aria-label="Hidden space"></canvas><p class="viz-cap tex"><b>Hidden space</b> \((h_1, h_2)\): where the hidden layer moves each input. Dashed line = where the output is exactly 0.5.</p></div>
+    </div>
+    <div class="readout" id="xor-read"></div>
+    <details class="xor-edit"><summary>Edit the weights yourself</summary>
+      <div class="ctl-row" id="xor-params"></div>
+    </details>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <details class="more"><summary>Going further: why learn the features?</summary>
+      <p>Older methods used hand-designed features, built by experts over many years for each problem, or generic ones such as kernel methods. Neural networks <em>learn</em> the features \(\phi(x;\theta)\) from data. The price is that training is no longer a convex problem, but in practice the trade is well worth it.</p>
+    </details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <details class="more"><summary>Đi sâu hơn: vì sao phải học đặc trưng?</summary>
+      <p>Các phương pháp cũ dùng đặc trưng do con người thiết kế, được các chuyên gia dày công xây dựng cho từng bài toán, hoặc dùng đặc trưng tổng quát như kernel method. Mạng nơ-ron <em>học</em> các đặc trưng \(\phi(x;\theta)\) từ dữ liệu. Cái giá phải trả là việc huấn luyện không còn là bài toán lồi, nhưng trong thực tế đổi như vậy rất đáng.</p>
+    </details>
+  </section>
+</div>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 6: Deep Feedforward Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Section 6.1)</span><span data-l="vi">(Mục 6.1)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="../index.html#computer-vision"><small>← All notes</small>Computer vision</a>
+    <a class="next" href="loss-functions.html"><small>Note 2 →</small>Loss functions: measuring mistakes</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="../index.html#computer-vision"><small>← Tất cả bài viết</small>Thị giác máy tính</a>
+    <a class="next" href="loss-functions.html"><small>Bài 2 →</small>Hàm mất mát: đo mức độ sai</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/ffn.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

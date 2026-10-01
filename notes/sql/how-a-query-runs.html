@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Một query thực sự chạy như thế nào">How a query really runs | Quoc Viet Le</title>
+  <meta name="description" content="The order the database follows is not the order you write, and that explains many error messages.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part B · Note 9 of 14</p>
+    <h1>How a query really runs</h1>
+    <p class="lead">The order the database follows is not the order you write, and that explains many error messages.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>You write <code>SELECT</code> first, but the database starts with <code>FROM</code>.</li>
+      <li>The logical order is <strong>FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</strong>.</li>
+      <li>Each step only sees what earlier steps produced. That is why a column alias works in ORDER BY but not in WHERE.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần B · Bài 9/14</p>
+    <h1>Một query thực sự chạy như thế nào</h1>
+    <p class="lead">Thứ tự database thực hiện không phải thứ tự bạn viết, và điều đó giải thích nhiều thông báo lỗi.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Bạn viết <code>SELECT</code> trước, nhưng database bắt đầu với <code>FROM</code>.</li>
+      <li>Thứ tự logic là <strong>FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</strong>.</li>
+      <li>Mỗi bước chỉ thấy những gì các bước trước tạo ra. Vì vậy alias của cột dùng được trong ORDER BY nhưng không dùng được trong WHERE.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Written order vs running order</h2>
+    <p class="key">Read a query like a recipe in this order: take the rows (FROM), throw some away (WHERE), sort them into groups (GROUP BY), throw some groups away (HAVING), compute the output columns (SELECT), sort (ORDER BY), cut (LIMIT).</p>
+    <p>Step through one query that uses every clause. The highlighted clause is the one running, and the table shows what it produces.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Thứ tự viết và thứ tự chạy</h2>
+    <p class="key">Hãy đọc một query như một công thức nấu ăn theo thứ tự này: lấy các hàng (FROM), bỏ bớt một số (WHERE), chia thành nhóm (GROUP BY), bỏ bớt một số nhóm (HAVING), tính các cột đầu ra (SELECT), sắp xếp (ORDER BY), cắt (LIMIT).</p>
+    <p>Hãy đi từng bước qua một query dùng mọi mệnh đề. Mệnh đề được tô sáng là mệnh đề đang chạy, và bảng cho thấy nó tạo ra gì.</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-pipe">
+    <div class="viz-head">
+      <p class="viz-title">One query, seven steps</p>
+      <p class="viz-sub">Click the steps or use Next.</p>
+    </div>
+    <pre class="sqlcode" id="sp-sql"></pre>
+    <div class="seg" role="group" aria-label="Step" id="sp-steps"></div>
+    <div class="ctl-row"><button type="button" class="vbtn" id="sp-prev">◀ Back</button><button type="button" class="vbtn primary" id="sp-next">Next ▶</button></div>
+    <div id="sp-stage"></div>
+    <p class="readout" id="sp-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Errors this order explains</h2>
+    <pre class="sqlcode static">SELECT category, SUM(amount) AS revenue
+FROM orders
+WHERE revenue &gt; 100          -- ERROR: column &quot;revenue&quot; does not exist
+GROUP BY category;</pre>
+    <p>WHERE runs before SELECT, so the alias <code>revenue</code> does not exist yet. The fix is to filter the groups with <code>HAVING SUM(amount) &gt; 100</code>. For the same reason an aggregate is never allowed in WHERE, while ORDER BY, which runs after SELECT, can use aliases freely.</p>
+    <details class="more"><summary>Going further: logical order, not physical order</summary><p>This is the order in which the <em>meaning</em> of a query is defined. The database's optimiser is free to do the work differently (for example, use an index to read only the matching rows) as long as the result is the same as if it had followed these steps. <code>DISTINCT</code> runs right after SELECT, and window functions (note 12) run after HAVING and before ORDER BY.</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Những lỗi mà thứ tự này giải thích</h2>
+    <pre class="sqlcode static">SELECT category, SUM(amount) AS revenue
+FROM orders
+WHERE revenue &gt; 100          -- LỖI: cột &quot;revenue&quot; không tồn tại
+GROUP BY category;</pre>
+    <p>WHERE chạy trước SELECT, nên alias <code>revenue</code> chưa tồn tại. Cách sửa là lọc các nhóm bằng <code>HAVING SUM(amount) &gt; 100</code>. Cũng vì lý do đó, hàm tổng hợp không bao giờ được phép nằm trong WHERE, còn ORDER BY, chạy sau SELECT, thì dùng alias thoải mái.</p>
+    <details class="more"><summary>Đi sâu hơn: thứ tự logic, không phải thứ tự vật lý</summary><p>Đây là thứ tự định nghĩa <em>ý nghĩa</em> của một query. Bộ tối ưu (optimiser) của database được tự do làm việc theo cách khác (ví dụ dùng index để chỉ đọc các hàng khớp) miễn là kết quả giống như khi nó làm theo các bước này. <code>DISTINCT</code> chạy ngay sau SELECT, và các window function (bài 12) chạy sau HAVING và trước ORDER BY.</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;The query above&quot;, &quot;SELECT category, COUNT(*) AS n, SUM(amount) AS revenue\nFROM orders\nWHERE amount &gt;= 10\nGROUP BY category\nHAVING COUNT(*) &gt;= 2\nORDER BY revenue DESC\nLIMIT 1;&quot;], [&quot;Without LIMIT&quot;, &quot;SELECT category, COUNT(*) AS n, SUM(amount) AS revenue\nFROM orders\nWHERE amount &gt;= 10\nGROUP BY category\nORDER BY revenue DESC;&quot;], [&quot;Alias in ORDER BY&quot;, &quot;SELECT product, amount * 1.1 AS with_vat FROM orders ORDER BY with_vat DESC;&quot;]]">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite in your browser. SQLite is more lenient than PostgreSQL and accepts some aliases in WHERE; do not rely on it.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, SQL Commands: SELECT (Description). <a href="https://www.postgresql.org/docs/16/sql-select.html" target="_blank" rel="noopener">postgresql.org/docs/16/sql-select.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapter 3. O'Reilly Media.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="group-by-and-having.html"><small>← Note 8</small>GROUP BY and HAVING</a>
+    <a class="next" href="joins.html"><small>Note 10 →</small>JOIN: combining tables</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="group-by-and-having.html"><small>← Bài 8</small>GROUP BY và HAVING</a>
+    <a class="next" href="joins.html"><small>Bài 10 →</small>JOIN: kết hợp các bảng</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

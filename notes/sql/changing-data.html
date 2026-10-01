@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Thay đổi dữ liệu: INSERT, UPDATE, DELETE">Changing data: INSERT, UPDATE, DELETE | Quoc Viet Le</title>
+  <meta name="description" content="Adding, changing and removing rows, and the one mistake everybody makes once.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part A · Note 6 of 14</p>
+    <h1>Changing data: INSERT, UPDATE, DELETE</h1>
+    <p class="lead">Adding, changing and removing rows, and the one mistake everybody makes once.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li><code>INSERT</code> adds rows, <code>UPDATE</code> changes values in existing rows and <code>DELETE</code> removes rows.</li>
+      <li>UPDATE and DELETE choose their rows with <code>WHERE</code>, exactly like SELECT. <strong>Without WHERE, every row is affected.</strong></li>
+      <li>The database enforces the table's rules: a duplicate primary key or a missing required value is rejected, and nothing changes.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần A · Bài 6/14</p>
+    <h1>Thay đổi dữ liệu: INSERT, UPDATE, DELETE</h1>
+    <p class="lead">Thêm, sửa và xoá hàng, và lỗi mà ai cũng mắc một lần.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><code>INSERT</code> thêm hàng, <code>UPDATE</code> đổi giá trị trong các hàng đã có và <code>DELETE</code> xoá hàng.</li>
+      <li>UPDATE và DELETE chọn hàng bằng <code>WHERE</code>, y như SELECT. <strong>Không có WHERE thì mọi hàng đều bị tác động.</strong></li>
+      <li>Database thực thi các quy tắc của bảng: trùng khoá chính hoặc thiếu giá trị bắt buộc sẽ bị từ chối và không có gì thay đổi.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Three statements</h2>
+    <pre class="sqlcode static">INSERT INTO customers (customer_id, name, city, joined)
+VALUES (7, &#x27;Lan&#x27;, &#x27;Hanoi&#x27;, 2024);
+
+UPDATE customers
+SET city = &#x27;Hanoi&#x27;
+WHERE customer_id = 5;
+
+DELETE FROM customers
+WHERE customer_id = 6;</pre>
+    <p class="key">UPDATE and DELETE work in two steps: first WHERE finds the rows, then the change is applied to exactly those rows.</p>
+    <p>The database answers with how many rows were affected, for example <code>UPDATE 1</code>. Run the statements below on a live copy of the table. Try running the INSERT twice.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Ba câu lệnh</h2>
+    <pre class="sqlcode static">INSERT INTO customers (customer_id, name, city, joined)
+VALUES (7, &#x27;Lan&#x27;, &#x27;Hanoi&#x27;, 2024);
+
+UPDATE customers
+SET city = &#x27;Hanoi&#x27;
+WHERE customer_id = 5;
+
+DELETE FROM customers
+WHERE customer_id = 6;</pre>
+    <p class="key">UPDATE và DELETE làm việc theo hai bước: trước hết WHERE tìm các hàng, rồi thay đổi được áp dụng đúng cho những hàng đó.</p>
+    <p>Database trả lời bằng số hàng bị tác động, ví dụ <code>UPDATE 1</code>. Hãy chạy các câu lệnh bên dưới trên một bản sao trực tiếp của bảng. Thử chạy INSERT hai lần xem.</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-modify">
+    <div class="viz-head">
+      <p class="viz-title">A live copy of customers</p>
+      <p class="viz-sub">Pick a statement: the rows it would touch are outlined. Then press Run.</p>
+    </div>
+    <div class="ctl-row"><label class="ctl grow">statement <select class="vsel" id="sm-stmt"></select></label><button type="button" class="vbtn primary" id="sm-run">Run ▶</button><button type="button" class="vbtn" id="sm-reset">Reset table</button></div>
+    <pre class="sqlcode" id="sm-sql"></pre>
+    <div id="sm-rows"></div>
+    <p class="readout" id="sm-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Safe habits</h2>
+    <ul><li>Before an UPDATE or DELETE, run a SELECT with the <em>same</em> WHERE and check that it returns the rows you expect.</li><li>Change rows by their primary key when you can (<code>WHERE customer_id = 5</code>): it can only ever match one row.</li><li>Work inside a transaction, so a mistake can still be undone with ROLLBACK (note 14).</li></ul>
+    <details class="more"><summary>Going further: deleting a customer who has orders</summary><p>If orders point to customer 1 through a foreign key, the database refuses to delete that customer, because the orders would point to nothing. You can choose other behaviour when creating the table, such as <code>ON DELETE CASCADE</code> (delete the orders too) or <code>ON DELETE SET NULL</code>.</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Thói quen an toàn</h2>
+    <ul><li>Trước khi UPDATE hoặc DELETE, hãy chạy một SELECT với <em>cùng</em> WHERE và kiểm tra nó trả về đúng những hàng bạn mong đợi.</li><li>Thay đổi hàng theo khoá chính khi có thể (<code>WHERE customer_id = 5</code>): nó chỉ có thể khớp tối đa một hàng.</li><li>Làm việc trong một transaction, để một sai lầm vẫn có thể được hoàn tác bằng ROLLBACK (bài 14).</li></ul>
+    <details class="more"><summary>Đi sâu hơn: xoá một khách hàng đang có đơn</summary><p>Nếu các đơn hàng trỏ tới khách 1 qua khoá ngoại, database sẽ từ chối xoá khách đó, vì các đơn sẽ trỏ vào hư không. Bạn có thể chọn hành vi khác khi tạo bảng, như <code>ON DELETE CASCADE</code> (xoá luôn các đơn) hoặc <code>ON DELETE SET NULL</code>.</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;Insert, then look&quot;, &quot;INSERT INTO customers VALUES (7, &#x27;Lan&#x27;, &#x27;Hanoi&#x27;, 2024);\nSELECT * FROM customers;&quot;], [&quot;Update one row&quot;, &quot;UPDATE customers SET city = &#x27;Hanoi&#x27; WHERE customer_id = 5;\nSELECT * FROM customers;&quot;], [&quot;Delete one row&quot;, &quot;DELETE FROM customers WHERE customer_id = 6;\nSELECT * FROM customers;&quot;], [&quot;Duplicate key&quot;, &quot;INSERT INTO customers VALUES (2, &#x27;Duc&#x27;, &#x27;Hue&#x27;, 2024);&quot;]]">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite in your browser. Changes stay until you press Reset data or reload the page.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Chapter 6: Data Manipulation. <a href="https://www.postgresql.org/docs/16/dml.html" target="_blank" rel="noopener">postgresql.org/docs/16/dml.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapter 2. O'Reilly Media.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="sorting-and-limiting.html"><small>← Note 5</small>Sorting and limiting: ORDER BY and LIMIT</a>
+    <a class="next" href="aggregate-functions.html"><small>Note 7 →</small>Summarising: COUNT, SUM, AVG, MIN, MAX</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="sorting-and-limiting.html"><small>← Bài 5</small>Sắp xếp và giới hạn: ORDER BY và LIMIT</a>
+    <a class="next" href="aggregate-functions.html"><small>Bài 7 →</small>Tổng hợp: COUNT, SUM, AVG, MIN, MAX</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="AlexNet: mạng đã mở màn tất cả">AlexNet: the network that started it all | Quoc Viet Le</title>
+  <meta name="description" content="The 2012 ImageNet winner: its structure and the tricks that made it work.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part C · Note 13 of 16</p>
+    <h1>AlexNet: the network that started it all</h1>
+    <p class="lead">The 2012 ImageNet winner: its structure and the tricks that made it work.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li><strong>AlexNet</strong> won the 2012 ImageNet challenge with 15.3% top-5 error, against 26.2% for the next best entry.</li>
+      <li>It has 8 learned layers (5 convolutional, 3 fully connected), 60 million parameters, and was trained on two GPUs.</li>
+      <li>The key trick was <strong>ReLU</strong>: it trained 6× faster than tanh. Local response normalization and overlapping pooling helped a little more.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần C · Bài 13/16</p>
+    <h1>AlexNet: mạng đã mở màn tất cả</h1>
+    <p class="lead">Người chiến thắng ImageNet 2012: cấu trúc và những mẹo giúp nó hoạt động.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><strong>AlexNet</strong> thắng cuộc thi ImageNet 2012 với sai số top-5 là 15.3%, trong khi bài đứng nhì là 26.2%.</li>
+      <li>Nó có 8 lớp được học (5 tích chập, 3 kết nối đầy đủ), 60 triệu tham số, và được huấn luyện trên hai GPU.</li>
+      <li>Mẹo then chốt là <strong>ReLU</strong>: huấn luyện nhanh hơn tanh 6 lần. Local response normalization và overlapping pooling giúp thêm một chút.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>The task</h2>
+    <p><strong>ImageNet</strong> (ILSVRC) has 1,000 classes and about 1.2 million training images. Results are reported as <em>top-5 error</em>: how often the correct label is <em>not</em> among the model's five best guesses.</p>
+    <h2>The structure</h2>
+    <p class="key">Five convolutional layers find features, three fully connected layers classify, and the whole network is split in half across two GPUs.</p>
+    <p>One GPU had only 3 GB of memory, so each GPU holds half of the filters. They exchange data only at some layers (the crossing lines):</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Bài toán</h2>
+    <p><strong>ImageNet</strong> (ILSVRC) có 1,000 lớp và khoảng 1.2 triệu ảnh huấn luyện. Kết quả được báo cáo bằng <em>sai số top-5</em>: tần suất nhãn đúng <em>không</em> nằm trong năm dự đoán tốt nhất của mô hình.</p>
+    <h2>Cấu trúc</h2>
+    <p class="key">Năm lớp tích chập tìm đặc trưng, ba lớp kết nối đầy đủ phân loại, và cả mạng được chia đôi trên hai GPU.</p>
+    <p>Mỗi GPU chỉ có 3 GB bộ nhớ, nên mỗi GPU giữ một nửa số bộ lọc. Chúng chỉ trao đổi dữ liệu ở một số lớp (các đường chéo nhau):</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-alex">
+    <div class="viz-head">
+      <p class="viz-title">AlexNet across two GPUs (figure 2 of the paper)</p>
+      <select class="vsel" id="ax-model" aria-label="Model" hidden><option value="alexnet">AlexNet</option></select>
+    </div>
+    <div class="hscroll" id="ax-wrap"><canvas id="ax-canvas" aria-label="AlexNet block diagram"></canvas></div>
+    <div class="readout" id="ax-info"></div>
+    <div id="ax-dwrap" hidden><p class="viz-cap"><b id="ax-dtitle"></b></p><div class="hscroll"><canvas id="ax-detail"></canvas></div><div class="readout" id="ax-dinfo"></div></div>
+    <div class="legend"><span><i style="background:var(--viz-neg)"></i>input</span><span><i style="background:var(--viz-fwd)"></i>convolutional layer output</span><span><i style="background:var(--viz-pos)"></i>fully connected</span></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <details class="more"><summary>Where are the 60 million parameters?</summary>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>layer</th><th>size</th><th>parameters</th></tr></thead>
+          <tbody>
+            <tr><td>conv1–conv5</td><td>96, 256, 384, 384, 256 filters</td><td class="num">2,334,080</td></tr>
+            <tr><td>fc6, fc7, fc8</td><td>4,096 → 4,096 → 1,000</td><td class="num">58,631,144</td></tr>
+            <tr><td><b>total</b></td><td></td><td class="num"><b>60,965,224</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:8px">The convolutional layers hold under 4% of the weights, yet removing any one of the middle ones lowers accuracy by about 2%. Depth matters.</p>
+    </details>
+  </section>
+
+  <section class="prose">
+    <h2>The tricks</h2>
+    <ol>
+      <li><strong>ReLU</strong> instead of tanh: reached the same training error <strong>6× faster</strong>. This made training such a big network practical.</li>
+      <li><strong>Two GPUs:</strong> allowed a bigger network (about −1.7% error).</li>
+      <li><strong>Local response normalization (LRN):</strong> a strongly active filter "quiets" its neighbouring filters at the same position (about −1.4% error).</li>
+      <li><strong>Overlapping pooling</strong> (3 × 3 windows, stride 2): about −0.4% error.</li>
+    </ol>
+    <div class="math">$$b^{i} = \frac{a^{i}}{\big(k + \alpha \sum_{j \text{ near } i} (a^{j})^2\big)^{\beta}},\qquad k=2,\ n=5 \text{ neighbours},\ \alpha=10^{-4},\ \beta=0.75$$</div>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <details class="more"><summary>60 triệu tham số nằm ở đâu?</summary>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>lớp</th><th>kích thước</th><th>tham số</th></tr></thead>
+          <tbody>
+            <tr><td>conv1–conv5</td><td>96, 256, 384, 384, 256 bộ lọc</td><td class="num">2,334,080</td></tr>
+            <tr><td>fc6, fc7, fc8</td><td>4,096 → 4,096 → 1,000</td><td class="num">58,631,144</td></tr>
+            <tr><td><b>tổng</b></td><td></td><td class="num"><b>60,965,224</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:8px">Các lớp tích chập chiếm chưa tới 4% số trọng số, nhưng bỏ đi bất kỳ lớp nào ở giữa cũng làm giảm độ chính xác khoảng 2%. Độ sâu quan trọng.</p>
+    </details>
+  </section>
+
+  <section class="prose">
+    <h2>Những mẹo</h2>
+    <ol>
+      <li><strong>ReLU</strong> thay cho tanh: đạt cùng sai số huấn luyện <strong>nhanh hơn 6 lần</strong>. Nhờ vậy việc huấn luyện một mạng lớn thế này mới khả thi.</li>
+      <li><strong>Hai GPU:</strong> cho phép dùng mạng lớn hơn (giảm khoảng 1.7% sai số).</li>
+      <li><strong>Local response normalization (LRN):</strong> một bộ lọc đang hoạt động mạnh sẽ "làm yên" các bộ lọc lân cận ở cùng vị trí (giảm khoảng 1.4% sai số).</li>
+      <li><strong>Overlapping pooling</strong> (cửa sổ 3 × 3, stride 2): giảm khoảng 0.4% sai số.</li>
+    </ol>
+    <div class="math">$$b^{i} = \frac{a^{i}}{\big(k + \alpha \sum_{j \text{ near } i} (a^{j})^2\big)^{\beta}},\qquad k=2,\ n=5 \text{ láng giềng},\ \alpha=10^{-4},\ \beta=0.75$$</div>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-lrn">
+    <div class="viz-head">
+      <p class="viz-title">Local response normalization at one spatial position</p>
+      <button class="vbtn sm" id="lrn-resample" type="button">New activities</button>
+    </div>
+    <div class="ctl-row">
+      <label class="ctl grow"><span><span class="tex">\(k\)</span></span> <output id="lrn-ko"></output><input type="range" id="lrn-k" min="0.5" max="4" step="0.1" value="2"></label>
+      <label class="ctl grow"><span><span class="tex">\(n\)</span> (adjacent maps)</span> <output id="lrn-no"></output><input type="range" id="lrn-n" min="1" max="15" step="2" value="5"></label>
+      <label class="ctl grow"><span><span class="tex">\(\alpha\)</span></span> <output id="lrn-ao"></output><input type="range" id="lrn-a" min="-5" max="-1" step="0.5" value="-4"></label>
+      <label class="ctl grow"><span><span class="tex">\(\beta\)</span></span> <output id="lrn-bo"></output><input type="range" id="lrn-b" min="0.25" max="1.5" step="0.05" value="0.75"></label>
+      <label class="ctl grow">activity scale <output id="lrn-scaleo"></output><input type="range" id="lrn-scale" min="1" max="100" step="1" value="30"></label>
+    </div>
+    <canvas id="lrn-canvas" style="height:220px" aria-label="Activities before and after normalization"></canvas>
+    <div class="readout" id="lrn-read"></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Krizhevsky, A., Sutskever, I., &amp; Hinton, G. E. (2012). ImageNet classification with deep convolutional neural networks. In <em>Advances in Neural Information Processing Systems 25 (NIPS 2012)</em>, pp. 1097&ndash;1105. <span class="ref-sec"><span data-l="en">(Sections 1&ndash;3)</span><span data-l="vi">(Mục 1&ndash;3)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="cnns-and-the-visual-cortex.html"><small>← Note 12</small>CNNs and the visual cortex</a>
+    <a class="next" href="alexnet-training.html"><small>Note 14 →</small>AlexNet: fighting overfitting</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="cnns-and-the-visual-cortex.html"><small>← Bài 12</small>CNN và vỏ não thị giác</a>
+    <a class="next" href="alexnet-training.html"><small>Bài 14 →</small>AlexNet: chống overfitting</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/cases.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

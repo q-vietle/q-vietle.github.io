@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="AlexNet: chống overfitting">AlexNet: fighting overfitting | Quoc Viet Le</title>
+  <meta name="description" content="Data augmentation, dropout, and the training recipe behind the results.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part C · Note 14 of 16</p>
+    <h1>AlexNet: fighting overfitting</h1>
+    <p class="lead">Data augmentation, dropout, and the training recipe behind the results.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>With 60 million parameters, even 1.2 million images are not enough: the network <strong>overfits</strong>.</li>
+      <li><strong>Data augmentation</strong>: random crops, mirror images and small colour changes create many new training images for free.</li>
+      <li><strong>Dropout</strong>: randomly switch off half of the neurons in each training step, so no neuron can rely on another.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần C · Bài 14/16</p>
+    <h1>AlexNet: chống overfitting</h1>
+    <p class="lead">Tăng cường dữ liệu, dropout, và công thức huấn luyện đằng sau các kết quả.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Với 60 triệu tham số, ngay cả 1.2 triệu ảnh cũng chưa đủ: mạng bị <strong>overfitting</strong> (quá khớp).</li>
+      <li><strong>Tăng cường dữ liệu</strong> (data augmentation): cắt ngẫu nhiên, lật gương và đổi màu nhẹ tạo ra rất nhiều ảnh huấn luyện mới miễn phí.</li>
+      <li><strong>Dropout</strong>: tắt ngẫu nhiên một nửa số nơ-ron ở mỗi bước huấn luyện, để không nơ-ron nào có thể dựa dẫm vào nơ-ron khác.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Data augmentation</h2>
+    <p class="key">A cat is still a cat when the photo is shifted, mirrored, or taken under different light.</p>
+    <ul>
+      <li><strong>Crops and flips:</strong> random 224 × 224 patches of the 256 × 256 image, plus their mirror images, give 2,048 variations of each image. At test time, average the predictions over 10 patches.</li>
+      <li><strong>Colour change:</strong> shift the colours along their main directions of variation (PCA), \(\;\sum_i \alpha_i \lambda_i p_i\) with small random \(\alpha_i\). This alone lowered error by over 1%.</li>
+    </ul>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Tăng cường dữ liệu</h2>
+    <p class="key">Một con mèo vẫn là mèo khi bức ảnh bị dịch đi, lật gương, hoặc chụp dưới ánh sáng khác.</p>
+    <ul>
+      <li><strong>Cắt và lật:</strong> các patch 224 × 224 ngẫu nhiên từ ảnh 256 × 256, cộng với ảnh lật gương của chúng, cho 2,048 biến thể của mỗi ảnh. Lúc test, lấy trung bình dự đoán trên 10 patch.</li>
+      <li><strong>Đổi màu:</strong> dịch màu theo các hướng biến thiên chính của chúng (PCA), \(\;\sum_i \alpha_i \lambda_i p_i\) với \(\alpha_i\) ngẫu nhiên nhỏ. Chỉ riêng việc này đã giảm sai số hơn 1%.</li>
+    </ul>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-aug">
+    <div class="viz-head">
+      <p class="viz-title">Random crops, reflections and PCA colour augmentation</p>
+      <div class="ctl-row" style="margin:0">
+        <button class="vbtn primary" id="ag-crop" type="button">Random crop + flip</button>
+        <button class="vbtn" id="ag-color" type="button">Random colour (<span class="tex">\(\alpha \sim \mathcal{N}(0,\, 0.1)\)</span>)</button>
+        <button class="vbtn" id="ag-test" type="button">Test-time 10 crops</button>
+      </div>
+    </div>
+    <div class="ctl-row">
+      <label class="chk"><input type="checkbox" id="ag-flip"> horizontal reflection</label>
+      <label class="ctl" style="flex-direction:row;align-items:center;gap:6px">colour shift shown
+        <select class="vsel" id="ag-ex"><option value="1">as in the paper (×1)</option><option value="10">exaggerated ×10</option><option value="30">exaggerated ×30</option></select>
+      </label>
+    </div>
+    <div class="viz-cols">
+      <div><canvas class="sq" id="ag-src" aria-label="256 by 256 source image with crop box"></canvas><p class="viz-cap">The <span class="tex">\(256 \times 256\)</span> training image (a drawn stand-in) and the crop.</p></div>
+      <div><canvas class="sq" id="ag-out" aria-label="224 by 224 network input"></canvas><p class="viz-cap">What the network sees: the <span class="tex">\(224 \times 224\)</span> patch, flipped and colour-shifted.</p></div>
+    </div>
+    <div class="readout" id="ag-read"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Dropout</h2>
+    <p class="key">Each training step uses a random "thinned" network, and all of them share the same weights.</p>
+    <p>Every hidden neuron in the first two fully connected layers is switched off with probability 0.5. Neurons cannot count on specific partners, so they learn more robust features. At test time all neurons are used, with outputs multiplied by 0.5. Training takes about twice as long, but overfitting drops sharply.</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Dropout</h2>
+    <p class="key">Mỗi bước huấn luyện dùng một mạng "thưa" ngẫu nhiên, và tất cả chúng dùng chung các trọng số.</p>
+    <p>Mỗi nơ-ron ẩn trong hai lớp kết nối đầy đủ đầu tiên bị tắt với xác suất 0.5. Các nơ-ron không thể trông cậy vào những "đồng đội" cụ thể, nên chúng học được các đặc trưng vững chắc hơn. Lúc test dùng tất cả nơ-ron, với đầu ra nhân 0.5. Huấn luyện lâu gấp khoảng hai lần, nhưng overfitting giảm mạnh.</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-drop">
+    <div class="viz-head">
+      <p class="viz-title">Dropout samples a thinned network on every training pass</p>
+      <div class="ctl-row" style="margin:0">
+        <button class="vbtn primary" id="do-sample" type="button">New training pass</button>
+        <button class="vbtn" id="do-play" type="button">Auto</button>
+        <label class="chk"><input type="checkbox" id="do-test"> test time</label>
+      </div>
+    </div>
+    <canvas id="do-canvas" style="height:260px" aria-label="Network with dropped units"></canvas>
+    <div class="readout" id="do-read"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Training recipe and results</h2>
+    <div class="table-wrap">
+      <table class="data cheat">
+        <tbody>
+          <tr><td>Optimizer</td><td>SGD with momentum 0.9, batch 128, weight decay 0.0005</td></tr>
+          <tr><td>Learning rate</td><td>0.01, divided by 10 when progress stalls (3 times), about 90 passes over the data</td></tr>
+          <tr><td>Time</td><td>5–6 days on two GTX 580 GPUs</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Công thức huấn luyện và kết quả</h2>
+    <div class="table-wrap">
+      <table class="data cheat">
+        <tbody>
+          <tr><td>Optimizer</td><td>SGD với momentum 0.9, batch 128, weight decay 0.0005</td></tr>
+          <tr><td>Tốc độ học</td><td>0.01, chia cho 10 khi tiến triển chững lại (3 lần), khoảng 90 lượt qua dữ liệu</td></tr>
+          <tr><td>Thời gian</td><td>5–6 ngày trên hai GPU GTX 580</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-alex-results">
+    <div class="viz-head">
+      <p class="viz-title">Results reported in the AlexNet paper</p>
+      <select class="vsel" id="ar-sel" aria-label="Table"><option value="alex2010">ILSVRC-2010 (Table 1)</option><option value="alex2012">ILSVRC-2012 (Table 2)</option></select>
+    </div>
+    <div id="ar-chart"></div>
+    <p class="viz-cap">Highlighted rows are the paper's CNNs. * = pre-trained on the ImageNet 2011 Fall release (15M images, 22K categories) and fine-tuned.</p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <p>The first-layer filters learned edge detectors and colour blobs, much like the Gabor filters of the previous part.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <p>Các bộ lọc ở lớp đầu học thành các máy dò cạnh và các đốm màu, rất giống các bộ lọc Gabor ở phần trước.</p>
+  </section>
+</div>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Krizhevsky, A., Sutskever, I., &amp; Hinton, G. E. (2012). ImageNet classification with deep convolutional neural networks. In <em>Advances in Neural Information Processing Systems 25 (NIPS 2012)</em>, pp. 1097&ndash;1105. <span class="ref-sec"><span data-l="en">(Sections 4&ndash;6)</span><span data-l="vi">(Mục 4&ndash;6)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="alexnet-architecture.html"><small>← Note 13</small>AlexNet: the network that started it all</a>
+    <a class="next" href="resnet-degradation.html"><small>Note 15 →</small>ResNet: when deeper got worse</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="alexnet-architecture.html"><small>← Bài 13</small>AlexNet: mạng đã mở màn tất cả</a>
+    <a class="next" href="resnet-degradation.html"><small>Bài 15 →</small>ResNet: khi sâu hơn lại tệ hơn</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/cases.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

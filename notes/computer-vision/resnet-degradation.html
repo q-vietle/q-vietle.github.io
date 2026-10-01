@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="ResNet: khi sâu hơn lại tệ hơn">ResNet: when deeper got worse | Quoc Viet Le</title>
+  <meta name="description" content="The surprising problem that stopped networks from getting deeper.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part C · Note 15 of 16</p>
+    <h1>ResNet: when deeper got worse</h1>
+    <p class="lead">The surprising problem that stopped networks from getting deeper.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>After AlexNet, networks grew to 16–30 layers. But adding even more layers made them <strong>worse</strong>.</li>
+      <li>The deeper network had higher <em>training</em> error, so this is not overfitting. It is the <strong>degradation problem</strong>: the optimizer fails to find a good solution.</li>
+      <li>A deeper network could always copy a shallower one and set its extra layers to "do nothing". So a better solution exists, but training does not find it.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần C · Bài 15/16</p>
+    <h1>ResNet: khi sâu hơn lại tệ hơn</h1>
+    <p class="lead">Vấn đề bất ngờ đã ngăn các mạng đi sâu hơn.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Sau AlexNet, các mạng tăng lên 16–30 lớp. Nhưng thêm nữa thì lại khiến chúng <strong>tệ đi</strong>.</li>
+      <li>Mạng sâu hơn có sai số <em>huấn luyện</em> cao hơn, nên đây không phải overfitting. Đó là <strong>vấn đề degradation</strong>: bộ tối ưu không tìm được một lời giải tốt.</li>
+      <li>Một mạng sâu hơn luôn có thể sao chép một mạng nông hơn và đặt các lớp thừa thành "không làm gì". Vậy một lời giải tốt hơn tồn tại, nhưng quá trình huấn luyện không tìm ra nó.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>The puzzle</h2>
+    <p class="key">A 56-layer network trained worse than a 20-layer one, even on the training set.</p>
+    <p>If it were overfitting, training error would be <em>lower</em> and only test error higher. Instead, training error itself went up (on CIFAR-10, and also 34 vs 18 layers on ImageNet). The authors also checked that gradients were not vanishing, since batch normalization kept them healthy. The optimizer simply struggles with very deep plain networks.</p>
+    <p>The small experiment below reproduces the effect. Four networks train side by side: shallow and deep, plain and residual (the fix, explained in the next note).</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Câu đố</h2>
+    <p class="key">Một mạng 56 lớp huấn luyện tệ hơn mạng 20 lớp, ngay cả trên tập huấn luyện.</p>
+    <p>Nếu là overfitting thì sai số huấn luyện phải <em>thấp hơn</em> và chỉ sai số test cao hơn. Thay vào đó, chính sai số huấn luyện lại tăng (trên CIFAR-10, và cả 34 so với 18 lớp trên ImageNet). Các tác giả cũng kiểm tra rằng gradient không bị biến mất, vì batch normalization giữ chúng khoẻ mạnh. Bộ tối ưu đơn giản là chật vật với những mạng plain rất sâu.</p>
+    <p>Thí nghiệm nhỏ bên dưới tái hiện hiệu ứng này. Bốn mạng được huấn luyện song song: nông và sâu, plain và residual (cách khắc phục, giải thích ở bài tiếp theo).</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-deg">
+    <div class="viz-head">
+      <p class="viz-title">Degradation, reproduced on a toy problem</p>
+      <div class="ctl-row" style="margin:0">
+        <button class="vbtn primary" id="dg-run" type="button">▶ Train</button>
+        <label class="ctl" style="min-width:180px">deep network: layers <output id="dg-deepo"></output><input type="range" id="dg-deep" min="8" max="32" step="2" value="20"></label>
+      </div>
+    </div>
+    <div class="viz-cols">
+      <canvas id="dg-plain" style="height:220px" aria-label="Training loss of plain networks"></canvas>
+      <canvas id="dg-res" style="height:220px" aria-label="Training loss of residual networks"></canvas>
+    </div>
+    <div class="legend"><span><i style="background:var(--accent)"></i>shallow (4 layers, thin line)</span><span><i style="background:var(--viz-grad)"></i>deep (bold line)</span></div>
+    <canvas id="dg-std" style="height:150px;margin-top:10px" aria-label="Layer response standard deviations"></canvas>
+    <div class="readout" id="dg-read"></div>
+    <p class="viz-cap">
+      Training loss on all 512 training examples, evaluated every 50 steps. Everything here is a toy: there is no batch normalization, so the second layer of each residual block
+      is initialised at one tenth of the usual scale to keep the signal from growing. Plain and residual nets have the same number of weights.
+    </p>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>He, K., Zhang, X., Ren, S., &amp; Sun, J. (2016). Deep residual learning for image recognition. In <em>Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</em>, pp. 770&ndash;778. <a href="https://arxiv.org/abs/1512.03385" target="_blank" rel="noopener">arXiv:1512.03385</a> <span class="ref-sec"><span data-l="en">(Sections 1, 4.1&ndash;4.2)</span><span data-l="vi">(Mục 1, 4.1&ndash;4.2)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="alexnet-training.html"><small>← Note 14</small>AlexNet: fighting overfitting</a>
+    <a class="next" href="resnet-residual-blocks.html"><small>Note 16 →</small>ResNet: residual blocks</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="alexnet-training.html"><small>← Bài 14</small>AlexNet: chống overfitting</a>
+    <a class="next" href="resnet-residual-blocks.html"><small>Bài 16 →</small>ResNet: các khối residual</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/cases.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

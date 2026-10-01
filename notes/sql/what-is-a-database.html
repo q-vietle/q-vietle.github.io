@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Database là gì?">What is a database? | Quoc Viet Le</title>
+  <meta name="description" content="Tables, rows, columns and keys: the few ideas that everything else in SQL builds on.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part A · Note 1 of 14</p>
+    <h1>What is a database?</h1>
+    <p class="lead">Tables, rows, columns and keys: the few ideas that everything else in SQL builds on.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A relational database stores data in <strong>tables</strong>. Each <strong>row</strong> is one record (one customer) and each <strong>column</strong> is one attribute (their city).</li>
+      <li>Every column has a <strong>data type</strong> (number, text, date). A missing value is written <strong>NULL</strong>.</li>
+      <li>A <strong>primary key</strong> identifies each row. A <strong>foreign key</strong> points to a row in another table, and this is how tables are connected.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần A · Bài 1/14</p>
+    <h1>Database là gì?</h1>
+    <p class="lead">Bảng, hàng, cột và khoá: vài ý tưởng mà mọi thứ khác trong SQL đều dựa vào.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Một relational database (cơ sở dữ liệu quan hệ) lưu dữ liệu trong các <strong>bảng</strong>. Mỗi <strong>hàng</strong> là một bản ghi (một khách hàng) và mỗi <strong>cột</strong> là một thuộc tính (thành phố của họ).</li>
+      <li>Mỗi cột có một <strong>kiểu dữ liệu</strong> (số, văn bản, ngày). Giá trị bị thiếu được viết là <strong>NULL</strong>.</li>
+      <li><strong>Khoá chính</strong> (primary key) xác định từng hàng. <strong>Khoá ngoại</strong> (foreign key) trỏ tới một hàng trong bảng khác, và đó là cách các bảng được nối với nhau.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Database, table, SQL</h2>
+    <p class="key">A database is a program that stores data safely and answers questions about it. SQL is the language you use to ask.</p>
+    <p>A spreadsheet is fine for one person and a few thousand rows. A <strong>database</strong> is built for much more: millions of rows, many users at the same time, rules that the data must follow, and answers in milliseconds. You talk to it in <strong>SQL</strong> (Structured Query Language). The popular databases, PostgreSQL, MySQL, SQLite, SQL Server and Oracle, all speak SQL with only small differences.</p>
+    <p>Inside a <em>relational</em> database, data lives in <strong>tables</strong>. Every note in this series uses the same two small tables from an imaginary shop: <code>customers</code> and <code>orders</code>. Switch the mode below and hover the tables.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Database, bảng, SQL</h2>
+    <p class="key">Database là một chương trình lưu dữ liệu an toàn và trả lời các câu hỏi về dữ liệu đó. SQL là ngôn ngữ để bạn đặt câu hỏi.</p>
+    <p>Bảng tính (spreadsheet) ổn cho một người và vài nghìn dòng. <strong>Database</strong> được xây cho nhiều hơn thế: hàng triệu hàng, nhiều người dùng cùng lúc, các quy tắc mà dữ liệu bắt buộc phải tuân theo, và câu trả lời trong vài mili giây. Bạn nói chuyện với nó bằng <strong>SQL</strong> (Structured Query Language). Các database phổ biến như PostgreSQL, MySQL, SQLite, SQL Server và Oracle đều dùng SQL, chỉ khác nhau đôi chút.</p>
+    <p>Bên trong một database <em>quan hệ</em>, dữ liệu nằm trong các <strong>bảng</strong>. Mọi bài trong loạt này đều dùng cùng hai bảng nhỏ của một cửa hàng tưởng tượng: <code>customers</code> và <code>orders</code>. Hãy đổi chế độ bên dưới và rê chuột lên các bảng.</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-anatomy">
+    <div class="viz-head">
+      <p class="viz-title">Anatomy of two tables</p>
+      <p class="viz-sub">Choose what to look at, then hover or tap the tables.</p>
+    </div>
+    <div class="seg" role="group" aria-label="Show"><button type="button" data-mode="row" aria-pressed="true">Row</button><button type="button" data-mode="col" aria-pressed="false">Column</button><button type="button" data-mode="cell" aria-pressed="false">Cell</button><button type="button" data-mode="pk" aria-pressed="false">Primary key</button><button type="button" data-mode="fk" aria-pressed="false">Foreign key</button></div>
+    <div id="an-tables" style="margin-top:12px"></div>
+    <p class="readout" id="an-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Keys connect the tables</h2>
+    <p class="key">An order does not repeat the customer's name and city. It stores only <code>customer_id</code>, a pointer to one row of <code>customers</code>.</p>
+    <ul><li><strong>Primary key</strong> (<code>customer_id</code>, <code>order_id</code>): a column whose value is different in every row and never NULL. It is the row's identity.</li><li><strong>Foreign key</strong> (<code>orders.customer_id</code>): a column that holds the primary key of a row in another table. The database can check that it always points to a customer that exists.</li></ul>
+    <p>Tables are created with <code>CREATE TABLE</code>, which lists every column, its type and its rules:</p>
+    <pre class="sqlcode static">CREATE TABLE customers (
+  customer_id INTEGER PRIMARY KEY,
+  name        TEXT NOT NULL,        -- must always have a value
+  city        TEXT,                 -- may be NULL
+  joined      INTEGER
+);
+
+CREATE TABLE orders (
+  order_id    INTEGER PRIMARY KEY,
+  customer_id INTEGER REFERENCES customers (customer_id),   -- foreign key
+  product     TEXT,
+  category    TEXT,
+  amount      NUMERIC,
+  order_date  DATE
+);</pre>
+    <p>Two details of this data matter later: Emma's <code>city</code> is NULL (unknown), and order 111 has no customer (a guest checkout). Real data always has gaps like these, and SQL has rules for them.</p>
+    <details class="more"><summary>Going further: why not keep everything in one big table?</summary><p>If every order also stored the customer's city, changing one customer's city would mean updating many rows, and missing one would leave the data contradicting itself. Splitting data so each fact is stored once is called <em>normalisation</em>. JOINs (note 10) put the pieces back together when you need them.</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Khoá nối các bảng với nhau</h2>
+    <p class="key">Một đơn hàng không lặp lại tên và thành phố của khách. Nó chỉ lưu <code>customer_id</code>, một con trỏ tới một hàng của <code>customers</code>.</p>
+    <ul><li><strong>Khoá chính</strong> (<code>customer_id</code>, <code>order_id</code>): một cột có giá trị khác nhau ở mọi hàng và không bao giờ NULL. Đó là danh tính của hàng.</li><li><strong>Khoá ngoại</strong> (<code>orders.customer_id</code>): một cột chứa khoá chính của một hàng trong bảng khác. Database có thể kiểm tra rằng nó luôn trỏ tới một khách hàng có thật.</li></ul>
+    <p>Bảng được tạo bằng <code>CREATE TABLE</code>, liệt kê mọi cột, kiểu và quy tắc của chúng:</p>
+    <pre class="sqlcode static">CREATE TABLE customers (
+  customer_id INTEGER PRIMARY KEY,
+  name        TEXT NOT NULL,        -- luôn phải có giá trị
+  city        TEXT,                 -- có thể là NULL
+  joined      INTEGER
+);
+
+CREATE TABLE orders (
+  order_id    INTEGER PRIMARY KEY,
+  customer_id INTEGER REFERENCES customers (customer_id),   -- khoá ngoại
+  product     TEXT,
+  category    TEXT,
+  amount      NUMERIC,
+  order_date  DATE
+);</pre>
+    <p>Hai chi tiết của dữ liệu này sẽ quan trọng về sau: <code>city</code> của Emma là NULL (không biết), và đơn hàng 111 không có khách hàng (khách mua không đăng nhập). Dữ liệu thật luôn có những chỗ trống như vậy, và SQL có quy tắc để xử lý chúng.</p>
+    <details class="more"><summary>Đi sâu hơn: sao không để tất cả trong một bảng lớn?</summary><p>Nếu mỗi đơn hàng cũng lưu thành phố của khách, thì đổi thành phố của một khách nghĩa là phải sửa nhiều hàng, và sót một hàng sẽ khiến dữ liệu tự mâu thuẫn. Việc tách dữ liệu để mỗi sự kiện chỉ được lưu một lần gọi là <em>chuẩn hoá</em> (normalisation). JOIN (bài 10) ghép các mảnh lại khi bạn cần.</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;Look at customers&quot;, &quot;SELECT * FROM customers;&quot;], [&quot;Look at orders&quot;, &quot;SELECT * FROM orders;&quot;], [&quot;How were the tables defined?&quot;, &quot;SELECT name, sql FROM sqlite_master WHERE type = &#x27;table&#x27;;&quot;]]">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite running in your browser. Edit the query and press Run (Ctrl + Enter). Nothing you do here is saved.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Chapter 2: The SQL Language. <a href="https://www.postgresql.org/docs/16/tutorial-sql.html" target="_blank" rel="noopener">postgresql.org/docs/16/tutorial-sql.html</a></li>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Chapter 5: Data Definition. <a href="https://www.postgresql.org/docs/16/ddl.html" target="_blank" rel="noopener">postgresql.org/docs/16/ddl.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapters 1–2. O'Reilly Media.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="../index.html#sql"><small>← All notes</small>SQL</a>
+    <a class="next" href="select-and-from.html"><small>Note 2 →</small>Your first query: SELECT and FROM</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="../index.html#sql"><small>← Tất cả bài viết</small>SQL</a>
+    <a class="next" href="select-and-from.html"><small>Bài 2 →</small>Truy vấn đầu tiên: SELECT và FROM</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

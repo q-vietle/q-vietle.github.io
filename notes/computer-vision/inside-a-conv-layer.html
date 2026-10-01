@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Bên trong một lớp tích chập">Inside a convolutional layer | Quoc Viet Le</title>
+  <meta name="description" content="Channels, biases, stride and padding: the settings of a real conv layer.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part B · Note 10 of 16</p>
+    <h1>Inside a convolutional layer</h1>
+    <p class="lead">Channels, biases, stride and padding: the settings of a real conv layer.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A colour image has 3 channels (R, G, B). Each filter has one kernel slice <strong>per input channel</strong>, and the results are added together.</li>
+      <li>Each filter has <strong>one bias</strong>, shared by every position. One filter makes one output channel.</li>
+      <li><strong>Stride</strong> skips positions to shrink the output. <strong>Zero padding</strong> adds a border of zeros to control the size.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần B · Bài 10/16</p>
+    <h1>Bên trong một lớp tích chập</h1>
+    <p class="lead">Kênh, bias, stride và padding: các thiết lập của một lớp conv thực tế.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Một ảnh màu có 3 kênh (R, G, B). Mỗi bộ lọc có một lát kernel <strong>cho mỗi kênh đầu vào</strong>, rồi các kết quả được cộng lại.</li>
+      <li>Mỗi bộ lọc có <strong>một bias</strong>, dùng chung cho mọi vị trí. Một bộ lọc tạo ra một kênh đầu ra.</li>
+      <li><strong>Stride</strong> bỏ qua bớt vị trí để thu nhỏ đầu ra. <strong>Zero padding</strong> thêm một viền số 0 để kiểm soát kích thước.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Channels and biases</h2>
+    <p class="key">One output value = bias + the sum over all input channels of the kernel-times-patch products.</p>
+    <div class="math">$$Z_{i,j,k} = b_i + \sum_{l}\sum_{m,n} V_{l,\;j+m,\;k+n}\; K_{i,l,m,n}$$</div>
+    <p>Here \(i\) is the output channel (filter), \(l\) the input channel, and \((m, n)\) the position inside the kernel. A layer with \(C_{\text{out}}\) filters of size \(k \times k\) has \(k^2\, C_{\text{in}}\, C_{\text{out}} + C_{\text{out}}\) parameters.</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Kênh và bias</h2>
+    <p class="key">Một giá trị đầu ra = bias + tổng, trên mọi kênh đầu vào, của các tích kernel-nhân-patch.</p>
+    <div class="math">$$Z_{i,j,k} = b_i + \sum_{l}\sum_{m,n} V_{l,\;j+m,\;k+n}\; K_{i,l,m,n}$$</div>
+    <p>Ở đây \(i\) là kênh đầu ra (bộ lọc), \(l\) là kênh đầu vào, và \((m, n)\) là vị trí bên trong kernel. Một lớp có \(C_{\text{out}}\) bộ lọc cỡ \(k \times k\) có \(k^2\, C_{\text{in}}\, C_{\text{out}} + C_{\text{out}}\) tham số.</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-mc">
+    <div class="viz-head">
+      <p class="viz-title">A multichannel convolution layer with biases (eq. 9.7)</p>
+      <div class="seg" role="group" aria-label="Filter"><button type="button" data-f="0">Filter 1</button><button type="button" data-f="1">Filter 2</button></div>
+    </div>
+    <div class="ctl-row">
+      <label class="ctl">weights of this filter
+        <select class="vsel" id="mc-preset">
+          <option value="redv">Red vertical edge</option><option value="gmb">Green minus blue</option>
+          <option value="bright">Overall brightness</option><option value="diag">Green diagonal line</option>
+        </select>
+      </label>
+      <label class="ctl grow"><span>bias <span class="tex">\(b\)</span> (shared by all positions)</span> <output id="mc-biaso"></output><input type="range" id="mc-bias" min="-3" max="2" step="0.1" value="0"></label>
+    </div>
+    <div class="hscroll"><canvas id="mc-canvas" style="min-width:640px" aria-label="Multichannel convolution with bias"></canvas></div>
+    <div class="readout" id="mc-out"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Stride and padding</h2>
+    <p class="key">Without padding, every layer makes the image smaller. Padding lets you choose.</p>
+    <div class="math">$$\text{output size} = \Big\lfloor \frac{m + p - k}{s} \Big\rfloor + 1 \qquad (m \text{ input},\ k \text{ kernel},\ p \text{ zeros added},\ s \text{ stride})$$</div>
+    <ul>
+      <li><strong>Valid</strong> (no padding): shrinks by \(k-1\) at each layer.</li>
+      <li><strong>Same</strong>: just enough zeros to keep the size.</li>
+      <li><strong>Full</strong>: grows by \(k-1\).</li>
+    </ul>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Stride và padding</h2>
+    <p class="key">Không có padding thì mỗi lớp làm ảnh nhỏ lại. Padding cho phép bạn chọn.</p>
+    <div class="math">$$\text{output size} = \Big\lfloor \frac{m + p - k}{s} \Big\rfloor + 1 \qquad (m \text{: đầu vào},\ k \text{: kernel},\ p \text{: số số 0 thêm vào},\ s \text{: stride})$$</div>
+    <ul>
+      <li><strong>Valid</strong> (không padding): nhỏ đi \(k-1\) sau mỗi lớp.</li>
+      <li><strong>Same</strong>: thêm vừa đủ số 0 để giữ nguyên kích thước.</li>
+      <li><strong>Full</strong>: lớn thêm \(k-1\).</li>
+    </ul>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-pad">
+    <div class="viz-head">
+      <p class="viz-title">The effect of zero padding on network size (figure 9.13)</p>
+      <div class="seg" role="group" aria-label="Padding">
+        <button type="button" data-pad="valid" aria-pressed="true">Valid</button><button type="button" data-pad="same" aria-pressed="false">Same</button><button type="button" data-pad="full" aria-pressed="false">Full</button>
+      </div>
+    </div>
+    <div class="ctl-row">
+      <label class="ctl grow"><span>input width <span class="tex">\(m\)</span></span> <output id="pd-mo"></output><input type="range" id="pd-m" min="6" max="24" step="1" value="16"></label>
+      <label class="ctl grow"><span>kernel width <span class="tex">\(k\)</span></span> <output id="pd-ko"></output><input type="range" id="pd-k" min="2" max="7" step="1" value="6"></label>
+    </div>
+    <canvas id="pd-canvas" style="height:280px" aria-label="Layer widths under different padding"></canvas>
+    <div class="readout" id="pd-read"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <details class="more"><summary>Going further: other kinds of layer</summary>
+      <p>A <em>locally connected</em> layer uses the same local connections but different weights at every position. A <em>tiled</em> convolution cycles through a few kernels. You can compare both in the connectivity figure of the previous note.</p>
+    </details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <details class="more"><summary>Đi sâu hơn: các loại lớp khác</summary>
+      <p>Lớp <em>kết nối cục bộ</em> (locally connected) dùng cùng các kết nối cục bộ nhưng có trọng số riêng ở mỗi vị trí. Tích chập <em>tiled</em> luân phiên qua một vài kernel. Bạn có thể so sánh cả hai trong hình về kết nối ở bài trước.</p>
+    </details>
+  </section>
+</div>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 9: Convolutional Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Section 9.5)</span><span data-l="vi">(Mục 9.5)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="pooling.html"><small>← Note 9</small>Pooling</a>
+    <a class="next" href="building-a-cnn.html"><small>Note 11 →</small>Building a CNN</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="pooling.html"><small>← Bài 9</small>Pooling</a>
+    <a class="next" href="building-a-cnn.html"><small>Bài 11 →</small>Xây dựng một CNN</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/conv.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

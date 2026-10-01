@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Pooling">Pooling | Quoc Viet Le</title>
+  <meta name="description" content="Summarising small neighbourhoods so the network cares less about exact positions.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part B · Note 9 of 16</p>
+    <h1>Pooling</h1>
+    <p class="lead">Summarising small neighbourhoods so the network cares less about exact positions.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A typical CNN layer has three steps: <strong>convolution → activation (ReLU) → pooling</strong>.</li>
+      <li><strong>Max pooling</strong> replaces each small neighbourhood with its largest value.</li>
+      <li>This makes the output stable when the input shifts a little (<strong>invariance</strong>), and with a stride it also shrinks the map (<strong>downsampling</strong>).</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần B · Bài 9/16</p>
+    <h1>Pooling</h1>
+    <p class="lead">Tóm tắt các vùng lân cận nhỏ để mạng bớt quan tâm đến vị trí chính xác.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Một lớp CNN điển hình có ba bước: <strong>tích chập → kích hoạt (ReLU) → pooling</strong>.</li>
+      <li><strong>Max pooling</strong> thay mỗi vùng lân cận nhỏ bằng giá trị lớn nhất của nó.</li>
+      <li>Nhờ vậy đầu ra ổn định khi đầu vào dịch chuyển nhẹ (<strong>bất biến</strong>, invariance), và khi có stride thì feature map cũng nhỏ lại (<strong>giảm mẫu</strong>, downsampling).</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>What pooling does</h2>
+    <p class="key">"Is there an edge somewhere around here?" matters more than "exactly which pixel is it on?"</p>
+    <p>If a feature moves by one pixel, most of the pooled values stay the same, because the maximum of a neighbourhood rarely changes. Shift the input below and count the changes:</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Pooling làm gì</h2>
+    <p class="key">"Quanh đây có một cạnh không?" quan trọng hơn "chính xác nó nằm ở pixel nào?"</p>
+    <p>Nếu một đặc trưng dịch đi một pixel, hầu hết các giá trị sau pooling vẫn giữ nguyên, vì giá trị lớn nhất của một vùng hiếm khi đổi. Hãy dịch đầu vào bên dưới và đếm số thay đổi:</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-pool">
+    <div class="viz-head">
+      <p class="viz-title">Pooling introduces invariance (figures 9.8 and 9.10)</p>
+      <label class="ctl" style="flex-direction:row;align-items:center;gap:6px;min-width:0">pooling
+        <select class="vsel" id="pl-fn"><option value="max">max</option><option value="avg">average</option><option value="l2">L2 norm</option></select>
+      </label>
+    </div>
+    <div class="ctl-row">
+      <label class="ctl grow">pool width <output id="pl-zo"></output><input type="range" id="pl-z" min="1" max="5" step="1" value="3"></label>
+      <label class="ctl grow">stride between pools <output id="pl-so"></output><input type="range" id="pl-s" min="1" max="3" step="1" value="1"></label>
+    </div>
+    <div class="hscroll"><canvas id="pl-canvas" style="height:300px;min-width:620px" aria-label="Detector and pooling stages before and after a shift"></canvas></div>
+    <div class="readout" id="pl-read"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <details class="more"><summary>Going further: pooling as a strong assumption</summary>
+      <p>Convolution assumes that useful features are local and can appear anywhere. Pooling assumes that small shifts do not matter. When these assumptions are true they help a lot. When a task needs exact positions, they can hurt, causing <em>underfitting</em>. Pooling also lets a network accept images of different sizes: make the pooling regions scale with the image, so the output size stays fixed.</p>
+    </details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <details class="more"><summary>Đi sâu hơn: pooling là một giả định mạnh</summary>
+      <p>Tích chập giả định rằng các đặc trưng hữu ích mang tính cục bộ và có thể xuất hiện ở bất cứ đâu. Pooling giả định rằng những dịch chuyển nhỏ không quan trọng. Khi các giả định này đúng, chúng giúp rất nhiều. Khi bài toán cần vị trí chính xác, chúng có thể gây hại, dẫn đến <em>underfitting</em> (chưa khớp). Pooling cũng cho phép mạng nhận ảnh có kích thước khác nhau: cho các vùng pooling co giãn theo ảnh, để kích thước đầu ra luôn cố định.</p>
+    </details>
+  </section>
+</div>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 9: Convolutional Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Sections 9.3&ndash;9.4)</span><span data-l="vi">(Mục 9.3&ndash;9.4)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="why-convolution-works.html"><small>← Note 8</small>Why convolution works so well</a>
+    <a class="next" href="inside-a-conv-layer.html"><small>Note 10 →</small>Inside a convolutional layer</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="why-convolution-works.html"><small>← Bài 8</small>Vì sao tích chập hiệu quả đến vậy</a>
+    <a class="next" href="inside-a-conv-layer.html"><small>Bài 10 →</small>Bên trong một lớp tích chập</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/conv.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Backpropagation">Backpropagation | Quoc Viet Le</title>
+  <meta name="description" content="How the network works out which way to change every weight, in one backward sweep.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part A · Note 5 of 16</p>
+    <h1>Backpropagation</h1>
+    <p class="lead">How the network works out which way to change every weight, in one backward sweep.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>To learn, we need the <strong>gradient</strong>: how the loss changes when each weight changes.</li>
+      <li><strong>Backpropagation</strong> uses the chain rule, going backward from the loss layer by layer.</li>
+      <li>It reuses values saved during the forward pass, so it costs about as much as one forward pass. It only <em>computes</em> the gradient; an optimiser such as gradient descent uses it.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần A · Bài 5/16</p>
+    <h1>Backpropagation</h1>
+    <p class="lead">Cách mạng tìm ra hướng thay đổi cho mọi trọng số chỉ trong một lượt quét ngược.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Để học, ta cần <strong>gradient</strong>: loss thay đổi thế nào khi mỗi trọng số thay đổi.</li>
+      <li><strong>Backpropagation</strong> dùng quy tắc chuỗi (chain rule), đi ngược từ loss qua từng lớp.</li>
+      <li>Nó tái sử dụng các giá trị đã lưu trong lượt lan truyền xuôi, nên chi phí chỉ bằng khoảng một lượt xuôi. Nó chỉ <em>tính</em> gradient; việc dùng gradient là của bộ tối ưu như gradient descent.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Forward, then backward</h2>
+    <p class="key">Forward pass: compute the prediction and the loss. Backward pass: send the error back through the network to get every gradient.</p>
+    <p>For each layer \(k\), the forward pass computes \(a^{(k)} = b^{(k)} + W^{(k)} h^{(k-1)}\) and \(h^{(k)} = f(a^{(k)})\). The backward pass starts with the gradient of the loss at the output, \(g\), and repeats three steps for each layer from the top down:</p>
+    <div class="math">$$\begin{aligned}
+      g &\leftarrow g \odot f'(a^{(k)}) &&\text{go back through the activation}\\
+      \nabla_{W^{(k)}} J &= g\, h^{(k-1)\top},\quad \nabla_{b^{(k)}} J = g &&\text{gradients for this layer's weights}\\
+      g &\leftarrow W^{(k)\top} g &&\text{pass the error to the layer below}
+    \end{aligned}$$</div>
+    <p>In words: <strong>a weight's gradient = (error at its output end) × (value at its input end)</strong>. Step through a small network with real numbers:</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Xuôi, rồi ngược</h2>
+    <p class="key">Lượt xuôi: tính dự đoán và loss. Lượt ngược: gửi sai số ngược qua mạng để lấy mọi gradient.</p>
+    <p>Với mỗi lớp \(k\), lượt xuôi tính \(a^{(k)} = b^{(k)} + W^{(k)} h^{(k-1)}\) và \(h^{(k)} = f(a^{(k)})\). Lượt ngược bắt đầu với gradient của loss tại đầu ra, \(g\), rồi lặp lại ba bước cho mỗi lớp từ trên xuống:</p>
+    <div class="math">$$\begin{aligned}
+      g &\leftarrow g \odot f'(a^{(k)}) &&\text{đi ngược qua hàm kích hoạt}\\
+      \nabla_{W^{(k)}} J &= g\, h^{(k-1)\top},\quad \nabla_{b^{(k)}} J = g &&\text{gradient của trọng số lớp này}\\
+      g &\leftarrow W^{(k)\top} g &&\text{chuyển sai số cho lớp bên dưới}
+    \end{aligned}$$</div>
+    <p>Nói bằng lời: <strong>gradient của một trọng số = (sai số ở đầu ra của nó) × (giá trị ở đầu vào của nó)</strong>. Hãy đi từng bước qua một mạng nhỏ với số liệu thật:</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="bp">
+    <div class="viz-head">
+      <p class="viz-title">Algorithms 6.3 and 6.4, one step at a time</p>
+      <p class="viz-sub" id="bp-iter">Iteration 1</p>
+    </div>
+    <div class="phase-chips" aria-hidden="true">
+      <span>1 Forward: hidden</span><span>2 Forward: output</span><span>3 Cost</span>
+      <span class="back">4 Backward: output</span><span class="back">5 Backward: hidden</span><span>6 Update</span>
+    </div>
+    <canvas id="bp-canvas" style="height:340px" aria-label="Network diagram with activations and gradients"></canvas>
+    <div class="ctl-row">
+      <button class="vbtn" id="bp-prev" type="button">◀ Back</button>
+      <button class="vbtn primary" id="bp-next" type="button">Next step ▶</button>
+      <button class="vbtn" id="bp-play" type="button">Auto-play</button>
+      <button class="vbtn" id="bp-reset" type="button">Reset weights</button>
+      <label class="ctl grow"><span>input <span class="tex">\(x_1\)</span></span> <output id="bp-x1o"></output><input type="range" id="bp-x1" min="-1.5" max="1.5" step="0.1" value="0.8"></label>
+      <label class="ctl grow"><span>input <span class="tex">\(x_2\)</span></span> <output id="bp-x2o"></output><input type="range" id="bp-x2" min="-1.5" max="1.5" step="0.1" value="-0.6"></label>
+      <div class="ctl">target y
+        <div class="seg" role="group" aria-label="Target label"><button type="button" data-y="0">0</button><button type="button" data-y="1">1</button></div>
+      </div>
+      <label class="ctl grow"><span>learning rate <span class="tex">\(\eta\)</span></span> <output id="bp-lro"></output><input type="range" id="bp-lr" min="0.05" max="2" step="0.05" value="0.5"></label>
+    </div>
+    <div class="readout" id="bp-explain" aria-live="polite"></div>
+    <p class="viz-cap" id="bp-history"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Why it is fast</h2>
+    <p class="key">Backprop stores each intermediate gradient once and reuses it, instead of recomputing it along every path.</p>
+    <p>A weight can reach the loss along many paths, and the number of paths can grow exponentially with depth. Backprop avoids that by filling in a table of gradients from the output backwards, one node at a time (dynamic programming):</p>
+    <div class="math">$$\frac{\partial z}{\partial u_j} = \sum_{i \,\in\, \text{children of } j} \frac{\partial z}{\partial u_i}\,\frac{\partial u_i}{\partial u_j}$$</div>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Vì sao nó nhanh</h2>
+    <p class="key">Backprop lưu mỗi gradient trung gian một lần và tái sử dụng, thay vì tính lại dọc theo từng đường đi.</p>
+    <p>Một trọng số có thể tới loss qua rất nhiều đường, và số đường có thể tăng theo hàm mũ của độ sâu. Backprop tránh điều đó bằng cách điền dần một bảng gradient từ đầu ra ngược về, từng nút một (quy hoạch động):</p>
+    <div class="math">$$\frac{\partial z}{\partial u_j} = \sum_{i \,\in\, \text{children of } j} \frac{\partial z}{\partial u_i}\,\frac{\partial u_i}{\partial u_j}$$</div>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-dp">
+    <div class="viz-head">
+      <p class="viz-title">Back-propagation fills a gradient table from the output back</p>
+      <p class="viz-sub">Node values from the forward pass; pink numbers are <span class="tex">\(\partial z / \partial u\)</span>.</p>
+    </div>
+    <div class="ctl-row">
+      <label class="ctl grow">columns of hidden nodes <output id="dp-Lo"></output><input type="range" id="dp-L" min="2" max="12" step="1" value="6"></label>
+      <button class="vbtn primary" id="dp-step" type="button">Fill next column</button>
+      <button class="vbtn" id="dp-reset" type="button">Reset</button>
+    </div>
+    <canvas id="dp-canvas" style="height:240px" aria-label="Computational graph with gradient table"></canvas>
+    <div class="readout" id="dp-read"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <details class="more"><summary>Going further</summary>
+      <p>Libraries such as PyTorch and TensorFlow implement this for any computation: each operation only needs to know its own local derivative. This is called <em>reverse-mode automatic differentiation</em>. The main memory cost is keeping the forward-pass values until the backward pass needs them.</p>
+    </details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <details class="more"><summary>Đi sâu hơn</summary>
+      <p>Các thư viện như PyTorch và TensorFlow cài đặt điều này cho mọi phép tính: mỗi phép toán chỉ cần biết đạo hàm cục bộ của chính nó. Kỹ thuật này gọi là <em>vi phân tự động ngược</em> (reverse-mode automatic differentiation). Chi phí bộ nhớ chủ yếu là việc giữ các giá trị của lượt xuôi cho đến khi lượt ngược cần dùng.</p>
+    </details>
+  </section>
+</div>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 6: Deep Feedforward Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Section 6.5)</span><span data-l="vi">(Mục 6.5)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="why-deep-networks.html"><small>← Note 4</small>Why deep networks?</a>
+    <a class="next" href="gradient-descent-and-optimizers.html"><small>Note 6 →</small>Training: gradient descent and optimizers</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="why-deep-networks.html"><small>← Bài 4</small>Vì sao cần mạng sâu?</a>
+    <a class="next" href="gradient-descent-and-optimizers.html"><small>Bài 6 →</small>Huấn luyện: gradient descent và các optimizer</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/ffn.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="CNN và vỏ não thị giác">CNNs and the visual cortex | Quoc Viet Le</title>
+  <meta name="description" content="How the brain's visual system inspired convolutional networks.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Computer vision</a> · Part B · Note 12 of 16</p>
+    <h1>CNNs and the visual cortex</h1>
+    <p class="lead">How the brain's visual system inspired convolutional networks.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>The primary visual cortex (<strong>V1</strong>) is arranged as a map of the image, much like a feature map.</li>
+      <li><strong>Simple cells</strong> respond to edges at a specific position and orientation. They are well described by <strong>Gabor filters</strong>, and so are the first-layer kernels learned by CNNs.</li>
+      <li><strong>Complex cells</strong> respond to the same edges but ignore small shifts, just like pooling.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#computer-vision">Thị giác máy tính</a> · Phần B · Bài 12/16</p>
+    <h1>CNN và vỏ não thị giác</h1>
+    <p class="lead">Hệ thị giác của bộ não đã truyền cảm hứng cho mạng tích chập như thế nào.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Vỏ não thị giác sơ cấp (<strong>V1</strong>) được sắp xếp như một bản đồ của ảnh, giống một feature map.</li>
+      <li><strong>Tế bào đơn giản</strong> phản ứng với cạnh ở một vị trí và hướng cụ thể. Chúng được mô tả tốt bằng <strong>bộ lọc Gabor</strong>, và các kernel lớp đầu mà CNN học được cũng vậy.</li>
+      <li><strong>Tế bào phức tạp</strong> phản ứng với cùng những cạnh đó nhưng bỏ qua dịch chuyển nhỏ, giống hệt pooling.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Gabor filters</h2>
+    <p class="key">A Gabor filter is a wave (cosine) inside a soft window (Gaussian). It detects edges of one orientation and spacing.</p>
+    <div class="math">$$w(x,y) = \alpha\, e^{-\beta_x x'^2 - \beta_y y'^2}\cos(f x' + \phi)$$</div>
+    <p>\(x', y'\) are the coordinates rotated by angle \(\tau\). A <strong>complex cell</strong> combines two simple cells a quarter-wave apart, \(c = \sqrt{s_0^2 + s_1^2}\), so it responds the same wherever the stripes sit (the phase no longer matters).</p>
+  </section>
+
+  
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Bộ lọc Gabor</h2>
+    <p class="key">Bộ lọc Gabor là một sóng (cosine) nằm trong một cửa sổ mềm (Gaussian). Nó dò các cạnh có một hướng và một khoảng cách nhất định.</p>
+    <div class="math">$$w(x,y) = \alpha\, e^{-\beta_x x'^2 - \beta_y y'^2}\cos(f x' + \phi)$$</div>
+    <p>\(x', y'\) là toạ độ đã xoay một góc \(\tau\). Một <strong>tế bào phức tạp</strong> kết hợp hai tế bào đơn giản lệch nhau một phần tư bước sóng, \(c = \sqrt{s_0^2 + s_1^2}\), nên nó phản ứng như nhau dù các sọc nằm ở đâu (pha không còn quan trọng).</p>
+  </section>
+
+  
+</div>
+
+  <figure class="viz" id="fig-gabor">
+    <div class="viz-head">
+      <p class="viz-title">A Gabor simple cell and a complex cell (eqs. 9.15–9.18, figure 9.18)</p>
+    </div>
+    <div class="ctl-row">
+      <label class="ctl grow"><span>orientation <span class="tex">\(\tau\)</span></span> <output id="gb-tauo"></output><input type="range" id="gb-tau" min="0" max="3.14" step="0.02" value="0.6"></label>
+      <label class="ctl grow"><span>frequency <span class="tex">\(f\)</span></span> <output id="gb-fo"></output><input type="range" id="gb-f" min="2" max="20" step="0.2" value="9"></label>
+      <label class="ctl grow"><span>phase <span class="tex">\(\phi\)</span></span> <output id="gb-phio"></output><input type="range" id="gb-phi" min="0" max="6.28" step="0.05" value="0"></label>
+      <label class="ctl grow"><span><span class="tex">\(\beta_x\)</span> <output id="gb-bxo"></output></span><input type="range" id="gb-bx" min="0.5" max="20" step="0.25" value="4"></label>
+      <label class="ctl grow"><span><span class="tex">\(\beta_y\)</span> <output id="gb-byo"></output></span><input type="range" id="gb-by" min="0.5" max="20" step="0.25" value="4"></label>
+      <label class="ctl grow"><span>grating orientation <span class="tex">\(\theta\)</span></span> <output id="gb-thetao"></output><input type="range" id="gb-theta" min="0" max="3.14" step="0.02" value="0.6"></label>
+    </div>
+    <div class="viz-cols three">
+      <div><canvas class="sq" id="gb-w" aria-label="Gabor weights"></canvas><p class="viz-cap">Weights <span class="tex">\(w(x, y)\)</span>: orange positive, blue negative.</p></div>
+      <div><canvas class="sq" id="gb-stim" aria-label="Grating stimulus"></canvas><p class="viz-cap">Stimulus: a sinusoidal grating at orientation <span class="tex">\(\theta\)</span>.</p></div>
+      <div><canvas class="sq" id="gb-resp" aria-label="Responses versus grating phase"></canvas>
+        <div class="legend"><span><i style="background:var(--accent)"></i>simple cell <span class="tex">\(s(I)\)</span></span><span><i style="background:var(--viz-grad)"></i>complex cell <span class="tex">\(c(I)\)</span></span></div></div>
+    </div>
+    <div class="readout" id="gb-read"></div>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <details class="more"><summary>Going further: where the analogy ends</summary>
+      <p>Real eyes only see sharply in a small central area and constantly move. Vision also uses feedback and other senses. And neuroscience says little about <em>how</em> to train networks: backpropagation came from mathematics. Historically, CNNs read about 10% of all US cheques in the late 1990s, and the modern boom started with AlexNet in 2012 (next part).</p>
+    </details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <details class="more"><summary>Đi sâu hơn: phép so sánh này dừng ở đâu</summary>
+      <p>Mắt thật chỉ nhìn sắc nét trong một vùng nhỏ ở giữa và liên tục chuyển động. Thị giác còn dùng phản hồi và các giác quan khác. Và khoa học thần kinh nói rất ít về việc <em>làm sao</em> huấn luyện mạng: backpropagation xuất phát từ toán học. Trong lịch sử, các CNN đã đọc khoảng 10% số séc ở Mỹ vào cuối thập niên 1990, và làn sóng hiện đại bắt đầu với AlexNet năm 2012 (phần tiếp theo).</p>
+    </details>
+  </section>
+</div>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>, Chapter 9: Convolutional Networks. MIT Press. <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a> <span class="ref-sec"><span data-l="en">(Sections 9.10&ndash;9.11)</span><span data-l="vi">(Mục 9.10&ndash;9.11)</span></span></li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="building-a-cnn.html"><small>← Note 11</small>Building a CNN</a>
+    <a class="next" href="alexnet-architecture.html"><small>Note 13 →</small>AlexNet: the network that started it all</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="building-a-cnn.html"><small>← Bài 11</small>Xây dựng một CNN</a>
+    <a class="next" href="alexnet-architecture.html"><small>Bài 13 →</small>AlexNet: mạng đã mở màn tất cả</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+<script src="../js/viz.js" defer></script>
+<script src="../js/conv.js" defer></script>
+<script src="../js/math.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

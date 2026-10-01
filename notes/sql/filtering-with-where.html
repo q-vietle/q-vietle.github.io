@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Lọc hàng bằng WHERE">Filtering rows with WHERE | Quoc Viet Le</title>
+  <meta name="description" content="Keeping only the rows you need, with comparisons, AND, OR, NOT, IN, BETWEEN and LIKE.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part A · Note 3 of 14</p>
+    <h1>Filtering rows with WHERE</h1>
+    <p class="lead">Keeping only the rows you need, with comparisons, AND, OR, NOT, IN, BETWEEN and LIKE.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li><code>WHERE</code> tests a condition on <strong>every row</strong> and keeps only the rows where it is TRUE.</li>
+      <li>Conditions use comparisons (<code>=</code>, <code>&lt;&gt;</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>) combined with <code>AND</code>, <code>OR</code> and <code>NOT</code>.</li>
+      <li>Shortcuts: <code>IN</code> for a list of values, <code>BETWEEN</code> for a range, <code>LIKE</code> for text patterns.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần A · Bài 3/14</p>
+    <h1>Lọc hàng bằng WHERE</h1>
+    <p class="lead">Chỉ giữ những hàng bạn cần, với phép so sánh, AND, OR, NOT, IN, BETWEEN và LIKE.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li><code>WHERE</code> kiểm tra một điều kiện trên <strong>từng hàng</strong> và chỉ giữ những hàng cho kết quả TRUE.</li>
+      <li>Điều kiện dùng các phép so sánh (<code>=</code>, <code>&lt;&gt;</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>) kết hợp bằng <code>AND</code>, <code>OR</code> và <code>NOT</code>.</li>
+      <li>Đường tắt: <code>IN</code> cho một danh sách giá trị, <code>BETWEEN</code> cho một khoảng, <code>LIKE</code> cho mẫu văn bản.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>One test per row</h2>
+    <p class="key">The database walks through the table and asks the same yes/no question of each row. Rows that answer "yes" go into the result.</p>
+    <pre class="sqlcode static">SELECT *
+FROM orders
+WHERE amount &gt; 100;</pre>
+    <div class="table-wrap"><table class="data"><thead><tr><th>operator</th><th>meaning</th><th>example</th></tr></thead><tbody><tr><td><code>=</code> / <code>&lt;&gt;</code></td><td>equal / not equal</td><td><code>category = 'Tech'</code></td></tr><tr><td><code>&lt; &gt; &lt;= &gt;=</code></td><td>smaller, larger…</td><td><code>amount &gt;= 100</code></td></tr><tr><td><code>AND</code>, <code>OR</code>, <code>NOT</code></td><td>combine tests</td><td><code>category = 'Drinks' AND amount &gt; 10</code></td></tr><tr><td><code>IN (…)</code></td><td>equals one of a list</td><td><code>product IN ('Coffee', 'Tea')</code></td></tr><tr><td><code>BETWEEN a AND b</code></td><td>in a range, both ends included</td><td><code>amount BETWEEN 10 AND 200</code></td></tr><tr><td><code>LIKE</code></td><td>text pattern: <code>%</code> = any text, <code>_</code> = one character</td><td><code>product LIKE 'C%'</code></td></tr></tbody></table></div>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Mỗi hàng một phép thử</h2>
+    <p class="key">Database đi qua bảng và hỏi cùng một câu hỏi có/không với từng hàng. Hàng nào trả lời "có" sẽ vào kết quả.</p>
+    <pre class="sqlcode static">SELECT *
+FROM orders
+WHERE amount &gt; 100;</pre>
+    <div class="table-wrap"><table class="data"><thead><tr><th>toán tử</th><th>ý nghĩa</th><th>ví dụ</th></tr></thead><tbody><tr><td><code>=</code> / <code>&lt;&gt;</code></td><td>bằng / khác</td><td><code>category = 'Tech'</code></td></tr><tr><td><code>&lt; &gt; &lt;= &gt;=</code></td><td>nhỏ hơn, lớn hơn…</td><td><code>amount &gt;= 100</code></td></tr><tr><td><code>AND</code>, <code>OR</code>, <code>NOT</code></td><td>kết hợp các phép thử</td><td><code>category = 'Drinks' AND amount &gt; 10</code></td></tr><tr><td><code>IN (…)</code></td><td>bằng một trong danh sách</td><td><code>product IN ('Coffee', 'Tea')</code></td></tr><tr><td><code>BETWEEN a AND b</code></td><td>nằm trong khoảng, gồm cả hai đầu</td><td><code>amount BETWEEN 10 AND 200</code></td></tr><tr><td><code>LIKE</code></td><td>mẫu văn bản: <code>%</code> = đoạn chữ bất kỳ, <code>_</code> = một ký tự</td><td><code>product LIKE 'C%'</code></td></tr></tbody></table></div>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-where">
+    <div class="viz-head">
+      <p class="viz-title">WHERE, row by row</p>
+      <p class="viz-sub">Pick a condition, or build your own. Each row shows the test with its own values filled in.</p>
+    </div>
+    <div class="ctl-row"><label class="ctl grow">condition <select class="vsel" id="where-preset"></select></label></div>
+    <div class="ctl-row" id="where-builder" hidden><label class="ctl">column <select class="vsel" id="where-bcol"><option>amount</option><option>category</option><option>product</option><option>customer_id</option><option>city</option><option>joined</option></select></label><label class="ctl">operator <select class="vsel" id="where-bop"><option>&gt;</option><option>&gt;=</option><option>&lt;</option><option>&lt;=</option><option>=</option><option>&lt;&gt;</option><option>LIKE</option><option>IS NULL</option><option>IS NOT NULL</option></select></label><label class="ctl">value <input class="vnum" id="where-bval" value="50" style="width:140px"></label></div>
+    <pre class="sqlcode" id="where-sql"></pre>
+    <div id="where-rows"></div>
+    <div class="sql-out" id="where-out"></div>
+    <p class="readout" id="where-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Two common surprises</h2>
+    <p><strong>AND is done before OR.</strong> <code>category = 'Drinks' OR category = 'Tech' AND amount &gt; 100</code> means "Drinks, or (Tech and over 100)". Use brackets to say what you mean: <code>(category = 'Drinks' OR category = 'Tech') AND amount &gt; 100</code>.</p>
+    <p><strong>Quotes matter.</strong> Text values go in single quotes (<code>'HCMC'</code>). Double quotes are for names of columns and tables. In PostgreSQL, text comparison is case-sensitive, so <code>'hcmc'</code> does not match <code>'HCMC'</code>.</p>
+    <p>You may have noticed that the Keyboard order never passes a test on <code>amount</code>, even <code>amount &lt;&gt; 5</code>. Its amount is NULL, and that is the subject of the next note.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Hai điều dễ gây bất ngờ</h2>
+    <p><strong>AND được tính trước OR.</strong> <code>category = 'Drinks' OR category = 'Tech' AND amount &gt; 100</code> nghĩa là "Drinks, hoặc (Tech và trên 100)". Hãy dùng ngoặc để nói đúng điều bạn muốn: <code>(category = 'Drinks' OR category = 'Tech') AND amount &gt; 100</code>.</p>
+    <p><strong>Dấu nháy quan trọng.</strong> Giá trị văn bản đặt trong nháy đơn (<code>'HCMC'</code>). Nháy kép dành cho tên cột và tên bảng. Trong PostgreSQL, so sánh văn bản phân biệt hoa thường, nên <code>'hcmc'</code> không khớp với <code>'HCMC'</code>.</p>
+    <p>Có thể bạn đã để ý đơn Keyboard không bao giờ qua được phép thử nào trên <code>amount</code>, kể cả <code>amount &lt;&gt; 5</code>. Amount của nó là NULL, và đó là chủ đề của bài tiếp theo.</p>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;Big orders&quot;, &quot;SELECT * FROM orders WHERE amount &gt; 100;&quot;], [&quot;AND&quot;, &quot;SELECT * FROM orders WHERE category = &#x27;Drinks&#x27; AND amount &gt; 10;&quot;], [&quot;Brackets&quot;, &quot;SELECT * FROM orders\nWHERE (category = &#x27;Drinks&#x27; OR category = &#x27;Tech&#x27;) AND amount &gt; 100;&quot;], [&quot;IN&quot;, &quot;SELECT * FROM orders WHERE product IN (&#x27;Coffee&#x27;, &#x27;Tea&#x27;);&quot;], [&quot;LIKE&quot;, &quot;SELECT * FROM orders WHERE product LIKE &#x27;C%&#x27;;&quot;]]">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite running in your browser. Edit the query and press Run (Ctrl + Enter). Nothing you do here is saved.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 7.2.2: The WHERE Clause. <a href="https://www.postgresql.org/docs/16/queries-table-expressions.html" target="_blank" rel="noopener">postgresql.org/docs/16/queries-table-expressions.html</a></li>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 9.2: Comparison Functions and Operators. <a href="https://www.postgresql.org/docs/16/functions-comparison.html" target="_blank" rel="noopener">postgresql.org/docs/16/functions-comparison.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapter 4. O'Reilly Media.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="select-and-from.html"><small>← Note 2</small>Your first query: SELECT and FROM</a>
+    <a class="next" href="null-the-missing-value.html"><small>Note 4 →</small>NULL: the missing value</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="select-and-from.html"><small>← Bài 2</small>Truy vấn đầu tiên: SELECT và FROM</a>
+    <a class="next" href="null-the-missing-value.html"><small>Bài 4 →</small>NULL: giá trị bị thiếu</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Transaction: được ăn cả, ngã về không">Transactions: all or nothing | Quoc Viet Le</title>
+  <meta name="description" content="Grouping changes so they succeed or fail together, and what other users see in the meantime.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../index.html#projects">Projects</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+<article>
+
+  <header class="note-hero prose" data-l="en">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Part C · Note 14 of 14</p>
+    <h1>Transactions: all or nothing</h1>
+    <p class="lead">Grouping changes so they succeed or fail together, and what other users see in the meantime.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="en">
+    <h2>In short</h2>
+    <ul>
+      <li>A <strong>transaction</strong> groups statements so that they all take effect or none do: <code>BEGIN</code> … <code>COMMIT</code>, or <code>ROLLBACK</code> to undo.</li>
+      <li>Databases promise <strong>ACID</strong>: Atomic (all or nothing), Consistent (rules hold), Isolated (sessions do not trip over each other), Durable (committed data survives crashes).</li>
+      <li>The <strong>isolation level</strong> decides what one session sees of another's work. Weaker levels allow surprises such as non-repeatable reads and lost updates.</li>
+    </ul>
+  </aside>
+  <header class="note-hero prose" data-l="vi">
+    <p class="eyebrow"><a href="../index.html#sql">SQL</a> · Phần C · Bài 14/14</p>
+    <h1>Transaction: được ăn cả, ngã về không</h1>
+    <p class="lead">Gom các thay đổi để chúng cùng thành công hoặc cùng thất bại, và những người dùng khác thấy gì trong lúc đó.</p>
+  </header>
+
+  <aside class="tldr prose" data-l="vi">
+    <h2>Tóm tắt</h2>
+    <ul>
+      <li>Một <strong>transaction</strong> gom các câu lệnh để tất cả cùng có hiệu lực hoặc không câu nào có: <code>BEGIN</code> … <code>COMMIT</code>, hoặc <code>ROLLBACK</code> để hoàn tác.</li>
+      <li>Database cam kết <strong>ACID</strong>: Atomic (được ăn cả ngã về không), Consistent (quy tắc luôn đúng), Isolated (các phiên không vấp vào nhau), Durable (dữ liệu đã commit sống sót qua sự cố).</li>
+      <li><strong>Mức cô lập</strong> (isolation level) quyết định một phiên thấy gì từ công việc của phiên khác. Mức yếu hơn cho phép những bất ngờ như non-repeatable read và lost update.</li>
+    </ul>
+  </aside>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Moving money</h2>
+    <pre class="sqlcode static">BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+COMMIT;</pre>
+    <p class="key">If the database stopped between the two UPDATEs without a transaction, 100 would simply vanish. Inside a transaction, the two changes are one unit.</p>
+    <p>Two sessions, A and B, work on the same <code>accounts</code> table. Step through each scenario and compare what is committed with what each session sees.</p>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Chuyển tiền</h2>
+    <pre class="sqlcode static">BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+COMMIT;</pre>
+    <p class="key">Nếu database dừng giữa hai câu UPDATE mà không có transaction, 100 đồng sẽ đơn giản là biến mất. Trong một transaction, hai thay đổi là một khối.</p>
+    <p>Hai phiên, A và B, làm việc trên cùng bảng <code>accounts</code>. Hãy đi từng bước qua mỗi tình huống và so sánh dữ liệu đã commit với những gì mỗi phiên nhìn thấy.</p>
+  </section>
+</div>
+
+  <figure class="viz" id="fig-tx">
+    <div class="viz-head">
+      <p class="viz-title">Two sessions, one database</p>
+      <p class="viz-sub">Each row is one statement, in the order it runs.</p>
+    </div>
+    <div class="ctl-row"><label class="ctl grow">scenario <select class="vsel" id="st-scn"></select></label></div>
+    <div class="ctl-row"><button type="button" class="vbtn" id="st-prev">◀ Back</button><button type="button" class="vbtn primary" id="st-next">Next ▶</button><span class="muted" id="st-count"></span></div>
+    <div id="st-timeline"></div>
+    <div class="txviews" id="st-views"></div>
+    <p class="readout" id="st-read"></p>
+  </figure>
+
+<div class="tr" data-l="en">
+  <section class="prose">
+    <h2>Isolation levels in short</h2>
+    <div class="table-wrap"><table class="data"><thead><tr><th>level</th><th>each statement sees</th><th>still possible</th></tr></thead><tbody><tr><td>READ COMMITTED (PostgreSQL default)</td><td>data committed before the statement started</td><td>non-repeatable reads, lost updates</td></tr><tr><td>REPEATABLE READ</td><td>a snapshot taken at the first query of the transaction</td><td>some rarer anomalies</td></tr><tr><td>SERIALIZABLE</td><td>as if transactions ran one after another</td><td>nothing, but a transaction may be told to retry</td></tr></tbody></table></div>
+    <p style="margin-top:1em">Stronger isolation is safer but makes transactions wait for or abort each other more often. A practical rule: keep transactions short, and let the database do read-modify-write in one statement (<code>SET balance = balance - 100</code>).</p>
+    <details class="more"><summary>Going further: how can B keep reading 500 while A writes 400?</summary><p>PostgreSQL keeps several versions of a changed row (MVCC, multi-version concurrency control). A reader looks at the version that fits its snapshot, so readers never block writers and writers never block readers. Old versions are cleaned up later by VACUUM.</p></details>
+  </section>
+</div>
+
+<div class="tr" data-l="vi">
+  <section class="prose">
+    <h2>Tóm tắt các mức cô lập</h2>
+    <div class="table-wrap"><table class="data"><thead><tr><th>mức</th><th>mỗi câu lệnh thấy</th><th>vẫn có thể xảy ra</th></tr></thead><tbody><tr><td>READ COMMITTED (mặc định của PostgreSQL)</td><td>dữ liệu đã commit trước khi câu lệnh bắt đầu</td><td>non-repeatable read, lost update</td></tr><tr><td>REPEATABLE READ</td><td>một snapshot được chụp ở query đầu tiên của transaction</td><td>vài bất thường hiếm hơn</td></tr><tr><td>SERIALIZABLE</td><td>như thể các transaction chạy lần lượt từng cái một</td><td>không có, nhưng một transaction có thể bị yêu cầu thử lại</td></tr></tbody></table></div>
+    <p style="margin-top:1em">Cô lập mạnh hơn thì an toàn hơn nhưng khiến các transaction phải chờ hoặc huỷ lẫn nhau thường xuyên hơn. Một quy tắc thực tế: giữ transaction ngắn, và để database tự làm phép đọc-tính-ghi trong một câu lệnh (<code>SET balance = balance - 100</code>).</p>
+    <details class="more"><summary>Đi sâu hơn: sao B vẫn đọc được 500 trong khi A đang ghi 400?</summary><p>PostgreSQL giữ nhiều phiên bản của một hàng bị thay đổi (MVCC, multi-version concurrency control). Người đọc nhìn vào phiên bản khớp với snapshot của mình, nên người đọc không bao giờ chặn người ghi và ngược lại. Các phiên bản cũ được dọn dẹp sau đó bằng VACUUM.</p></details>
+  </section>
+</div>
+
+  <figure class="viz sqlc" data-presets="[[&quot;Transfer&quot;, &quot;BEGIN;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;\nSELECT * FROM accounts;&quot;], [&quot;Rollback&quot;, &quot;BEGIN;\nUPDATE accounts SET balance = 0;\nSELECT * FROM accounts;   -- inside: all zero\nROLLBACK;\nSELECT * FROM accounts;   -- back to normal&quot;], [&quot;Look&quot;, &quot;SELECT * FROM accounts;&quot;]]" data-init="CREATE TABLE accounts (id INTEGER PRIMARY KEY, owner TEXT, balance NUMERIC);
+INSERT INTO accounts VALUES (1, &#x27;An&#x27;, 500), (2, &#x27;Binh&#x27;, 300);">
+    <div class="viz-head"><p class="viz-title">Run it yourself</p><p class="viz-sub">SQLite in your browser, one session only, with an accounts table.</p></div>
+    <div class="sqlc-presets"></div>
+    <textarea spellcheck="false" aria-label="SQL query"></textarea>
+    <div class="ctl-row"><button type="button" class="vbtn primary sqlc-run">Run ▶</button><button type="button" class="vbtn sqlc-reset">Reset data</button></div>
+    <div class="sqlc-out"><p class="muted">Pick an example above or write your own query.</p></div>
+  </figure>
+
+  <section class="prose refs">
+    <h2><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h2>
+    <ol>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Section 3.4: Transactions. <a href="https://www.postgresql.org/docs/16/tutorial-transactions.html" target="_blank" rel="noopener">postgresql.org/docs/16/tutorial-transactions.html</a></li>
+      <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>, Chapter 13: Concurrency Control. <a href="https://www.postgresql.org/docs/16/mvcc.html" target="_blank" rel="noopener">postgresql.org/docs/16/mvcc.html</a></li>
+      <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.), chapter 12. O'Reilly Media.</li>
+      <li>Garcia-Molina, H., Ullman, J. D., &amp; Widom, J. (2008). <em>Database Systems: The Complete Book</em> (2nd ed.), chapter 6.6: Transactions in SQL. Pearson.</li>
+    </ol>
+  </section>
+
+  <nav class="series-nav prose" aria-label="Series" data-l="en">
+    <a href="indexes.html"><small>← Note 13</small>Indexes: finding rows fast</a>
+    <a class="next" href="../index.html#sql"><small>End of series →</small>All notes</a>
+  </nav>
+  <nav class="series-nav prose" aria-label="Series" data-l="vi">
+    <a href="indexes.html"><small>← Bài 13</small>Index: tìm hàng nhanh</a>
+    <a class="next" href="../index.html#sql"><small>Hết loạt bài →</small>Tất cả bài viết</a>
+  </nav>
+
+</article>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../js/sql.js" defer></script>
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>
