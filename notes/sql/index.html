@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../notes.css">
   <link rel="stylesheet" href="../../assets/css/toc.css">
+  <link rel="stylesheet" href="../../assets/css/search.css">
 </head>
 <body>
 
@@ -54,6 +55,11 @@
   </header>
 
   <section class="prose">
+    <div class="nsearch" data-base="../" role="search">
+  <label class="sr-only" for="ns-q">Search the notes</label>
+  <input class="ns-q" id="ns-q" type="search" autocomplete="off" spellcheck="false" placeholder="Search notes…" data-ph-en="Search notes…  (press / )" data-ph-vi="Tìm trong ghi chú…  (nhấn / )">
+  <ul class="ns-results" hidden></ul>
+</div>
     <h3 class="part-title"><span data-l="en">Part A · Getting started</span><span data-l="vi">Phần A · Bắt đầu</span></h3>
     <div class="note-list">
       <a class="note-card" href="what-is-a-database.html">
@@ -170,6 +176,7 @@
 <script src="../../assets/js/main.js" defer></script>
 <script src="../../assets/js/submarine.js" defer></script>
 <script src="../../assets/js/toc.js" defer></script>
+<script src="../../assets/js/search.js" defer></script>
 
 <script src="../js/i18n-vi.js" defer></script>
 <script src="../js/i18n.js" defer></script>

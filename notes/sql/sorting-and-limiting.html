@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../notes.css">
   <link rel="stylesheet" href="../../assets/css/toc.css">
+  <link rel="stylesheet" href="../../assets/css/search.css">
 </head>
 <body>
 
@@ -162,6 +163,11 @@ LIMIT 3;</pre>
 </main>
 <button class="toc-btn" id="toc-btn" type="button" aria-expanded="false" aria-controls="toc-drawer"><span aria-hidden="true">☰</span> <span data-l="en">Contents</span><span data-l="vi">Mục lục</span></button>
 <aside class="toc-drawer" id="toc-drawer" aria-label="Contents" data-outline="article h2">
+  <div class="nsearch" data-base="../" role="search">
+  <label class="sr-only" for="ns-q">Search the notes</label>
+  <input class="ns-q" id="ns-q" type="search" autocomplete="off" spellcheck="false" placeholder="Search notes…" data-ph-en="Search notes…  (press / )" data-ph-vi="Tìm trong ghi chú…  (nhấn / )">
+  <ul class="ns-results" hidden></ul>
+</div>
   <p class="toc-h"><a href="index.html"><span data-l="en">SQL</span><span data-l="vi">SQL</span></a></p>
   <ol class="toc-series">
     <li class="toc-part"><span data-l="en">Part A · Getting started</span><span data-l="vi">Phần A · Bắt đầu</span></li>
@@ -207,6 +213,7 @@ LIMIT 3;</pre>
 <script src="../../assets/js/main.js" defer></script>
 <script src="../../assets/js/submarine.js" defer></script>
 <script src="../../assets/js/toc.js" defer></script>
+<script src="../../assets/js/search.js" defer></script>
 <script src="../js/sql.js" defer></script>
 <script src="../js/i18n-vi.js" defer></script>
 <script src="../js/i18n.js" defer></script>
