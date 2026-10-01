@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="SQL">SQL | Quoc Viet Le</title>
+  <meta name="description" content="SQL from zero: what a database is, how to read and change data, and what really happens inside the database when a query runs. Every note has figures that show the query at work, and a box where you can run SQL in your browser.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+  <link rel="stylesheet" href="../../assets/css/toc.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a href="../../index.html#teaching">Teaching</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../projects/index.html">Projects</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+  <header class="note-hero prose">
+    <p class="eyebrow"><a href="../index.html"><span data-l="en">Notes</span><span data-l="vi">Ghi chú</span></a></p>
+    <h1><span data-l="en">SQL</span><span data-l="vi">SQL</span></h1>
+    <p class="lead"><span data-l="en">SQL from zero: what a database is, how to read and change data, and what really happens inside the database when a query runs. Every note has figures that show the query at work, and a box where you can run SQL in your browser.</span><span data-l="vi">SQL từ con số không: database là gì, cách đọc và thay đổi dữ liệu, và điều thực sự xảy ra bên trong database khi một query chạy. Mỗi bài có các hình cho thấy query đang chạy và một khung để bạn chạy SQL ngay trong trình duyệt.</span></p>
+  </header>
+
+  <section class="prose">
+    <h3 class="part-title"><span data-l="en">Part A · Getting started</span><span data-l="vi">Phần A · Bắt đầu</span></h3>
+    <div class="note-list">
+      <a class="note-card" href="what-is-a-database.html">
+        <p class="note-meta"><span><span data-l="en">Note 1</span><span data-l="vi">Bài 1</span></span></p>
+        <h3><span data-l="en">What is a database?</span><span data-l="vi">Database là gì?</span></h3>
+        <p><span data-l="en">Tables, rows, columns and keys: the few ideas that everything else in SQL builds on.</span><span data-l="vi">Bảng, hàng, cột và khoá: vài ý tưởng mà mọi thứ khác trong SQL đều dựa vào.</span></p>
+      </a>
+      <a class="note-card" href="select-and-from.html">
+        <p class="note-meta"><span><span data-l="en">Note 2</span><span data-l="vi">Bài 2</span></span></p>
+        <h3><span data-l="en">Your first query: SELECT and FROM</span><span data-l="vi">Truy vấn đầu tiên: SELECT và FROM</span></h3>
+        <p><span data-l="en">Asking for columns from a table, renaming them, computing new ones and removing duplicates.</span><span data-l="vi">Chọn cột từ một bảng, đổi tên, tính cột mới và loại bỏ trùng lặp.</span></p>
+      </a>
+      <a class="note-card" href="filtering-with-where.html">
+        <p class="note-meta"><span><span data-l="en">Note 3</span><span data-l="vi">Bài 3</span></span></p>
+        <h3><span data-l="en">Filtering rows with WHERE</span><span data-l="vi">Lọc hàng bằng WHERE</span></h3>
+        <p><span data-l="en">Keeping only the rows you need, with comparisons, AND, OR, NOT, IN, BETWEEN and LIKE.</span><span data-l="vi">Chỉ giữ những hàng bạn cần, với phép so sánh, AND, OR, NOT, IN, BETWEEN và LIKE.</span></p>
+      </a>
+      <a class="note-card" href="null-the-missing-value.html">
+        <p class="note-meta"><span><span data-l="en">Note 4</span><span data-l="vi">Bài 4</span></span></p>
+        <h3><span data-l="en">NULL: the missing value</span><span data-l="vi">NULL: giá trị bị thiếu</span></h3>
+        <p><span data-l="en">Why a missing value makes comparisons answer "unknown", and how to handle it safely.</span><span data-l="vi">Vì sao giá trị thiếu khiến phép so sánh trả lời "không biết", và cách xử lý an toàn.</span></p>
+      </a>
+      <a class="note-card" href="sorting-and-limiting.html">
+        <p class="note-meta"><span><span data-l="en">Note 5</span><span data-l="vi">Bài 5</span></span></p>
+        <h3><span data-l="en">Sorting and limiting: ORDER BY and LIMIT</span><span data-l="vi">Sắp xếp và giới hạn: ORDER BY và LIMIT</span></h3>
+        <p><span data-l="en">Putting rows in order, keeping the top few, and splitting results into pages.</span><span data-l="vi">Đặt các hàng theo thứ tự, giữ lại vài hàng đầu, và chia kết quả thành các trang.</span></p>
+      </a>
+      <a class="note-card" href="changing-data.html">
+        <p class="note-meta"><span><span data-l="en">Note 6</span><span data-l="vi">Bài 6</span></span></p>
+        <h3><span data-l="en">Changing data: INSERT, UPDATE, DELETE</span><span data-l="vi">Thay đổi dữ liệu: INSERT, UPDATE, DELETE</span></h3>
+        <p><span data-l="en">Adding, changing and removing rows, and the one mistake everybody makes once.</span><span data-l="vi">Thêm, sửa và xoá hàng, và lỗi mà ai cũng mắc một lần.</span></p>
+      </a>
+    </div>
+    <h3 class="part-title"><span data-l="en">Part B · Summarising data</span><span data-l="vi">Phần B · Tổng hợp dữ liệu</span></h3>
+    <div class="note-list">
+      <a class="note-card" href="aggregate-functions.html">
+        <p class="note-meta"><span><span data-l="en">Note 7</span><span data-l="vi">Bài 7</span></span></p>
+        <h3><span data-l="en">Summarising: COUNT, SUM, AVG, MIN, MAX</span><span data-l="vi">Tổng hợp: COUNT, SUM, AVG, MIN, MAX</span></h3>
+        <p><span data-l="en">Turning many rows into one number, and what happens to NULLs along the way.</span><span data-l="vi">Biến nhiều hàng thành một con số, và điều gì xảy ra với NULL trên đường đi.</span></p>
+      </a>
+      <a class="note-card" href="group-by-and-having.html">
+        <p class="note-meta"><span><span data-l="en">Note 8</span><span data-l="vi">Bài 8</span></span></p>
+        <h3><span data-l="en">GROUP BY and HAVING</span><span data-l="vi">GROUP BY và HAVING</span></h3>
+        <p><span data-l="en">One summary row per group, and how to filter groups instead of rows.</span><span data-l="vi">Một hàng tóm tắt cho mỗi nhóm, và cách lọc nhóm thay vì lọc hàng.</span></p>
+      </a>
+      <a class="note-card" href="how-a-query-runs.html">
+        <p class="note-meta"><span><span data-l="en">Note 9</span><span data-l="vi">Bài 9</span></span></p>
+        <h3><span data-l="en">How a query really runs</span><span data-l="vi">Một query thực sự chạy như thế nào</span></h3>
+        <p><span data-l="en">The order the database follows is not the order you write, and that explains many error messages.</span><span data-l="vi">Thứ tự database thực hiện không phải thứ tự bạn viết, và điều đó giải thích nhiều thông báo lỗi.</span></p>
+      </a>
+    </div>
+    <h3 class="part-title"><span data-l="en">Part C · Intermediate</span><span data-l="vi">Phần C · Nâng cao</span></h3>
+    <div class="note-list">
+      <a class="note-card" href="joins.html">
+        <p class="note-meta"><span><span data-l="en">Note 10</span><span data-l="vi">Bài 10</span></span></p>
+        <h3><span data-l="en">JOIN: combining tables</span><span data-l="vi">JOIN: kết hợp các bảng</span></h3>
+        <p><span data-l="en">How rows from two tables are paired up, what happens to rows without a partner, and a classic trap.</span><span data-l="vi">Cách các hàng của hai bảng được ghép đôi, điều gì xảy ra với hàng không có cặp, và một cái bẫy kinh điển.</span></p>
+      </a>
+      <a class="note-card" href="subqueries-and-ctes.html">
+        <p class="note-meta"><span><span data-l="en">Note 11</span><span data-l="vi">Bài 11</span></span></p>
+        <h3><span data-l="en">Subqueries and CTEs</span><span data-l="vi">Subquery và CTE</span></h3>
+        <p><span data-l="en">Queries inside queries: a value, a list, a check per row, or a named step.</span><span data-l="vi">Query trong query: một giá trị, một danh sách, một phép kiểm tra cho mỗi hàng, hoặc một bước có tên.</span></p>
+      </a>
+      <a class="note-card" href="window-functions.html">
+        <p class="note-meta"><span><span data-l="en">Note 12</span><span data-l="vi">Bài 12</span></span></p>
+        <h3><span data-l="en">Window functions</span><span data-l="vi">Window function</span></h3>
+        <p><span data-l="en">Rankings, running totals and comparisons with the previous row, without collapsing rows.</span><span data-l="vi">Xếp hạng, tổng luỹ kế và so sánh với hàng trước, mà không gộp các hàng lại.</span></p>
+      </a>
+      <a class="note-card" href="indexes.html">
+        <p class="note-meta"><span><span data-l="en">Note 13</span><span data-l="vi">Bài 13</span></span></p>
+        <h3><span data-l="en">Indexes: finding rows fast</span><span data-l="vi">Index: tìm hàng nhanh</span></h3>
+        <p><span data-l="en">Why some queries read a whole table and others jump straight to the answer.</span><span data-l="vi">Vì sao có query phải đọc cả bảng còn có query nhảy thẳng tới câu trả lời.</span></p>
+      </a>
+      <a class="note-card" href="transactions.html">
+        <p class="note-meta"><span><span data-l="en">Note 14</span><span data-l="vi">Bài 14</span></span></p>
+        <h3><span data-l="en">Transactions: all or nothing</span><span data-l="vi">Transaction: được ăn cả, ngã về không</span></h3>
+        <p><span data-l="en">Grouping changes so they succeed or fail together, and what other users see in the meantime.</span><span data-l="vi">Gom các thay đổi để chúng cùng thành công hoặc cùng thất bại, và những người dùng khác thấy gì trong lúc đó.</span></p>
+      </a>
+    </div>
+
+    <div class="refs">
+      <h3><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h3>
+      <ol>
+        <li>PostgreSQL Global Development Group (2024). <em>PostgreSQL 16 Documentation</em>. <a href="https://www.postgresql.org/docs/16/" target="_blank" rel="noopener">postgresql.org/docs/16</a></li>
+        <li>Beaulieu, A. (2020). <em>Learning SQL: Generate, Manipulate, and Retrieve Data</em> (3rd ed.). O'Reilly Media.</li>
+        <li>Winand, M. (2012). <em>SQL Performance Explained</em>. Self-published; online as <a href="https://use-the-index-luke.com/" target="_blank" rel="noopener">Use The Index, Luke!</a></li>
+        <li>Garcia-Molina, H., Ullman, J. D., &amp; Widom, J. (2008). <em>Database Systems: The Complete Book</em> (2nd ed.). Pearson.</li>
+      </ol>
+    </div>
+  </section>
+
+
+</main>
+<button class="toc-btn" id="toc-btn" type="button" aria-expanded="false" aria-controls="toc-drawer"><span aria-hidden="true">☰</span> <span data-l="en">Contents</span><span data-l="vi">Mục lục</span></button>
+<aside class="toc-drawer" id="toc-drawer" aria-label="Contents" data-outline=".part-title">
+  <p class="toc-h"><span data-l="en">On this page</span><span data-l="vi">Trong trang này</span></p>
+  <ul class="toc-page"></ul>
+</aside>
+
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../../assets/js/toc.js" defer></script>
+
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>

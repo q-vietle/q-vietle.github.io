@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-vi="Thị giác máy tính">Computer vision | Quoc Viet Le</title>
+  <meta name="description" content="Short notes on how neural networks learn to see: from a single layer to convolutional networks and the models that made deep learning take off.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      var l = localStorage.getItem('lang'); if (l === 'vi') { document.documentElement.setAttribute('data-lang', 'vi'); document.documentElement.lang = 'vi'; }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../notes.css">
+  <link rel="stylesheet" href="../../assets/css/toc.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../../index.html#about">About</a></li>
+      <li><a href="../../index.html#publications">Publications</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a href="../../index.html#teaching">Teaching</a></li>
+      <li><a class="current" href="../index.html">Notes</a></li>
+      <li><a href="../../projects/index.html">Projects</a></li>
+      <li><a href="../../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <div class="lang-switch" role="group" aria-label="Language / Ngôn ngữ"><button type="button" data-lang="en" aria-pressed="true" title="English">EN</button><button type="button" data-lang="vi" aria-pressed="false" title="Tiếng Việt">VI</button></div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+  <header class="note-hero prose">
+    <p class="eyebrow"><a href="../index.html"><span data-l="en">Notes</span><span data-l="vi">Ghi chú</span></a></p>
+    <h1><span data-l="en">Computer vision</span><span data-l="vi">Thị giác máy tính</span></h1>
+    <p class="lead"><span data-l="en">Short notes on how neural networks learn to see: from a single layer to convolutional networks and the models that made deep learning take off.</span><span data-l="vi">Các bài ngắn về cách mạng nơ-ron học "nhìn": từ một lớp đơn lẻ đến mạng tích chập và những mô hình đã khiến học sâu bùng nổ.</span></p>
+  </header>
+
+  <section class="prose">
+    <h3 class="part-title"><span data-l="en">Part A · Neural network basics</span><span data-l="vi">Phần A · Nền tảng mạng nơ-ron</span></h3>
+    <div class="note-list">
+      <a class="note-card" href="what-is-a-neural-network.html">
+        <p class="note-meta"><span><span data-l="en">Note 1</span><span data-l="vi">Bài 1</span></span></p>
+        <h3><span data-l="en">What is a neural network?</span><span data-l="vi">Mạng nơ-ron là gì?</span></h3>
+        <p><span data-l="en">Layers, weights, biases, and why a network needs a nonlinear step.</span><span data-l="vi">Các lớp, trọng số, bias, và vì sao mạng cần một bước phi tuyến.</span></p>
+      </a>
+      <a class="note-card" href="loss-functions.html">
+        <p class="note-meta"><span><span data-l="en">Note 2</span><span data-l="vi">Bài 2</span></span></p>
+        <h3><span data-l="en">Loss functions: measuring mistakes</span><span data-l="vi">Hàm mất mát: đo mức độ sai</span></h3>
+        <p><span data-l="en">How a network knows it is wrong, and why cross-entropy works better than squared error for classification.</span><span data-l="vi">Mạng biết mình sai thế nào, và vì sao cross-entropy phù hợp hơn sai số bình phương cho bài toán phân loại.</span></p>
+      </a>
+      <a class="note-card" href="activation-functions.html">
+        <p class="note-meta"><span><span data-l="en">Note 3</span><span data-l="vi">Bài 3</span></span></p>
+        <h3><span data-l="en">Activation functions</span><span data-l="vi">Hàm kích hoạt</span></h3>
+        <p><span data-l="en">The nonlinear step inside each unit, and why ReLU is the default.</span><span data-l="vi">Bước phi tuyến bên trong mỗi unit, và vì sao ReLU là lựa chọn mặc định.</span></p>
+      </a>
+      <a class="note-card" href="why-deep-networks.html">
+        <p class="note-meta"><span><span data-l="en">Note 4</span><span data-l="vi">Bài 4</span></span></p>
+        <h3><span data-l="en">Why deep networks?</span><span data-l="vi">Vì sao cần mạng sâu?</span></h3>
+        <p><span data-l="en">One hidden layer can in theory learn anything. So why stack many layers?</span><span data-l="vi">Về lý thuyết, một lớp ẩn có thể học mọi thứ. Vậy vì sao phải xếp chồng nhiều lớp?</span></p>
+      </a>
+      <a class="note-card" href="backpropagation.html">
+        <p class="note-meta"><span><span data-l="en">Note 5</span><span data-l="vi">Bài 5</span></span></p>
+        <h3><span data-l="en">Backpropagation</span><span data-l="vi">Backpropagation</span></h3>
+        <p><span data-l="en">How the network works out which way to change every weight, in one backward sweep.</span><span data-l="vi">Cách mạng tìm ra hướng thay đổi cho mọi trọng số chỉ trong một lượt quét ngược.</span></p>
+      </a>
+      <a class="note-card" href="gradient-descent-and-optimizers.html">
+        <p class="note-meta"><span><span data-l="en">Note 6</span><span data-l="vi">Bài 6</span></span></p>
+        <h3><span data-l="en">Training: gradient descent and optimizers</span><span data-l="vi">Huấn luyện: gradient descent và các optimizer</span></h3>
+        <p><span data-l="en">Walking downhill on the loss surface, and why the learning rate matters most.</span><span data-l="vi">Đi xuống dốc trên bề mặt loss, và vì sao tốc độ học là thứ quan trọng nhất.</span></p>
+      </a>
+    </div>
+    <h3 class="part-title"><span data-l="en">Part B · Convolutional networks</span><span data-l="vi">Phần B · Mạng tích chập</span></h3>
+    <div class="note-list">
+      <a class="note-card" href="the-convolution-operation.html">
+        <p class="note-meta"><span><span data-l="en">Note 7</span><span data-l="vi">Bài 7</span></span></p>
+        <h3><span data-l="en">The convolution operation</span><span data-l="vi">Phép tích chập</span></h3>
+        <p><span data-l="en">Sliding a small grid of weights over an image to find patterns.</span><span data-l="vi">Trượt một lưới trọng số nhỏ trên ảnh để tìm các mẫu hình.</span></p>
+      </a>
+      <a class="note-card" href="why-convolution-works.html">
+        <p class="note-meta"><span><span data-l="en">Note 8</span><span data-l="vi">Bài 8</span></span></p>
+        <h3><span data-l="en">Why convolution works so well</span><span data-l="vi">Vì sao tích chập hiệu quả đến vậy</span></h3>
+        <p><span data-l="en">Three properties that make convolution ideal for images.</span><span data-l="vi">Ba tính chất khiến tích chập lý tưởng cho ảnh.</span></p>
+      </a>
+      <a class="note-card" href="pooling.html">
+        <p class="note-meta"><span><span data-l="en">Note 9</span><span data-l="vi">Bài 9</span></span></p>
+        <h3><span data-l="en">Pooling</span><span data-l="vi">Pooling</span></h3>
+        <p><span data-l="en">Summarising small neighbourhoods so the network cares less about exact positions.</span><span data-l="vi">Tóm tắt các vùng lân cận nhỏ để mạng bớt quan tâm đến vị trí chính xác.</span></p>
+      </a>
+      <a class="note-card" href="inside-a-conv-layer.html">
+        <p class="note-meta"><span><span data-l="en">Note 10</span><span data-l="vi">Bài 10</span></span></p>
+        <h3><span data-l="en">Inside a convolutional layer</span><span data-l="vi">Bên trong một lớp tích chập</span></h3>
+        <p><span data-l="en">Channels, biases, stride and padding: the settings of a real conv layer.</span><span data-l="vi">Kênh, bias, stride và padding: các thiết lập của một lớp conv thực tế.</span></p>
+      </a>
+      <a class="note-card" href="building-a-cnn.html">
+        <p class="note-meta"><span><span data-l="en">Note 11</span><span data-l="vi">Bài 11</span></span></p>
+        <h3><span data-l="en">Building a CNN</span><span data-l="vi">Xây dựng một CNN</span></h3>
+        <p><span data-l="en">Stacking layers into a full classifier, and watching one learn.</span><span data-l="vi">Xếp chồng các lớp thành một bộ phân loại hoàn chỉnh, và xem nó học.</span></p>
+      </a>
+      <a class="note-card" href="cnns-and-the-visual-cortex.html">
+        <p class="note-meta"><span><span data-l="en">Note 12</span><span data-l="vi">Bài 12</span></span></p>
+        <h3><span data-l="en">CNNs and the visual cortex</span><span data-l="vi">CNN và vỏ não thị giác</span></h3>
+        <p><span data-l="en">How the brain's visual system inspired convolutional networks.</span><span data-l="vi">Hệ thị giác của bộ não đã truyền cảm hứng cho mạng tích chập như thế nào.</span></p>
+      </a>
+    </div>
+    <h3 class="part-title"><span data-l="en">Part C · Case studies</span><span data-l="vi">Phần C · Các mô hình điển hình</span></h3>
+    <div class="note-list">
+      <a class="note-card" href="alexnet-architecture.html">
+        <p class="note-meta"><span><span data-l="en">Note 13</span><span data-l="vi">Bài 13</span></span></p>
+        <h3><span data-l="en">AlexNet: the network that started it all</span><span data-l="vi">AlexNet: mạng đã mở màn tất cả</span></h3>
+        <p><span data-l="en">The 2012 ImageNet winner: its structure and the tricks that made it work.</span><span data-l="vi">Người chiến thắng ImageNet 2012: cấu trúc và những mẹo giúp nó hoạt động.</span></p>
+      </a>
+      <a class="note-card" href="alexnet-training.html">
+        <p class="note-meta"><span><span data-l="en">Note 14</span><span data-l="vi">Bài 14</span></span></p>
+        <h3><span data-l="en">AlexNet: fighting overfitting</span><span data-l="vi">AlexNet: chống overfitting</span></h3>
+        <p><span data-l="en">Data augmentation, dropout, and the training recipe behind the results.</span><span data-l="vi">Tăng cường dữ liệu, dropout, và công thức huấn luyện đằng sau các kết quả.</span></p>
+      </a>
+      <a class="note-card" href="resnet-degradation.html">
+        <p class="note-meta"><span><span data-l="en">Note 15</span><span data-l="vi">Bài 15</span></span></p>
+        <h3><span data-l="en">ResNet: when deeper got worse</span><span data-l="vi">ResNet: khi sâu hơn lại tệ hơn</span></h3>
+        <p><span data-l="en">The surprising problem that stopped networks from getting deeper.</span><span data-l="vi">Vấn đề bất ngờ đã ngăn các mạng đi sâu hơn.</span></p>
+      </a>
+      <a class="note-card" href="resnet-residual-blocks.html">
+        <p class="note-meta"><span><span data-l="en">Note 16</span><span data-l="vi">Bài 16</span></span></p>
+        <h3><span data-l="en">ResNet: residual blocks</span><span data-l="vi">ResNet: các khối residual</span></h3>
+        <p><span data-l="en">The simple shortcut that made networks with a hundred or more layers trainable.</span><span data-l="vi">Đường tắt đơn giản giúp các mạng hàng trăm lớp trở nên huấn luyện được.</span></p>
+      </a>
+    </div>
+
+    <div class="refs">
+      <h3><span data-l="en">References</span><span data-l="vi">Tài liệu tham khảo</span></h3>
+      <ol>
+        <li>Goodfellow, I., Bengio, Y., &amp; Courville, A. (2016). <em>Deep Learning</em>. MIT Press. Chapters 6 (Deep Feedforward Networks), 8 (Optimization for Training Deep Models) and 9 (Convolutional Networks). <a href="https://www.deeplearningbook.org/" target="_blank" rel="noopener">deeplearningbook.org</a></li>
+        <li>Krizhevsky, A., Sutskever, I., &amp; Hinton, G. E. (2012). ImageNet classification with deep convolutional neural networks. In <em>Advances in Neural Information Processing Systems 25 (NIPS 2012)</em>, pp. 1097&ndash;1105.</li>
+        <li>He, K., Zhang, X., Ren, S., &amp; Sun, J. (2016). Deep residual learning for image recognition. In <em>Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</em>, pp. 770&ndash;778. <a href="https://arxiv.org/abs/1512.03385" target="_blank" rel="noopener">arXiv:1512.03385</a></li>
+        <li>Kingma, D. P., &amp; Ba, J. (2015). Adam: A method for stochastic optimization. In <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/1412.6980" target="_blank" rel="noopener">arXiv:1412.6980</a></li>
+      </ol>
+    </div>
+  </section>
+
+
+</main>
+<button class="toc-btn" id="toc-btn" type="button" aria-expanded="false" aria-controls="toc-drawer"><span aria-hidden="true">☰</span> <span data-l="en">Contents</span><span data-l="vi">Mục lục</span></button>
+<aside class="toc-drawer" id="toc-drawer" aria-label="Contents" data-outline=".part-title">
+  <p class="toc-h"><span data-l="en">On this page</span><span data-l="vi">Trong trang này</span></p>
+  <ul class="toc-page"></ul>
+</aside>
+
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../../assets/js/main.js" defer></script>
+<script src="../../assets/js/submarine.js" defer></script>
+<script src="../../assets/js/toc.js" defer></script>
+
+<script src="../js/i18n-vi.js" defer></script>
+<script src="../js/i18n.js" defer></script>
+</body>
+</html>
