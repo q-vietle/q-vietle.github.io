@@ -301,7 +301,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
 /* Publications & teaching rows */
 .pubs li, .rows li {
-  display: grid; grid-template-columns: 80px 1fr; gap: 16px;
+  display: grid; grid-template-columns: 120px 1fr; gap: 16px;
   padding: 16px 0; border-top: 1px solid var(--border);
 }
 .pubs li:first-child, .rows li:first-child { border-top: 0; }
@@ -373,3 +373,13 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .interests p { margin: 0; }
 .thread { max-width: 62ch; }
 .interests p, .interests h3 { max-width: none; }
+
+/* CV sections */
+ul.plain { list-style: none; margin: 0; padding: 0; display: grid; gap: .5em; }
+ul.plain li { font-size: .95rem; }
+.bul { list-style: disc; padding-left: 1.2em; margin: .3em 0 0; }
+.bul li { margin: .25em 0; }
+.small { font-size: .92rem; color: var(--muted); }
+.sub { margin: 2em 0 .4em; font-size: 1.05rem; }
+.more-projects { margin-top: 20px; }
+.rows .bul li { display: list-item; grid-template-columns: none; border-top: 0; padding: 0; margin: .25em 0; }

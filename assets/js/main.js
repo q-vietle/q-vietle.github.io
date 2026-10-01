@@ -95,7 +95,7 @@
 
   /* ---------- Project filters (built from the tech chips) ---------- */
   (function () {
-    var cards = $$('#project-grid .card');
+    var cards = $$('#project-grid .card:not(.more-projects)');
     var techsOf = function (card) {
       return $$('.chips li', card).map(function (li) { return li.textContent.trim(); });
     };
