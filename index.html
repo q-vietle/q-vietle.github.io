@@ -32,9 +32,9 @@
       <li><a href="#about">About</a></li>
       <li><a href="#publications">Publications</a></li>
       <li><a href="#research">Research</a></li>
-      <li><a href="#notes">Notes</a></li>
-      <li><a href="#projects">Projects</a></li>
       <li><a href="#teaching">Teaching</a></li>
+      <li><a href="notes/index.html">Notes</a></li>
+      <li><a href="projects/index.html">Projects</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-tools">
@@ -61,7 +61,7 @@
         <h1>Quoc Viet Le</h1>
         <p class="lead">University of Wisconsin&ndash;Madison</p>
         <p class="hero-actions">
-          <a class="btn btn-primary" href="#projects">View projects</a>
+          <a class="btn btn-primary" href="projects/index.html">View projects</a>
           <a class="btn" href="https://github.com/q-vietle" target="_blank" rel="noopener">GitHub</a>
           <a class="btn" href="#contact">Get in touch</a>
         </p>
@@ -154,86 +154,8 @@
     </div>
   </section>
 
-  <!-- Notes -->
-  <section id="notes" class="section alt">
-    <div class="container">
-      <h2 class="reveal">Notes</h2>
-      <article class="card feature feature-narrow reveal">
-        <a class="feature-media" href="notes/index.html#computer-vision" aria-label="Open the computer vision notes">
-          <img src="notes/preview.jpg" width="800" height="800" loading="lazy" alt="Interactive figure from the notes: the XOR decision regions a small neural network has learned">
-        </a>
-        <div class="feature-body">
-          <p class="meta">Series · interactive notes</p>
-          <h3><a href="notes/index.html#computer-vision">Computer vision</a></h3>
-          <p>How neural networks learn to see, from a single layer to convolutional networks, AlexNet and ResNet. Short reads with figures you can play with.</p>
-          <ol class="parts">
-            <li><a href="notes/computer-vision/what-is-a-neural-network.html"><span>A</span>Neural network basics</a></li>
-            <li><a href="notes/computer-vision/the-convolution-operation.html"><span>B</span>Convolutional networks</a></li>
-            <li><a href="notes/computer-vision/alexnet-architecture.html"><span>C</span>Case studies: AlexNet and ResNet</a></li>
-          </ol>
-          <p class="links"><a href="notes/index.html#computer-vision">All notes →</a></p>
-        </div>
-      </article>
-      <article class="card feature feature-narrow reveal">
-        <a class="feature-media" href="notes/index.html#sql" aria-label="Open the SQL notes">
-          <img src="notes/sql-preview.jpg" width="900" height="566" loading="lazy" alt="Interactive figure from the SQL notes: lines matching each order to its customer in a JOIN">
-        </a>
-        <div class="feature-body">
-          <p class="meta">Series · interactive notes</p>
-          <h3><a href="notes/index.html#sql">SQL</a></h3>
-          <p>From your first SELECT to joins, window functions, indexes and transactions, with pictures of what the database does at each step and SQL you can run in the browser.</p>
-          <ol class="parts">
-            <li><a href="notes/sql/what-is-a-database.html"><span>A</span>Getting started</a></li>
-            <li><a href="notes/sql/aggregate-functions.html"><span>B</span>Summarising data</a></li>
-            <li><a href="notes/sql/joins.html"><span>C</span>Intermediate: joins, subqueries, windows, indexes, transactions</a></li>
-          </ol>
-          <p class="links"><a href="notes/index.html#sql">All notes →</a></p>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <!-- Projects -->
-  <section id="projects" class="section">
-    <div class="container">
-      <h2 class="reveal">Projects</h2>
-      <!-- Filter buttons are generated from the tech chips once there are 2+ projects -->
-      <div class="filters reveal" id="filters" role="group" aria-label="Filter projects by technology" hidden></div>
-      <div class="project-list" id="project-grid">
-        <article class="card feature reveal">
-          <a class="feature-media" href="projects/hcmc-map/index.html" target="_blank" rel="noopener" aria-label="Open the live map in a new tab">
-            <img src="projects/hcmc-map/preview.jpg" width="960" height="600" loading="lazy" alt="Price map of Ho Chi Minh City: coloured property dots, ward and district pins, and a smoothed price cloud">
-          </a>
-          <div class="feature-body">
-            <h3><a href="projects/hcmc-map/index.html" target="_blank" rel="noopener">HCMC Real Estate Intelligence</a></h3>
-            <p>An interactive price map of Ho Chi Minh City land, houses and apartments. Public listings are parsed with a local LLM, merged into unique properties and geocoded, then each property is valued from comparable properties nearby, with accuracy checked on held-out asking prices.</p>
-            <ul class="chips"><li>Python</li><li>pandas</li><li>NumPy</li><li>scikit-learn</li><li>Pydantic</li><li>BeautifulSoup</li><li>PyArrow</li><li>H3</li><li>pypdf</li><li>PostgreSQL</li><li>PostGIS</li><li>Docker</li><li>Ollama</li><li>Qwen2.5</li><li>pytest</li><li>MapLibre GL</li><li>OpenStreetMap</li></ul>
-            <p class="links"><a href="projects/hcmc-map/index.html" target="_blank" rel="noopener">Live map ↗</a></p>
-          </div>
-        </article>
-        <!-- To add a project, copy the <article> above (the image link is optional). -->
-      </div>
-      <p class="empty" id="filter-empty" hidden>No projects match this filter.</p>
-    </div>
-  </section>
-
-  <!-- Awards -->
-  <section id="awards" class="section alt">
-    <div class="container reveal">
-      <h2>Awards &amp; Honors</h2>
-      <ul class="rows">
-        <li><span class="year">Spring 2024</span><div><p class="pub-title">Departmental Honors in Mathematics</p><p class="meta">University of Kansas</p></div></li>
-        <li><span class="year">Oct 2023</span><div><p class="pub-title">Undergraduate Research Award ($1,000)</p><p class="meta">Department of Mathematics, University of Kansas</p></div></li>
-        <li><span class="year">Apr 2023</span><div><p class="pub-title">First Place, Kansas Collegiate Mathematics Competition</p></div></li>
-        <li><span class="year">Apr 2023</span><div><p class="pub-title">Black-Babcock/Rashleigh Family Mathematics Department Scholarship</p><p class="meta">University of Kansas</p></div></li>
-        <li><span class="year">Jan 2023</span><div><p class="pub-title">Member, Upsilon Pi Epsilon</p><p class="meta">Computer Science Honor Society</p></div></li>
-        <li><span class="year">Apr 2022</span><div><p class="pub-title">Charles Hobbs Mathematics Department Scholarship</p><p class="meta">University of Kansas</p></div></li>
-      </ul>
-    </div>
-  </section>
-
   <!-- Teaching -->
-  <section id="teaching" class="section">
+  <section id="teaching" class="section alt">
     <div class="container reveal">
       <h2>Teaching</h2>
       <ul class="rows">
@@ -247,6 +169,21 @@
         <li><span class="year">Aug 2022 &ndash; Jul 2023</span><div>
           <p class="pub-title">TRIO Tutor, Center for Educational Opportunity Programs, University of Kansas</p>
           <p class="meta">MATH 365 Elementary Statistics; MATH 125/126/127 Calculus I&ndash;III</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Awards -->
+  <section id="awards" class="section">
+    <div class="container reveal">
+      <h2>Awards &amp; Honors</h2>
+      <ul class="rows">
+        <li><span class="year">Spring 2024</span><div><p class="pub-title">Departmental Honors in Mathematics</p><p class="meta">University of Kansas</p></div></li>
+        <li><span class="year">Oct 2023</span><div><p class="pub-title">Undergraduate Research Award ($1,000)</p><p class="meta">Department of Mathematics, University of Kansas</p></div></li>
+        <li><span class="year">Apr 2023</span><div><p class="pub-title">First Place, Kansas Collegiate Mathematics Competition</p></div></li>
+        <li><span class="year">Apr 2023</span><div><p class="pub-title">Black-Babcock/Rashleigh Family Mathematics Department Scholarship</p><p class="meta">University of Kansas</p></div></li>
+        <li><span class="year">Jan 2023</span><div><p class="pub-title">Member, Upsilon Pi Epsilon</p><p class="meta">Computer Science Honor Society</p></div></li>
+        <li><span class="year">Apr 2022</span><div><p class="pub-title">Charles Hobbs Mathematics Department Scholarship</p><p class="meta">University of Kansas</p></div></li>
       </ul>
     </div>
   </section>

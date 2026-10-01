@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projects | Quoc Viet Le</title>
+  <meta name="description" content="Data analysis and machine learning projects by Quoc Viet Le: a Ho Chi Minh City real estate price map and a King County house price analysis.">
+  <meta name="theme-color" content="#0a4560">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='white'%3EQL%3C/text%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+    try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header">
+  <nav class="nav container" aria-label="Main">
+    <a class="brand" href="../index.html">Quoc Viet Le</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../index.html#about">About</a></li>
+      <li><a href="../index.html#publications">Publications</a></li>
+      <li><a href="../index.html#research">Research</a></li>
+      <li><a href="../index.html#teaching">Teaching</a></li>
+      <li><a href="../notes/index.html">Notes</a></li>
+      <li><a class="current" href="index.html">Projects</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
+    </ul>
+    <div class="nav-tools">
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span class="icon-sun" aria-hidden="true">☀</span><span class="icon-moon" aria-hidden="true">☾</span>
+      </button>
+      <button class="icon-btn menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="section">
+    <div class="container">
+      <h1 class="reveal">Projects</h1>
+      <div class="project-list">
+
+        <article class="card feature reveal">
+          <a class="feature-media" href="king-county/index.html" target="_blank" rel="noopener" aria-label="Open the King County report in a new tab">
+            <img src="king-county/preview.jpg" width="960" height="810" loading="lazy" alt="Map of King County house sales coloured by price, with downtown Seattle and Bellevue marked">
+          </a>
+          <div class="feature-body">
+            <h3><a href="king-county/index.html" target="_blank" rel="noopener">King County House Price Analysis</a></h3>
+            <p>An end-to-end analysis of 21,613 house sales in King County, Washington (the Seattle area), written in R. It covers a data-quality audit, exploratory analysis, ZIP-code and location features such as distance to downtown Seattle and Bellevue, and seven models compared under both random and time-based splits. The tuned XGBoost model reaches R&sup2; 0.88 and a median absolute percentage error of about 8% on held-out sales, and SHAP values show what drives its predictions.</p>
+            <ul class="chips"><li>R</li><li>glmnet</li><li>ranger</li><li>XGBoost</li><li>gbm</li><li>SHAP</li></ul>
+            <p class="links"><a href="king-county/index.html" target="_blank" rel="noopener">Read the report ↗</a></p>
+          </div>
+        </article>
+
+        <article class="card feature reveal">
+          <a class="feature-media" href="hcmc-map/index.html" target="_blank" rel="noopener" aria-label="Open the live map in a new tab">
+            <img src="hcmc-map/preview.jpg" width="960" height="600" loading="lazy" alt="Price map of Ho Chi Minh City: coloured property dots, ward and district pins, and a smoothed price cloud">
+          </a>
+          <div class="feature-body">
+            <h3><a href="hcmc-map/index.html" target="_blank" rel="noopener">HCMC Real Estate Intelligence</a></h3>
+            <p>An interactive price map of Ho Chi Minh City land, houses and apartments. Public listings are parsed with a local LLM, merged into unique properties and geocoded, then each property is valued from comparable properties nearby, with accuracy checked on held-out asking prices.</p>
+            <ul class="chips"><li>Python</li><li>pandas</li><li>NumPy</li><li>scikit-learn</li><li>Pydantic</li><li>BeautifulSoup</li><li>PyArrow</li><li>H3</li><li>pypdf</li><li>PostgreSQL</li><li>PostGIS</li><li>Docker</li><li>Ollama</li><li>Qwen2.5</li><li>pytest</li><li>MapLibre GL</li><li>OpenStreetMap</li></ul>
+            <p class="links"><a href="hcmc-map/index.html" target="_blank" rel="noopener">Live map ↗</a></p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; 2026 Quoc Viet Le. All rights reserved.</p>
+    <p><a href="#top">Back to top &uarr;</a></p>
+    <p class="ack">
+      Acknowledgments: the concept and design ideas of this site are the author&rsquo;s own;
+      the code was written by <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> (Anthropic).
+    </p>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">↑</button>
+
+<script src="../assets/js/main.js" defer></script>
+<script src="../assets/js/submarine.js" defer></script>
+</body>
+</html>

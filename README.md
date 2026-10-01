@@ -10,6 +10,8 @@ Plain static HTML + CSS (no build step, no theme dependency).
 index.html              # single-page portfolio (About, Research, Projects, Notes, Publications, Teaching, Contact)
 assets/css/style.css    # site styles (light/dark mode)
 assets/js/              # main.js (UI), aquarium.js (hero), submarine.js (cursor)
+projects/index.html    # list of projects
+projects/king-county/   # King County house price report (static HTML exported from the R analysis)
 projects/hcmc-map/      # public HCMC real-estate price map (data built by src/export_public_map.py in the Real-estate-project repo)
 notes/                  # reading notes with interactive figures
   index.html            #   list of notes
