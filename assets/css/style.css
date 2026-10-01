@@ -363,3 +363,13 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .js .reveal, .js .card.reveal { opacity: 1; transform: none; transition: none; }
   .card, .btn, .icon-btn, .tags li { transition: none; }
 }
+
+/* About & research interests */
+.about-lead { font-size: 1.12rem; max-width: 62ch; }
+.interests { list-style: none; counter-reset: i; margin: 1.4em 0; padding: 0; display: grid; gap: 14px; }
+.interests li { counter-increment: i; position: relative; padding: 16px 20px 16px 58px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.interests li::before { content: counter(i); position: absolute; left: 18px; top: 16px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; font-weight: 700; font-size: .9rem; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.interests h3 { margin: 0 0 .3em; font-size: 1.05rem; }
+.interests p { margin: 0; }
+.thread { max-width: 62ch; }
+.interests p, .interests h3 { max-width: none; }

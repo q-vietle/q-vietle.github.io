@@ -30,7 +30,6 @@
     <a class="brand" href="#top">Quoc Viet Le</a>
     <ul class="nav-links" id="nav-links">
       <li><a href="#about">About</a></li>
-      <li><a href="#research">Research</a></li>
       <li><a href="#notes">Notes</a></li>
       <li><a href="#projects">Projects</a></li>
       <li><a href="#publications">Publications</a></li>
@@ -69,34 +68,37 @@
     </div>
   </section>
 
-  <!-- About -->
+  <!-- About & research interests -->
   <section id="about" class="section">
     <div class="container reveal">
-      <h2>About</h2>
-      <!-- TODO: replace with your own bio -->
-      <p>
-        I am a Ph.D. student in Statistics at the University of Wisconsin&ndash;Madison.
-        [Write 2&ndash;3 sentences about your background, what you work on, and what you are looking for.]
+      <h2>About &amp; Research Interests</h2>
+      <p class="about-lead">
+        I am a Ph.D. student in Statistics at the University of Wisconsin&ndash;Madison. My research is organised around one question:
+        <em>when can we trust what a machine learning model tells us?</em>
       </p>
-    </div>
-  </section>
-
-  <!-- Research -->
-  <section id="research" class="section alt">
-    <div class="container reveal">
-      <h2>Research Interests</h2>
-      <!-- TODO: replace tags with your real research interests -->
+      <ol class="interests">
+        <li>
+          <h3>Understanding: interpretability</h3>
+          <p>A prediction is easier to trust when we can see what produced it. I study what models represent internally and which parts of them drive a decision, in classical learners and in modern networks and language models. The standard I hold explanations to is that they can be tested, not just told as plausible stories.</p>
+        </li>
+        <li>
+          <h3>Guaranteeing: distribution-free uncertainty</h3>
+          <p>An explanation does not tell us how often a model is wrong. Conformal prediction does: it turns almost any predictor into one with finite-sample coverage, with no assumption about the data distribution and no need for the model to be correct. I am interested in making these guarantees sharper and adaptive to each input, and in using what interpretability reveals (where the model is confident for the wrong reasons) to decide where intervals should be wide.</p>
+        </li>
+        <li>
+          <h3>Transferring: LLM intuition for classical tasks</h3>
+          <p>Language models solve problems nobody trained them for, through in-context learning and rich learned representations. I ask what this means for the tasks statisticians have worked on for decades, such as tabular prediction, regression and forecasting. The old tools in turn give a way to check the new ones: interpretability to see <em>what</em> an LLM uses on a classical task, and conformal prediction to say <em>how far</em> its answer can be believed.</p>
+        </li>
+      </ol>
+      <p class="thread"><strong>The thread:</strong> interpretability explains a model, conformal prediction certifies it, and LLM intuition proposes new models worth explaining and certifying.</p>
       <ul class="tags">
-        <li>[Research interest 1]</li>
-        <li>[Research interest 2]</li>
-        <li>[Research interest 3]</li>
-        <li>[Research interest 4]</li>
+        <li>Interpretable ML</li><li>Conformal prediction</li><li>Distribution-free inference</li><li>Uncertainty quantification</li><li>Language models</li><li>Classical statistical learning</li>
       </ul>
     </div>
   </section>
 
   <!-- Notes -->
-  <section id="notes" class="section">
+  <section id="notes" class="section alt">
     <div class="container">
       <h2 class="reveal">Notes</h2>
       <article class="card feature feature-narrow reveal">
@@ -135,7 +137,7 @@
   </section>
 
   <!-- Projects -->
-  <section id="projects" class="section alt">
+  <section id="projects" class="section">
     <div class="container">
       <h2 class="reveal">Projects</h2>
       <!-- Filter buttons are generated from the tech chips once there are 2+ projects -->
@@ -159,7 +161,7 @@
   </section>
 
   <!-- Publications -->
-  <section id="publications" class="section">
+  <section id="publications" class="section alt">
     <div class="container reveal">
       <h2>Publications</h2>
       <ol class="pubs">
@@ -177,7 +179,7 @@
   </section>
 
   <!-- Teaching -->
-  <section id="teaching" class="section alt">
+  <section id="teaching" class="section">
     <div class="container reveal">
       <h2>Teaching</h2>
       <ul class="rows">
@@ -188,20 +190,20 @@
   </section>
 
   <!-- Contact -->
-  <section id="contact" class="section">
+  <section id="contact" class="section alt">
     <div class="container reveal">
       <h2>Contact</h2>
       <p>Open to collaboration, research discussions, and opportunities. The best way to reach me is by email.</p>
       <ul class="contact-list">
-        <!-- TODO: replace with your real email (both the href and the text) -->
         <li>
           <strong>Email</strong>
           <span class="email-row">
-            <a id="email-link" href="mailto:your.email@wisc.edu">your.email@wisc.edu</a>
+            <a id="email-link" href="mailto:qle7@wisc.edu">qle7@wisc.edu</a>
             <button class="copy-btn" id="copy-email" type="button">Copy</button>
             <span class="sr-only" id="copy-status" role="status" aria-live="polite"></span>
           </span>
         </li>
+        <li><strong>Email (personal)</strong><a href="mailto:quocvietletwork@gmail.com">quocvietletwork@gmail.com</a></li>
         <li><strong>GitHub</strong><a href="https://github.com/q-vietle" target="_blank" rel="noopener">github.com/q-vietle</a></li>
         <li><strong>Affiliation</strong><span>Department of Statistics, University of Wisconsin&ndash;Madison</span></li>
       </ul>
